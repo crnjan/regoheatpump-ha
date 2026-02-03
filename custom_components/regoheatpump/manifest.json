@@ -1,0 +1,13 @@
+{
+  "domain": "regoheatpump",
+  "name": "Rego Heat Pump",
+  "codeowners": [
+    "@crnjan"
+  ],
+  "config_flow": true,
+  "documentation": "https://github.com/crnjan/regoheatpump-ha",
+  "iot_class": "local_polling",
+  "loggers": ["regoheatpump"],
+  "requirements": ["pyserial-asyncio-fast>=0.16"],
+  "version": "0.0.1"
+}
