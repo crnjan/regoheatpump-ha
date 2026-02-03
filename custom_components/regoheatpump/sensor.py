@@ -11,7 +11,6 @@ from homeassistant.components.sensor import (
     SensorEntityDescription,
     SensorStateClass,
     StateType,
-    timedelta,
 )
 from homeassistant.const import UnitOfTemperature, UnitOfTime
 from homeassistant.core import HomeAssistant
@@ -22,9 +21,6 @@ from .entity import RegoEntity
 from .rego600 import LastError, Register, Type
 
 _LOGGER = logging.getLogger(__name__)
-
-SCAN_INTERVAL = timedelta(seconds=60)
-PARALLEL_UPDATES = 1
 
 
 @dataclass(frozen=True)
