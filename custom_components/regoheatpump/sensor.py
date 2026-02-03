@@ -5,8 +5,6 @@ from dataclasses import dataclass
 import logging
 from typing import Any
 
-from rego600 import LastError, Register, Type
-
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
@@ -21,6 +19,7 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from . import RegoConfigEntry
 from .entity import RegoEntity
+from .rego600 import LastError, Register, Type
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -98,8 +97,7 @@ class RegoSensorEntity(SensorEntity, RegoEntity):
         super().__init__(entry, register)
         self.entity_description = entity_description
 
-    def process_value(self, value: float | LastError | None) -> None:
-        """Test."""
+    def _process_value(self, value: float | LastError | None) -> None:
         self._attr_native_value = self.entity_description.value_fn(value)
         self._attr_entity_registry_enabled_default = (
             self.entity_description.entity_enabled_fn(value)

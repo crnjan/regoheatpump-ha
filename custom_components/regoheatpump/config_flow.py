@@ -5,7 +5,6 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from rego600 import HeatPump
 import voluptuous as vol
 
 from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
@@ -14,6 +13,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 
 from .const import DOMAIN
+from .rego600 import HeatPump
 
 _LOGGER = logging.getLogger(__name__)
 

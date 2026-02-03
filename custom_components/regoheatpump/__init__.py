@@ -4,14 +4,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from rego600 import HeatPump
-
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_URL, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
 
 from .const import DOMAIN
+from .rego600 import HeatPump
 
 
 @dataclass

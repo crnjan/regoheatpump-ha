@@ -5,9 +5,9 @@ from asyncio import timeout as asyncio_timeout
 import logging
 from typing import Self
 
-from . import LastError
 from .connection import Connection
 from .decoders import Decoder
+from .last_error import LastError
 from .register import Register
 from .register_repository import RegisterRepository
 from .regoerror import RegoError

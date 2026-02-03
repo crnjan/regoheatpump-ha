@@ -1,23 +1,77 @@
 rules:
   # Bronze
-  action-setup: todo
-  appropriate-polling: todo
-  brands: todo
-  common-modules: todo
-  config-flow-test-coverage: todo
-  config-flow: todo
-  dependency-transparency: todo
-  docs-actions: todo
-  docs-high-level-description: todo
-  docs-installation-instructions: todo
-  docs-removal-instructions: todo
-  entity-event-setup: todo
-  entity-unique-id: todo
-  has-entity-name: todo
-  runtime-data: todo
-  test-before-configure: todo
-  test-before-setup: todo
-  unique-config-entry: todo
+  action-setup:
+    status: exempt
+    comment: |
+      This integration is in development and requires a manifest for debugging purposes.
+  appropriate-polling:
+    status: exempt
+    comment: |
+      This integration is in development and requires a manifest for debugging purposes.
+  brands:
+    status: exempt
+    comment: |
+      This integration is in development and requires a manifest for debugging purposes.
+  common-modules:
+    status: exempt
+    comment: |
+      This integration is in development and requires a manifest for debugging purposes.
+  config-flow-test-coverage:
+    status: exempt
+    comment: |
+      This integration is in development and requires a manifest for debugging purposes.
+  config-flow:
+    status: exempt
+    comment: |
+      This integration is in development and requires a manifest for debugging purposes.
+  dependency-transparency:
+    status: exempt
+    comment: |
+      This integration is in development and requires a manifest for debugging purposes.
+  docs-actions:
+    status: exempt
+    comment: |
+      This integration is in development and requires a manifest for debugging purposes.
+  docs-high-level-description:
+    status: exempt
+    comment: |
+      This integration is in development and requires a manifest for debugging purposes.
+  docs-installation-instructions:
+    status: exempt
+    comment: |
+      This integration is in development and requires a manifest for debugging purposes.
+  docs-removal-instructions:
+    status: exempt
+    comment: |
+      This integration is in development and requires a manifest for debugging purposes.
+  entity-event-setup:
+    status: exempt
+    comment: |
+      This integration is in development and requires a manifest for debugging purposes.
+  entity-unique-id:
+    status: exempt
+    comment: |
+      This integration is in development and requires a manifest for debugging purposes.
+  has-entity-name:
+    status: exempt
+    comment: |
+      This integration is in development and requires a manifest for debugging purposes.
+  runtime-data:
+    status: exempt
+    comment: |
+      This integration is in development and requires a manifest for debugging purposes.
+  test-before-configure:
+    status: exempt
+    comment: |
+      This integration is in development and requires a manifest for debugging purposes.
+  test-before-setup:
+    status: exempt
+    comment: |
+      This integration is in development and requires a manifest for debugging purposes.
+  unique-config-entry:
+    status: exempt
+    comment: |
+      This integration is in development and requires a manifest for debugging purposes.
 
   # Silver
   action-exceptions: todo

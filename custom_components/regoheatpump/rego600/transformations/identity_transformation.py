@@ -1,7 +1,7 @@
 """Test."""
 
-from ..heatpump import RegoError
 from ..last_error import LastError
+from ..regoerror import RegoError
 from .transformation import Transformation
 
 

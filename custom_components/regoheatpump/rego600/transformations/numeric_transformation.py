@@ -18,7 +18,7 @@ class NumericTransformation(Transformation):
         # -483 value marks "absence" of a sensor
         if value is None or value == -483:
             return None
-        if value is int:
+        if isinstance(value, int):
             return round(value * self.multiplier * 1 / self.multiplier) / (
                 1 / self.multiplier
             )

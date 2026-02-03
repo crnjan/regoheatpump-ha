@@ -2,8 +2,6 @@
 
 import logging
 
-from rego600 import LastError, Type
-
 from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.components.sensor import timedelta
 from homeassistant.core import HomeAssistant
@@ -11,6 +9,7 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from . import RegoConfigEntry
 from .entity import RegoEntity
+from .rego600 import LastError, Type
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -37,6 +36,5 @@ async def async_setup_entry(
 class RegoBinarySensorEntity(BinarySensorEntity, RegoEntity):
     """An entity using CoordinatorEntity."""
 
-    def process_value(self, value: float | LastError | None) -> None:
-        """Test."""
+    def _process_value(self, value: float | LastError | None) -> None:
         self.is_on = value != 0
