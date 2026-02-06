@@ -1,11 +1,14 @@
 """Test sensor."""
 
+from datetime import timedelta
 import logging
 
 from homeassistant.components.sensor import Entity
 
 from . import RegoConfigEntry
 from .rego600 import HeatPump, Identifiers, LastError, Register, RegoError
+
+POLL_INTERVAL = timedelta(minutes=1)
 
 _LOGGER = logging.getLogger(__name__)
 

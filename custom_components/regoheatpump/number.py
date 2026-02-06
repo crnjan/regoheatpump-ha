@@ -9,10 +9,13 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from . import RegoConfigEntry
-from .entity import RegoEntity
+from .entity import POLL_INTERVAL, RegoEntity
 from .rego600 import Identifiers, LastError, Register, Type
 
 _LOGGER = logging.getLogger(__name__)
+
+SCAN_INTERVAL = POLL_INTERVAL
+PARALLEL_UPDATES = 1
 
 
 @dataclass(frozen=True)
