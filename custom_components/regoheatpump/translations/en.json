@@ -1,0 +1,230 @@
+{
+    "config": {
+        "abort": {
+            "already_configured": "Device is already configured"
+        },
+        "error": {
+            "cannot_connect": "Failed to connect",
+            "unknown": "Unexpected error"
+        },
+        "step": {
+            "user": {
+                "data": {
+                    "url": "URL"
+                },
+                "description": "Please provide the serial interface of the heat pump"
+            }
+        }
+    },
+    "entity": {
+        "binary_sensor": {
+            "device_values-additional_heat_3kw": {
+                "name": "Additional heat 3kW"
+            },
+            "device_values-additional_heat_6kw": {
+                "name": "Additional heat 6kW"
+            },
+            "device_values-alarm": {
+                "name": "Alarm"
+            },
+            "device_values-cold_fluid_pump": {
+                "name": "Cold fluid pump"
+            },
+            "device_values-compressor": {
+                "name": "Compressor"
+            },
+            "device_values-heat_fluid_pump": {
+                "name": "Heat fluid pump"
+            },
+            "device_values-radiator_pump": {
+                "name": "Radiator pump"
+            },
+            "device_values-switch_valve": {
+                "name": "Switch valve",
+                "state": {
+                    "off": "Heating water",
+                    "on": "DHW"
+                }
+            },
+            "front_panel-additional_heat_lamp": {
+                "name": "Additional heat lamp"
+            },
+            "front_panel-alarm_lamp": {
+                "name": "Alarm lamp"
+            },
+            "front_panel-heat_pump_lamp": {
+                "name": "Heat pump lamp"
+            },
+            "front_panel-hot_water_lamp": {
+                "name": "DHW lamp"
+            },
+            "front_panel-power_lamp": {
+                "name": "Power lamp"
+            }
+        },
+        "number": {
+            "settings-adj_curve_at_0": {
+                "name": "Adjust heat curve at 0 \u00b0C"
+            },
+            "settings-adj_curve_at_10": {
+                "name": "Adjust heat curve at 10 \u00b0C"
+            },
+            "settings-adj_curve_at_15": {
+                "name": "Adjust heat curve at 15 \u00b0C"
+            },
+            "settings-adj_curve_at_20": {
+                "name": "Adjust heat curve at 20 \u00b0C"
+            },
+            "settings-adj_curve_at_5": {
+                "name": "Adjust heat curve at 5 \u00b0C"
+            },
+            "settings-adj_curve_at_minus_10": {
+                "name": "Adjust heat curve at -10 \u00b0C"
+            },
+            "settings-adj_curve_at_minus_15": {
+                "name": "Adjust heat curve at -15 \u00b0C"
+            },
+            "settings-adj_curve_at_minus_20": {
+                "name": "Adjust heat curve at -20 \u00b0C"
+            },
+            "settings-adj_curve_at_minus_25": {
+                "name": "Adjust heat curve at -25 \u00b0C"
+            },
+            "settings-adj_curve_at_minus_30": {
+                "name": "Adjust heat curve at -30 \u00b0C"
+            },
+            "settings-adj_curve_at_minus_35": {
+                "name": "Adjust heat curve at -35 \u00b0C"
+            },
+            "settings-adj_curve_at_minus_5": {
+                "name": "Adjust heat curve at -5 \u00b0C"
+            },
+            "settings-curve_infl_by_in_temp": {
+                "name": "Indoor sensor influence"
+            },
+            "settings-heat_curve": {
+                "name": "Heat curve"
+            },
+            "settings-heat_curve_2": {
+                "name": "Heat curve 2"
+            },
+            "settings-heat_curve_2_fine_adj": {
+                "name": "Heat curve 2 fine tune"
+            },
+            "settings-heat_curve_coupling_diff": {
+                "name": "Heat curve coupling diff"
+            },
+            "settings-heat_curve_fine_adj": {
+                "name": "Heat curve fine tune"
+            },
+            "settings-hot_water_target": {
+                "name": "DHW target"
+            },
+            "settings-hot_water_target_hysteresis": {
+                "name": "DHW hysteresis"
+            },
+            "settings-indoor_temp_setting": {
+                "name": "Indoor target"
+            },
+            "settings-summer_disconnection": {
+                "name": "Summer disconnection"
+            }
+        },
+        "sensor": {
+            "control_data-add_heat_power_percent": {
+                "name": "Additional heat power"
+            },
+            "control_data-hot_water_off": {
+                "name": "DHW off"
+            },
+            "control_data-hot_water_on": {
+                "name": "DHW on"
+            },
+            "control_data-radiator_forward_target": {
+                "name": "Radiator forward target"
+            },
+            "control_data-radiator_return_off": {
+                "name": "Radiator return off"
+            },
+            "control_data-radiator_return_on": {
+                "name": "Radiator return on"
+            },
+            "control_data-radiator_return_target": {
+                "name": "Radiator return target"
+            },
+            "info-last_error": {
+                "name": "Last error",
+                "state": {
+                    "0": "Sensor radiator return (GT1)",
+                    "1": "Outdoor sensor (GT2)",
+                    "10": "Compressor circuit switch",
+                    "11": "Electrical cassette",
+                    "12": "HTF C=pump switch (MB2)",
+                    "13": "Low pressure switch (LP)",
+                    "14": "High pressure switch (HP)",
+                    "15": "High return HP (GT9)",
+                    "16": "HTF out max (GT8)",
+                    "17": "HTF in under limit (GT10)",
+                    "18": "HTF out under limit (GT11)",
+                    "19": "Compressor superheat (GT6)",
+                    "2": "Sensor hot water (GT3)",
+                    "20": "Three phase incorrect order",
+                    "21": "Power failure",
+                    "22": "High delta GT8/GT9",
+                    "3": "Mixing valve sensor (GT4)",
+                    "4": "Room sensor (GT5)",
+                    "5": "Sensor compressor (GT6)",
+                    "6": "Sensor heat transfer fluid out (GT8)",
+                    "7": "Sensor heat transfer fluid in (GT9)",
+                    "8": "Sensor cold transfer fluid in (GT10)",
+                    "9": "Sensor cold transfer fluid in (GT11)"
+                }
+            },
+            "operating_times-add_heat_in_operation_dhw": {
+                "name": "Add. heat in oper. - radiators"
+            },
+            "operating_times-add_heat_in_operation_rad": {
+                "name": "Add. heat in oper. - DHW"
+            },
+            "operating_times-heat_pump_in_operation_dhw": {
+                "name": "HP in oper. - DHW"
+            },
+            "operating_times-heat_pump_in_operation_rad": {
+                "name": "HP in oper. - radiators"
+            },
+            "sensor_values-cold_fluid_in": {
+                "name": "Cold fluid in"
+            },
+            "sensor_values-cold_fluid_out": {
+                "name": "Cold fluid out"
+            },
+            "sensor_values-compressor": {
+                "name": "Compressor"
+            },
+            "sensor_values-external_hot_water": {
+                "name": "DHW external"
+            },
+            "sensor_values-heat_fluid_in": {
+                "name": "Heat fluid in"
+            },
+            "sensor_values-heat_fluid_out": {
+                "name": "Heat fluid out"
+            },
+            "sensor_values-hot_water": {
+                "name": "DHW"
+            },
+            "sensor_values-indoor": {
+                "name": "Indoor"
+            },
+            "sensor_values-outdoor": {
+                "name": "Outdoor"
+            },
+            "sensor_values-radiator_forward": {
+                "name": "Radiator forward"
+            },
+            "sensor_values-radiator_return": {
+                "name": "Radiator return"
+            }
+        }
+    }
+}
