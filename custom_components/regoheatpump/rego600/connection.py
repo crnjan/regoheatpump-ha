@@ -1,32 +1,32 @@
-"""Test."""
+"""Abstract transport interface for Rego communication."""
 
 from abc import ABC, abstractmethod
 
 
 class Connection(ABC):
-    """Test."""
+    """Transport interface used by the heat pump client."""
 
     @property
     @abstractmethod
     def is_connected(self) -> bool:
-        """Test."""
+        """Return True if the transport is connected."""
 
     @abstractmethod
     async def connect(self) -> None:
-        """Test."""
+        """Open the transport connection."""
 
     @abstractmethod
     async def close(self) -> None:
-        """Test."""
+        """Close the transport connection."""
 
     @abstractmethod
     async def read(self, length: int) -> bytes:
-        """Test."""
+        """Read exactly `length` bytes."""
 
     @abstractmethod
     async def write(self, buffer: bytes) -> None:
-        """Test."""
+        """Write bytes to the transport."""
 
     @abstractmethod
     async def clear_reader_buffer(self, timeout: float) -> bytes | None:
-        """Test."""
+        """Drain any pending bytes from the reader."""

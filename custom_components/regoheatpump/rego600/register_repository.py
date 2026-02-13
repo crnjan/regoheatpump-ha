@@ -86,7 +86,8 @@ class RegisterRepository:
                 address=0x0213,
             ),
             # System registers, control data
-            # TODO1: check transformation and unit?
+            # Verify correct scaling and unit conversion for this register.
+            # Disabled until correct register type and scaling are confirmed.
             # RegisterFactory.system_temperature(
             #    identifier=Identifiers.CONTROL_DATA_ADDHEAT_POWER_PERCENT,
             #    address=0x006C,

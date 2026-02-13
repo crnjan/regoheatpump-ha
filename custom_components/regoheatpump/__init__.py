@@ -15,7 +15,7 @@ from .rego600 import HeatPump
 
 @dataclass
 class RegoHeatPumpRuntimeData:
-    """Foo bar."""
+    """Runtime data stored on the config entry."""
 
     heat_pump: HeatPump
     device_info: DeviceInfo

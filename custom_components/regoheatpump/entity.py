@@ -1,4 +1,4 @@
-"""Test sensor."""
+"""Base entity for Rego heat pump registers."""
 
 from datetime import timedelta
 import logging
@@ -50,7 +50,7 @@ _ENABLED_ENTITIES = [
 
 
 class RegoEntity(Entity):
-    """An entity using CoordinatorEntity."""
+    """Base entity representing a single heat pump register."""
 
     _heat_pump: HeatPump
     _register: Register
@@ -58,7 +58,7 @@ class RegoEntity(Entity):
     _attr_has_entity_name = True
 
     def __init__(self, entry: RegoConfigEntry, register: Register) -> None:
-        """Test."""
+        """Initialize entity metadata and register binding."""
         super().__init__()
 
         self._heat_pump = entry.runtime_data.heat_pump
@@ -72,11 +72,11 @@ class RegoEntity(Entity):
         )
 
     async def async_added_to_hass(self) -> None:
-        """Run when about to be added to hass."""
+        """Trigger initial state update when entity is added."""
         self.async_schedule_update_ha_state(True)
 
     async def async_update(self) -> None:
-        """Update."""
+        """Fetch latest register value from heat pump."""
         try:
             self._process_value(await self._heat_pump.read(self._register))
             self._attr_available = True

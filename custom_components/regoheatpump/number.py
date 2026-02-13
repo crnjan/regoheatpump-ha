@@ -1,4 +1,4 @@
-"""Test sensor."""
+"""Number platform for writable Rego heat pump registers."""
 
 from dataclasses import dataclass
 import logging
@@ -24,7 +24,7 @@ PARALLEL_UPDATES = 1
 
 @dataclass(frozen=True)
 class ValueDescription:
-    """Describes Example sensor entity."""
+    """Defines allowed value range for writable register."""
 
     min: int
     max: int
@@ -56,7 +56,7 @@ async def async_setup_entry(
     entry: RegoConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
-    """Test."""
+    """Set up number entities for writable registers."""
     async_add_entities(
         RegoNumberEntity(entry, register)
         for register in entry.runtime_data.heat_pump.registers
@@ -65,10 +65,10 @@ async def async_setup_entry(
 
 
 class RegoNumberEntity(NumberEntity, RegoEntity):
-    """An entity using CoordinatorEntity."""
+    """Entity representing a writable heat pump register."""
 
     def __init__(self, entry: RegoConfigEntry, register: Register) -> None:
-        """Test."""
+        """Initialize writable register entity."""
         super().__init__(entry, register)
         self.entity_description = _DESCRIPTIONS[register.type]
         self._attr_native_step = 0.1
@@ -79,7 +79,7 @@ class RegoNumberEntity(NumberEntity, RegoEntity):
         self._attr_native_max_value = description.max
 
     async def async_set_native_value(self, value: float) -> None:
-        """Update the current value."""
+        """Write new value to heat pump register."""
         await self._heat_pump.write(self._register, value)
 
     def _process_value(self, value: float | LastError | None) -> None:

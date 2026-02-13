@@ -1,11 +1,11 @@
-"""Test."""
+"""Models for decoded last error information."""
 
 import datetime
 from typing import NamedTuple
 
 
 class LastError(NamedTuple):
-    """Test."""
+    """Decoded last error payload."""
 
     code: int
     timestamp: datetime.datetime

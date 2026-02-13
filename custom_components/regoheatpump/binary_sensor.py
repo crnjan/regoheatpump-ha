@@ -1,4 +1,4 @@
-"""bar."""
+"""Binary sensor platform for Rego heat pump switches."""
 
 import logging
 
@@ -21,7 +21,7 @@ async def async_setup_entry(
     entry: RegoConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
-    """Foo."""
+    """Set up binary sensors for readable switch registers."""
     async_add_entities(
         RegoBinarySensorEntity(entry, register)
         for register in entry.runtime_data.heat_pump.registers

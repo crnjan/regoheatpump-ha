@@ -1,4 +1,4 @@
-"""Test."""
+"""Helpers for creating common register definitions."""
 
 from .decoders import Decoders
 from .identifier import Identifier
@@ -9,11 +9,11 @@ from .type import Type
 
 
 class RegisterFactory:
-    """Test."""
+    """Factory for typed Register instances."""
 
     @staticmethod
     def version(identifier: Identifier) -> Register:
-        """Test."""
+        """Create the version register."""
         return Register(
             identifier=identifier,
             source=Sources.VERSION,
@@ -25,7 +25,7 @@ class RegisterFactory:
 
     @staticmethod
     def last_error(identifier: Identifier) -> Register:
-        """Test."""
+        """Create the last error register."""
         return Register(
             identifier=identifier,
             source=Sources.LAST_ERROR,
@@ -37,7 +37,7 @@ class RegisterFactory:
 
     @staticmethod
     def front_panel_switch(identifier: Identifier, address: int) -> Register:
-        """Test."""
+        """Create a front panel switch register."""
         return Register(
             identifier=identifier,
             source=Sources.FRONT_PANEL,
@@ -51,7 +51,7 @@ class RegisterFactory:
     def system_temperature(
         identifier: Identifier, address: int, is_writtable: bool = False
     ) -> Register:
-        """Test."""
+        """Create a system temperature register."""
         return Register(
             identifier=identifier,
             source=Sources.SYSTEM,
@@ -66,7 +66,7 @@ class RegisterFactory:
     def system_unitless(
         identifier: Identifier, address: int, is_writtable: bool = False
     ) -> Register:
-        """Test."""
+        """Create a unitless system register."""
         return Register(
             identifier=identifier,
             source=Sources.SYSTEM,
@@ -79,7 +79,7 @@ class RegisterFactory:
 
     @staticmethod
     def system_switch(identifier: Identifier, address: int) -> Register:
-        """Test."""
+        """Create a system switch register."""
         return Register(
             identifier=identifier,
             source=Sources.SYSTEM,
@@ -91,7 +91,7 @@ class RegisterFactory:
 
     @staticmethod
     def system_hours(identifier: Identifier, address: int) -> Register:
-        """Test."""
+        """Create a system hours register."""
         return Register(
             identifier=identifier,
             source=Sources.SYSTEM,

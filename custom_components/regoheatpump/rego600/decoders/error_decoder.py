@@ -1,4 +1,4 @@
-"""Test."""
+"""Decoder for last error payload."""
 
 import datetime
 
@@ -8,11 +8,11 @@ from .abstract_decoder import AbstractDecoder
 
 
 class ErrorDecoder(AbstractDecoder):
-    """Test."""
+    """Decode the last error response."""
 
     @property
     def length(self) -> int:
-        """Test."""
+        """Return expected response length."""
         return 42
 
     def _convert(self, buffer: bytes) -> LastError | None:

@@ -1,10 +1,10 @@
-"""Test."""
+"""Protocol command sources for Rego register groups."""
 
 from .source import Source
 
 
 class Sources:
-    """Test."""
+    """Shared Source instances used to build commands."""
 
     FRONT_PANEL = Source(read=0x00)
     SYSTEM = Source(read=0x02, write=0x03)

@@ -1,4 +1,4 @@
-"""Test."""
+"""Register definition and command payload builder."""
 
 from dataclasses import dataclass
 from typing import NamedTuple
@@ -14,7 +14,7 @@ from .value_converter import int16_to_seven_bit_format
 
 @dataclass(frozen=True)
 class Register:
-    """Test."""
+    """Definition of a single heat pump register."""
 
     identifier: Identifier
     source: Source
@@ -25,20 +25,20 @@ class Register:
     is_writtable: bool = False
 
     class Command(NamedTuple):
-        """Test."""
+        """Command payload with decode/transform metadata."""
 
         payload: bytes
         decoder: Decoder
         transformation: Transformation
 
     def read(self) -> Command:
-        """Test."""
+        """Build a read command for this register."""
         return Register.Command(
             self.__payload(self.source.read, 0), self.decoder, self.transformation
         )
 
     def write(self, data: int) -> Command:
-        """Test."""
+        """Build a write command for this register."""
         if self.source.write is None:
             raise TypeError
         return Register.Command(

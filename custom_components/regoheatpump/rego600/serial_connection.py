@@ -1,4 +1,4 @@
-"""Test."""
+"""Async serial transport for Rego controller communication."""
 
 import asyncio
 
@@ -9,27 +9,27 @@ from .regoerror import RegoError
 
 
 class SerialConnection(Connection):
-    """Test."""
+    """Serial-based Connection implementation."""
 
     def __init__(self, url) -> None:
-        """Test."""
+        """Initialize the serial connection."""
         self.__url = url
         self.__reader = None
         self.__writter = None
 
     @property
     def is_connected(self) -> bool:
-        """Test."""
+        """Return True if the serial connection is open."""
         return self.__reader is not None
 
     async def connect(self) -> None:
-        """Test."""
+        """Open the serial connection."""
         self.__reader, self.__writter = await serial_asyncio.open_serial_connection(
             url=self.__url, baudrate=19200
         )
 
     async def close(self) -> None:
-        """Test."""
+        """Close the serial connection."""
         if self.__writter is not None:
             self.__writter.close()
             await self.__writter.wait_closed()
@@ -37,20 +37,20 @@ class SerialConnection(Connection):
         self.__reader = None
 
     async def read(self, length: int) -> bytes:
-        """Test."""
+        """Read exactly `length` bytes from the controller."""
         if self.__reader is None:
             raise RegoError("Reader is not opened")
         return await self.__reader.readexactly(length)
 
     async def write(self, buffer: bytes) -> None:
-        """Test."""
+        """Write bytes to the controller."""
         if self.__writter is None:
             raise RegoError("Writter is not opened")
         self.__writter.write(buffer)
         await self.__writter.drain()
 
     async def clear_reader_buffer(self, timeout: float) -> bytes | None:
-        """Test."""
+        """Drain any pending bytes from the reader."""
         if self.__reader is None:
             raise RegoError("Reader is not opened")
         try:

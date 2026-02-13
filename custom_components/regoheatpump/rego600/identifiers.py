@@ -1,11 +1,11 @@
-"""Test."""
+"""Known register identifiers for Rego 600."""
 
 from .group import Group
 from .identifier import Identifier
 
 
 class Identifiers:
-    """Test."""
+    """Collection of known register identifiers."""
 
     # HP version
     VERSION = Identifier(id="version", group=Group.INFO)

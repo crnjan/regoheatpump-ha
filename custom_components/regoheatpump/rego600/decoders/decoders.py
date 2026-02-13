@@ -1,4 +1,4 @@
-"""Test."""
+"""Shared decoder instances."""
 
 from .empty_decoder import EmptyDecoder
 from .error_decoder import ErrorDecoder
@@ -6,7 +6,7 @@ from .int16_decoder import Int16Decoder
 
 
 class Decoders:
-    """Test."""
+    """Namespace for shared decoders."""
 
     EMPTY = EmptyDecoder()
     ERROR = ErrorDecoder()

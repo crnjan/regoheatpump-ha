@@ -1,5 +1,5 @@
-"""Test."""
+"""Error types for Rego communication and decoding."""
 
 
 class RegoError(Exception):
-    """Test."""
+    """Raised on protocol/transport errors."""

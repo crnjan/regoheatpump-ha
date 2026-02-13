@@ -1,10 +1,10 @@
-"""Test."""
+"""Supported register value types."""
 
 from enum import Enum, auto
 
 
 class Type(Enum):
-    """Test."""
+    """Register value type."""
 
     TEMPERATURE = auto()
     SWITCH = auto()

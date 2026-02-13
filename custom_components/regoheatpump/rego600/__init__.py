@@ -1,4 +1,4 @@
-"""Test."""
+"""Rego 600 protocol client and models."""
 
 from .group import Group
 from .heatpump import HeatPump

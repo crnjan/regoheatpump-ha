@@ -1,4 +1,4 @@
-"""Provides TODO."""
+"""Client for reading and writing Rego 600 registers."""
 
 import asyncio
 from asyncio import timeout as asyncio_timeout
@@ -19,16 +19,16 @@ _RETRIES: int = 3
 
 
 class HeatPump:
-    """Test."""
+    """High-level API for Rego controller communication."""
 
     def __init__(self, connection: Connection) -> None:
-        """Test."""
+        """Initialize the client with a transport connection."""
         self.__connection = connection
         self.__lock = asyncio.Lock()
 
     @classmethod
     def connect(cls, url: str) -> Self:
-        """Test."""
+        """Create a client for the given serial URL."""
         connection = SerialConnection(url)
         return cls(connection)
 
@@ -38,11 +38,11 @@ class HeatPump:
         return RegisterRepository.registers()
 
     async def dispose(self):
-        """Test."""
+        """Close the underlying connection."""
         await self.__connection.close()
 
     async def verify(self, retry: int = _RETRIES) -> None:
-        """Test."""
+        """Verify the controller version."""
         _LOGGER.debug("Reading Rego device version")
         register = RegisterRepository.version()
         version = await self.__send(*register.read(), retry)
@@ -54,13 +54,13 @@ class HeatPump:
     async def read(
         self, register: Register, retry: int = _RETRIES
     ) -> float | LastError | None:
-        """Test."""
+        """Read a register value."""
         return await self.__send(*register.read(), retry)
 
     async def write(
         self, register: Register, value: float, retry: int = _RETRIES
     ) -> None:
-        """Test."""
+        """Write a register value."""
         transformed = register.transformation.from_value(value)
         await self.__send(*register.write(transformed), retry)
 

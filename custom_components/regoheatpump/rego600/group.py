@@ -1,10 +1,10 @@
-"""Test."""
+"""Register groups used for namespacing identifiers."""
 
 from enum import Enum
 
 
 class Group(Enum):
-    """Test."""
+    """Logical register group."""
 
     SENSOR_VALUES = "sensor_values"
     CONTROL_DATA = "control_data"

@@ -1,4 +1,4 @@
-"""Test."""
+"""Numeric scaling transformation."""
 
 from dataclasses import dataclass
 
@@ -9,12 +9,12 @@ from .transformation import Transformation
 
 @dataclass(frozen=True)
 class NumericTransformation(Transformation):
-    """Test."""
+    """Scale raw int values using a multiplier."""
 
     multiplier: float
 
     def to_value(self, value: int | LastError | None) -> float | LastError | None:
-        """Test."""
+        """Convert raw value to a scaled float."""
         # -483 value marks "absence" of a sensor
         if value is None or value == -483:
             return None
@@ -25,5 +25,5 @@ class NumericTransformation(Transformation):
         raise RegoError("Unsupported transformation")
 
     def from_value(self, value: float) -> int:
-        """Test."""
+        """Convert scaled float to raw int."""
         return round(value / self.multiplier)

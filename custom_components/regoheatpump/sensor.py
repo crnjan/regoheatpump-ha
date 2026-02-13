@@ -1,4 +1,4 @@
-"""Test sensor."""
+"""Sensor platform for Rego heat pump registers."""
 
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -28,7 +28,7 @@ PARALLEL_UPDATES = 1
 
 @dataclass(frozen=True)
 class RegoSensorEntityDescription(SensorEntityDescription):
-    """Describes Example sensor entity."""
+    """Entity description for Rego sensor register."""
 
     value_fn: Callable[[float | LastError | None], StateType] = lambda v: (
         v if not isinstance(v, LastError) else None
@@ -66,7 +66,7 @@ async def async_setup_entry(
     entry: RegoConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
-    """Test."""
+    """Set up Rego sensor entities from readable registers."""
     async_add_entities(
         RegoSensorEntity(entry, register, _DESCRIPTIONS[register.type])
         for register in entry.runtime_data.heat_pump.registers
@@ -75,7 +75,7 @@ async def async_setup_entry(
 
 
 class RegoSensorEntity(SensorEntity, RegoEntity):
-    """An entity using CoordinatorEntity."""
+    """An entity using RegoEntity."""
 
     entity_description: RegoSensorEntityDescription
 
@@ -85,7 +85,7 @@ class RegoSensorEntity(SensorEntity, RegoEntity):
         register: Register,
         entity_description: RegoSensorEntityDescription,
     ) -> None:
-        """Test."""
+        """Initialize sensor entity for a specific register."""
         super().__init__(entry, register)
         self.entity_description = entity_description
 

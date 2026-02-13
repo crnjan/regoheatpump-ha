@@ -1,4 +1,4 @@
-"""Test."""
+"""Decoder exports."""
 
 from .decoder import Decoder
 from .decoders import Decoders
