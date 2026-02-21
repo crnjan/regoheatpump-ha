@@ -59,6 +59,23 @@ def test_device_values_compressor():
         expectedValue=1,
     )
 
+def test_system_reg_operating_times_hp_in_oper_rad():
+    verify_read(
+        identifer=Identifiers.OPERATING_TIMES_HP_IN_OPERATION_RAD,
+        expectedPayload=b"\x81\x02\x00\x00\x48\x00\x00\x00\x48",
+        responseBytes=b"\x01\x01\x67\x1b\x7d",
+        expectedDecodedValue=29595,
+        expectedValue=29595,
+    )
+
+def test_system_reg_operating_times_hp_in_oper_rad_uint16():
+    verify_read(
+        identifer=Identifiers.OPERATING_TIMES_HP_IN_OPERATION_RAD,
+        expectedPayload=b"\x81\x02\x00\x00\x48\x00\x00\x00\x48",
+        responseBytes=b"\x01\x02\x06\x3b\x3f",
+        expectedDecodedValue=33595,
+        expectedValue=33595,
+    )
 
 def test_settings_heat_curve():
     register = verify_read(

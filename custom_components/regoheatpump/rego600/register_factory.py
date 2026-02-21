@@ -96,7 +96,7 @@ class RegisterFactory:
             identifier=identifier,
             source=Sources.SYSTEM,
             address=address,
-            decoder=Decoders.INT_16,
+            decoder=Decoders.UINT_16,
             transformation=Transformations.IDENTITY,
             type=Type.HOURS,
         )
