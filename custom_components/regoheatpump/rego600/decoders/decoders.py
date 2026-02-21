@@ -3,7 +3,7 @@
 from .empty_decoder import EmptyDecoder
 from .error_decoder import ErrorDecoder
 from .int16_decoder import Int16Decoder
-
+from .uint16_decoder import UInt16Decoder
 
 class Decoders:
     """Namespace for shared decoders."""
@@ -11,3 +11,4 @@ class Decoders:
     EMPTY = EmptyDecoder()
     ERROR = ErrorDecoder()
     INT_16 = Int16Decoder()
+    UINT_16 = UInt16Decoder()
