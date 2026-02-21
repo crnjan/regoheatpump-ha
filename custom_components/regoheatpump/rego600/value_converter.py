@@ -7,14 +7,9 @@ def int16_to_seven_bit_format(value: int) -> bytes:
 
 
 def seven_bit_format_to_uint16(buffer: bytes, offset: int) -> int:
-    """Decode 3x 7-bit bytes into an unsigned int16."""
+    """Decode 3x 7-bit bytes into a uint16."""
     return buffer[offset] << 14 | buffer[offset + 1] << 7 | buffer[offset + 2]
 
-
-def seven_bit_format_to_int16(buffer: bytes, offset: int) -> int:
-    """Decode 3x 7-bit bytes into a signed int16."""
-    value = seven_bit_format_to_uint16(buffer, offset)
-    return value if (value & 0x8000) == 0 else value - 0x10000
 
 def array_to_byte(buffer: bytes, offset: int) -> int:
     """Combine two nibbles from the buffer into a byte."""

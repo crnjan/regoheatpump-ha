@@ -5,6 +5,7 @@ from .error_decoder import ErrorDecoder
 from .int16_decoder import Int16Decoder
 from .uint16_decoder import UInt16Decoder
 
+
 class Decoders:
     """Namespace for shared decoders."""
 

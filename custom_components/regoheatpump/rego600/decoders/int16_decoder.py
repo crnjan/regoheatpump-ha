@@ -1,16 +1,11 @@
 """Decoder for int16 register responses."""
 
-from ..value_converter import seven_bit_format_to_int16
-from .abstract_decoder import AbstractDecoder
+from .uint16_decoder import UInt16Decoder
 
 
-class Int16Decoder(AbstractDecoder):
+class Int16Decoder(UInt16Decoder):
     """Decode a signed int16 value."""
 
-    @property
-    def length(self) -> int:
-        """Return expected response length."""
-        return 5
-
     def _convert(self, buffer: bytes) -> int:
-        return seven_bit_format_to_int16(buffer, 1)
+        value = super()._convert(buffer)
+        return value if (value & 0x8000) == 0 else value - 0x10000

@@ -5,7 +5,7 @@ from .abstract_decoder import AbstractDecoder
 
 
 class UInt16Decoder(AbstractDecoder):
-    """Decode a signed int16 value."""
+    """Decode an unsigned int16 value."""
 
     @property
     def length(self) -> int:
