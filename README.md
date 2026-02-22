@@ -1,7 +1,10 @@
 # Rego Heat Pump Home Assistant Integration
 
+[![GitHub Release](https://img.shields.io/github/v/release/crnjan/regoheatpump-ha.svg)](https://github.com/crnjan/regoheatpump-ha/releases)
+[![Home Assistant](https://img.shields.io/badge/Home%20Assistant-Integration-41BDF5?logo=home-assistant&logoColor=white)](https://www.home-assistant.io/)
 [![HACS](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://hacs.xyz/)
-![GitHub release](https://img.shields.io/github/v/release/crnjan/regoheatpump-ha)
+[![Home Assistant Validation](https://github.com/crnjan/regoheatpump-ha/actions/workflows/hassfest.yaml/badge.svg)](https://github.com/crnjan/regoheatpump-ha/actions/workflows/hassfest.yaml)
+[![HACS Validation](https://github.com/crnjan/regoheatpump-ha/actions/workflows/hacs_validate.yml/badge.svg)](https://github.com/crnjan/regoheatpump-ha/actions/workflows/hacs_validate.yml)
 
 Custom Home Assistant integration for **Rego 6xx heat pump controllers**.
 
