@@ -49,7 +49,7 @@ class RegisterFactory:
 
     @staticmethod
     def system_temperature(
-        identifier: Identifier, address: int, is_writtable: bool = False
+        identifier: Identifier, address: int, is_writable: bool = False
     ) -> Register:
         """Create a system temperature register."""
         return Register(
@@ -59,12 +59,12 @@ class RegisterFactory:
             decoder=Decoders.INT_16,
             transformation=Transformations.NUMERIC_ONE_TENTH,
             type=Type.TEMPERATURE,
-            is_writtable=is_writtable,
+            is_writable=is_writable,
         )
 
     @staticmethod
     def system_unitless(
-        identifier: Identifier, address: int, is_writtable: bool = False
+        identifier: Identifier, address: int, is_writable: bool = False
     ) -> Register:
         """Create a unitless system register."""
         return Register(
@@ -74,7 +74,7 @@ class RegisterFactory:
             decoder=Decoders.INT_16,
             transformation=Transformations.NUMERIC_ONE_TENTH,
             type=Type.UNITLESS,
-            is_writtable=is_writtable,
+            is_writable=is_writable,
         )
 
     @staticmethod

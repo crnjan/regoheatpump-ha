@@ -15,7 +15,7 @@ class SerialConnection(Connection):
         """Initialize the serial connection."""
         self.__url = url
         self.__reader = None
-        self.__writter = None
+        self.__writer = None
 
     @property
     def is_connected(self) -> bool:
@@ -24,16 +24,16 @@ class SerialConnection(Connection):
 
     async def connect(self) -> None:
         """Open the serial connection."""
-        self.__reader, self.__writter = await serial_asyncio.open_serial_connection(
+        self.__reader, self.__writer = await serial_asyncio.open_serial_connection(
             url=self.__url, baudrate=19200
         )
 
     async def close(self) -> None:
         """Close the serial connection."""
-        if self.__writter is not None:
-            self.__writter.close()
-            await self.__writter.wait_closed()
-        self.__writter = None
+        if self.__writer is not None:
+            self.__writer.close()
+            await self.__writer.wait_closed()
+        self.__writer = None
         self.__reader = None
 
     async def read(self, length: int) -> bytes:
@@ -44,10 +44,10 @@ class SerialConnection(Connection):
 
     async def write(self, buffer: bytes) -> None:
         """Write bytes to the controller."""
-        if self.__writter is None:
-            raise RegoError("Writter is not opened")
-        self.__writter.write(buffer)
-        await self.__writter.drain()
+        if self.__writer is None:
+            raise RegoError("Writer is not opened")
+        self.__writer.write(buffer)
+        await self.__writer.drain()
 
     async def clear_reader_buffer(self, timeout: float) -> bytes | None:
         """Drain any pending bytes from the reader."""

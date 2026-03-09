@@ -1,9 +1,9 @@
 import datetime
 import pytest
 
-from rego600.last_error import LastError
-from rego600.regoerror import RegoError
-from rego600.transformations.numeric_transformation import NumericTransformation
+from custom_components.regoheatpump.rego600.last_error import LastError
+from custom_components.regoheatpump.rego600.regoerror import RegoError
+from custom_components.regoheatpump.rego600.transformations.numeric_transformation import NumericTransformation
 
 def test_to_value_should_mul_10():
     transformation = NumericTransformation(multiplier=10)

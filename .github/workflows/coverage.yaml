@@ -16,7 +16,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r requirements.txt -r requirements_test.txt
       - name: Test with pytest
         run: |
-          PYTHONPATH=custom_components/regoheatpump/ pytest --cov=rego600 tests
+          PYTHONPATH=. pytest tests --asyncio-mode=auto --cov=custom_components/regoheatpump

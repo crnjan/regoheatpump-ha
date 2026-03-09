@@ -1,8 +1,8 @@
 import pytest
 
-from rego600 import Identifier, Register
-from rego600.identifiers import Identifiers
-from rego600.register_repository import RegisterRepository
+from custom_components.regoheatpump.rego600 import Identifier, Register
+from custom_components.regoheatpump.rego600.identifiers import Identifiers
+from custom_components.regoheatpump.rego600.register_repository import RegisterRepository
 
 
 def verify_read(
@@ -91,7 +91,7 @@ def test_settings_heat_curve():
     assert command.decoder.decode(b"\x01") == 0
     assert command.transformation.to_value(0) == 0
     assert str(register.identifier) == "settings-heat_curve"
-    assert register.is_writtable
+    assert register.is_writable
 
 
 def test_front_panel_power_lamp():
@@ -102,7 +102,7 @@ def test_front_panel_power_lamp():
         expectedDecodedValue=1,
         expectedValue=1,
     )
-    assert not register.is_writtable
+    assert not register.is_writable
     with pytest.raises(TypeError):
         register.write(0)
 

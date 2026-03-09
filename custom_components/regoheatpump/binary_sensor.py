@@ -25,7 +25,7 @@ async def async_setup_entry(
     async_add_entities(
         RegoBinarySensorEntity(entry, register)
         for register in entry.runtime_data.heat_pump.registers
-        if register.type == Type.SWITCH and not register.is_writtable
+        if register.type == Type.SWITCH and not register.is_writable
     )
 
 
@@ -33,4 +33,4 @@ class RegoBinarySensorEntity(BinarySensorEntity, RegoEntity):
     """An entity using CoordinatorEntity."""
 
     def _process_value(self, value: float | LastError | None) -> None:
-        self.is_on = value != 0
+        self._attr_is_on = value != 0

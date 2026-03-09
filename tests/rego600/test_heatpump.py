@@ -5,10 +5,10 @@ from unittest import mock
 from unittest.mock import PropertyMock, call
 
 
-from rego600 import HeatPump, RegoError
-from rego600.connection import Connection
-from rego600.identifiers import Identifiers
-from rego600.register_factory import RegisterFactory
+from custom_components.regoheatpump.rego600 import HeatPump, RegoError
+from custom_components.regoheatpump.rego600.connection import Connection
+from custom_components.regoheatpump.rego600.identifiers import Identifiers
+from custom_components.regoheatpump.rego600.register_factory import RegisterFactory
 
 _REGISTER = RegisterFactory.system_temperature(Identifiers.SENSOR_VALUES_INDOOR, 0x020D)
 
