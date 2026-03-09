@@ -1,16 +1,12 @@
 """Sensor platform for Rego heat pump registers."""
 
-from collections.abc import Callable
-from dataclasses import dataclass
 import logging
-from typing import Any
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
     SensorEntityDescription,
     SensorStateClass,
-    StateType,
 )
 from homeassistant.const import UnitOfTemperature, UnitOfTime
 from homeassistant.core import HomeAssistant
@@ -26,37 +22,21 @@ SCAN_INTERVAL = POLL_INTERVAL
 PARALLEL_UPDATES = 1
 
 
-@dataclass(frozen=True)
-class RegoSensorEntityDescription(SensorEntityDescription):
-    """Entity description for Rego sensor register."""
-
-    value_fn: Callable[[float | LastError | None], StateType] = lambda v: (
-        v if not isinstance(v, LastError) else None
-    )
-    extra_attributes_fn: Callable[[float | LastError | None], dict[str, Any] | None] = (
-        lambda _: None
-    )
-
-
 _DESCRIPTIONS = {
-    Type.TEMPERATURE: RegoSensorEntityDescription(
+    Type.TEMPERATURE: SensorEntityDescription(
         key=Type.TEMPERATURE.name,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
     ),
-    Type.HOURS: RegoSensorEntityDescription(
+    Type.HOURS: SensorEntityDescription(
         key=Type.HOURS.name,
         native_unit_of_measurement=UnitOfTime.HOURS,
         device_class=SensorDeviceClass.DURATION,
         state_class=SensorStateClass.TOTAL,
     ),
-    Type.ERROR: RegoSensorEntityDescription(
+    Type.ERROR: SensorEntityDescription(
         key=Type.ERROR.name,
-        value_fn=lambda v: v.code if isinstance(v, LastError) else None,
-        extra_attributes_fn=lambda v: (
-            {"timestamp": v.timestamp} if isinstance(v, LastError) else {}
-        ),
     ),
 }
 
@@ -70,26 +50,28 @@ async def async_setup_entry(
     async_add_entities(
         RegoSensorEntity(entry, register, _DESCRIPTIONS[register.type])
         for register in entry.runtime_data.heat_pump.registers
-        if not register.is_writtable and register.type in _DESCRIPTIONS
+        if not register.is_writable and register.type in _DESCRIPTIONS
     )
 
 
 class RegoSensorEntity(SensorEntity, RegoEntity):
     """An entity using RegoEntity."""
 
-    entity_description: RegoSensorEntityDescription
+    entity_description: SensorEntityDescription
 
     def __init__(
         self,
         entry: RegoConfigEntry,
         register: Register,
-        entity_description: RegoSensorEntityDescription,
+        entity_description: SensorEntityDescription,
     ) -> None:
         """Initialize sensor entity for a specific register."""
         super().__init__(entry, register)
         self.entity_description = entity_description
 
     def _process_value(self, value: float | LastError | None) -> None:
-        self._attr_native_value = self.entity_description.value_fn(value)
-        if extra_state := self.entity_description.extra_attributes_fn(value):
-            self._attr_extra_state_attributes = extra_state
+        if isinstance(value, LastError):
+            self._attr_native_value = value.code
+            self._attr_extra_state_attributes = {"timestamp": value.timestamp}
+        else:
+            self._attr_native_value = value

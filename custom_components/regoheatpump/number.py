@@ -60,7 +60,7 @@ async def async_setup_entry(
     async_add_entities(
         RegoNumberEntity(entry, register)
         for register in entry.runtime_data.heat_pump.registers
-        if register.is_writtable and register.type in _DESCRIPTIONS
+        if register.is_writable
     )
 
 
@@ -81,6 +81,8 @@ class RegoNumberEntity(NumberEntity, RegoEntity):
     async def async_set_native_value(self, value: float) -> None:
         """Write new value to heat pump register."""
         await self._heat_pump.write(self._register, value)
+        self._attr_native_value = value
+        self.async_write_ha_state()
 
     def _process_value(self, value: float | LastError | None) -> None:
         self._attr_native_value = value if not isinstance(value, LastError) else None

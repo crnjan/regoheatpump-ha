@@ -29,6 +29,7 @@ class HeatPump:
     @classmethod
     def connect(cls, url: str) -> Self:
         """Create a client for the given serial URL."""
+        _LOGGER.debug("Rego controller connected via '%s'", url)
         connection = SerialConnection(url)
         return cls(connection)
 

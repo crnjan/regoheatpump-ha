@@ -2,7 +2,13 @@
   "config": {
     "step": {
       "user": {
-        "description": "Please provide the serial interface of the heat pump",
+        "description": "Enter the serial device (e.g. /dev/ttyUSB0) or socket URL (e.g. socket://host:port) of the heat pump",
+        "data": {
+          "url": "[%key:common::config_flow::data::url%]"
+        }
+      },
+      "reconfigure": {
+        "description": "Update the serial device (e.g. /dev/ttyUSB0) or socket URL (e.g. socket://host:port) of the heat pump",
         "data": {
           "url": "[%key:common::config_flow::data::url%]"
         }

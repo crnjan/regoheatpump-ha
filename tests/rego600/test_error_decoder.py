@@ -1,8 +1,8 @@
 import datetime
 import pytest
 
-from rego600.decoders import Decoders
-from rego600.regoerror import RegoError
+from custom_components.regoheatpump.rego600.decoders import Decoders
+from custom_components.regoheatpump.rego600.regoerror import RegoError
 
 
 def test_expected_len():

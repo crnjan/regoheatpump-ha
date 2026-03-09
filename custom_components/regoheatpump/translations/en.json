@@ -8,11 +8,17 @@
             "unknown": "Unexpected error"
         },
         "step": {
+            "reconfigure": {
+                "data": {
+                    "url": "URL"
+                },
+                "description": "Update the serial device (e.g. /dev/ttyUSB0) or socket URL (e.g. socket://host:port) of the heat pump"
+            },
             "user": {
                 "data": {
                     "url": "URL"
                 },
-                "description": "Please provide the serial interface of the heat pump"
+                "description": "Enter the serial device (e.g. /dev/ttyUSB0) or socket URL (e.g. socket://host:port) of the heat pump"
             }
         }
     },

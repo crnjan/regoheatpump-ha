@@ -22,7 +22,7 @@ class Register:
     decoder: Decoder
     transformation: Transformation
     type: Type
-    is_writtable: bool = False
+    is_writable: bool = False
 
     class Command(NamedTuple):
         """Command payload with decode/transform metadata."""

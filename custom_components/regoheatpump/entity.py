@@ -3,7 +3,7 @@
 from datetime import timedelta
 import logging
 
-from homeassistant.components.sensor import Entity
+from homeassistant.helpers.entity import Entity
 
 from . import RegoConfigEntry
 from .rego600 import HeatPump, Identifiers, LastError, Register, RegoError
@@ -80,9 +80,8 @@ class RegoEntity(Entity):
         try:
             self._process_value(await self._heat_pump.read(self._register))
             self._attr_available = True
-        except (OSError, RegoError) as e:
+        except OSError, RegoError:
             self._attr_available = False
-            _LOGGER.warning("Reading %s failed due %s", self._register.identifier, e)
 
     def _process_value(self, value: float | LastError | None) -> None:
         raise NotImplementedError

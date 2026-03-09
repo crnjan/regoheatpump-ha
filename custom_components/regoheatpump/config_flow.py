@@ -9,48 +9,128 @@ import voluptuous as vol
 
 from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
 from homeassistant.const import CONF_URL
-from homeassistant.core import HomeAssistant
 
 from .const import DOMAIN
-from .rego600 import HeatPump
+from .rego600 import HeatPump, RegoError
 
 _LOGGER = logging.getLogger(__name__)
 
-STEP_USER_DATA_SCHEMA = vol.Schema(
-    {
-        vol.Required(CONF_URL): str,
-    }
-)
+
+class CannotConnect(Exception):
+    """Error to indicate we cannot connect."""
 
 
-async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> str:
+def build_schema(default: Any = vol.UNDEFINED) -> vol.Schema:
+    """Build config flow schema."""
+    return vol.Schema(
+        {
+            vol.Required(CONF_URL, default=default): str,
+        }
+    )
+
+
+def normalize_connection_url(url: str) -> str:
+    """Normalize connection URL/path for storage and duplicate checks."""
+    url = url.strip()
+
+    if "://" not in url:
+        return url
+
+    return url.rstrip("/").lower()
+
+
+async def validate_input(data: dict[str, Any]) -> dict[str, str]:
     """Validate the user input allows us to connect."""
+    url = normalize_connection_url(data[CONF_URL])
 
-    hp = HeatPump.connect(url=data[CONF_URL])
+    hp = HeatPump.connect(url=url)
 
     try:
         await hp.verify(retry=0)
+    except (OSError, RegoError) as err:
+        raise CannotConnect from err
     finally:
         await hp.dispose()
 
-    return data[CONF_URL]
+    return {
+        "title": f"Rego Heat Pump ({url})",
+        "url": url,
+    }
 
 
 class RegoConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Rego Heat Pump."""
+
+    VERSION = 1
+
+    def _find_existing_entry_by_url(self, url: str):
+        """Find an existing config entry by normalized URL."""
+        for entry in self._async_current_entries():
+            if entry.data.get(CONF_URL) == url:
+                return entry
+        return None
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         """Handle the initial step."""
         errors: dict[str, str] = {}
+
         if user_input is not None:
             try:
-                address = await validate_input(self.hass, user_input)
-            except Exception as e:
-                _LOGGER.exception("Unexpected exception")
-                errors["base"] = str(e)
+                info = await validate_input(user_input)
+            except CannotConnect as err:
+                _LOGGER.debug("Cannot connect to heat pump: %s", err)
+                errors["base"] = "cannot_connect"
+            except Exception:
+                _LOGGER.exception("Unexpected exception during config flow")
+                errors["base"] = "unknown"
             else:
-                return self.async_create_entry(title=address, data=user_input)
+                if self._find_existing_entry_by_url(info["url"]) is not None:
+                    return self.async_abort(reason="already_configured")
 
-        return self.async_show_form(data_schema=STEP_USER_DATA_SCHEMA, errors=errors)
+                return self.async_create_entry(
+                    title=info["title"],
+                    data={CONF_URL: info["url"]},
+                )
+
+        return self.async_show_form(
+            step_id="user",
+            data_schema=build_schema(),
+            errors=errors,
+        )
+
+    async def async_step_reconfigure(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Handle reconfiguration of an existing entry."""
+        errors: dict[str, str] = {}
+        entry = self._get_reconfigure_entry()
+
+        if user_input is not None:
+            try:
+                info = await validate_input(user_input)
+            except CannotConnect as err:
+                _LOGGER.debug("Cannot connect to heat pump during reconfigure: %s", err)
+                errors["base"] = "cannot_connect"
+            except Exception:
+                _LOGGER.exception("Unexpected exception during reconfigure")
+                errors["base"] = "unknown"
+            else:
+                existing_entry = self._find_existing_entry_by_url(info["url"])
+                if (
+                    existing_entry is not None
+                    and existing_entry.entry_id != entry.entry_id
+                ):
+                    return self.async_abort(reason="already_configured")
+
+                return self.async_update_reload_and_abort(
+                    entry,
+                    data_updates={CONF_URL: info["url"]},
+                )
+
+        return self.async_show_form(
+            step_id="reconfigure",
+            data_schema=build_schema(entry.data[CONF_URL]),
+            errors=errors,
+        )
