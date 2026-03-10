@@ -1,11 +1,14 @@
 """Async serial transport for Rego controller communication."""
 
 import asyncio
+import logging
 
 import serial_asyncio_fast as serial_asyncio
 
 from .connection import Connection
 from .regoerror import RegoError
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class SerialConnection(Connection):
@@ -24,17 +27,30 @@ class SerialConnection(Connection):
 
     async def connect(self) -> None:
         """Open the serial connection."""
+        _LOGGER.debug("Connecting to '%s'", self.__url)
         self.__reader, self.__writer = await serial_asyncio.open_serial_connection(
             url=self.__url, baudrate=19200
         )
 
     async def close(self) -> None:
         """Close the serial connection."""
-        if self.__writer is not None:
-            self.__writer.close()
-            await self.__writer.wait_closed()
+        writer = self.__writer
         self.__writer = None
         self.__reader = None
+
+        if writer is None:
+            return
+
+        try:
+            writer.close()
+        except OSError as e:
+            _LOGGER.debug("Error while closing writer: %r", e)
+
+        try:
+            async with asyncio.timeout(1.0):
+                await asyncio.shield(writer.wait_closed())
+        except (OSError, RuntimeError) as e:
+            _LOGGER.debug("Error while waiting for writer to close: %r", e)
 
     async def read(self, length: int) -> bytes:
         """Read exactly `length` bytes from the controller."""
