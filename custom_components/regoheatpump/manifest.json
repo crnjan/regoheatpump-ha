@@ -10,5 +10,5 @@
   "issue_tracker": "https://github.com/crnjan/regoheatpump-ha/issues",
   "loggers": ["regoheatpump"],
   "requirements": ["pyserial-asyncio-fast>=0.16"],
-  "version": "0.0.3"
+  "version": "0.0.4"
 }

@@ -29,7 +29,6 @@ class HeatPump:
     @classmethod
     def connect(cls, url: str) -> Self:
         """Create a client for the given serial URL."""
-        _LOGGER.debug("Rego controller connected via '%s'", url)
         connection = SerialConnection(url)
         return cls(connection)
 
@@ -87,9 +86,7 @@ class HeatPump:
     ) -> float | LastError | None:
         try:
             if not self.__connection.is_connected:
-                _LOGGER.debug("Not connected, connecting")
                 await self.__connection.connect()
-                _LOGGER.debug("Connected")
 
             # Protocol is request driven so there should be no data available before sending
             # a command to the heat pump. After reconnect give more time to read any potential
@@ -111,7 +108,7 @@ class HeatPump:
             return transformation.to_value(decoder.decode(response))
 
         except (OSError, RegoError) as e:
-            _LOGGER.debug("Sending '%s' failed due %s", payload.hex(), repr({e}))
+            _LOGGER.debug("Sending '%s' failed due %r", payload.hex(), e)
             await self.__connection.close()
             if retry > 0:
                 _LOGGER.debug("Retrying, retry=%d", retry)

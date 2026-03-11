@@ -57,8 +57,6 @@ async def async_setup_entry(
 class RegoSensorEntity(SensorEntity, RegoEntity):
     """An entity using RegoEntity."""
 
-    entity_description: SensorEntityDescription
-
     def __init__(
         self,
         entry: RegoConfigEntry,
