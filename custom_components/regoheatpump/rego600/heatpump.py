@@ -107,7 +107,7 @@ class HeatPump:
                 _LOGGER.debug("Received %s", response.hex())
             return transformation.to_value(decoder.decode(response))
 
-        except (OSError, RegoError) as e:
+        except (OSError, EOFError, RegoError) as e:
             _LOGGER.debug("Sending '%s' failed due %r", payload.hex(), e)
             await self.__connection.close()
             if retry > 0:
