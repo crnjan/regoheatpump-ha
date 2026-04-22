@@ -9,7 +9,7 @@ from .connection import Connection
 from .decoders import Decoder
 from .last_error import LastError
 from .register import Register
-from .register_repository import RegisterRepository
+from .repositories import RegisterRepository
 from .regoerror import RegoError
 from .serial_connection import SerialConnection
 from .transformations import Transformation
@@ -21,21 +21,22 @@ _RETRIES: int = 3
 class HeatPump:
     """High-level API for Rego controller communication."""
 
-    def __init__(self, connection: Connection) -> None:
+    def __init__(self, connection: Connection, rego_type: str) -> None:
         """Initialize the client with a transport connection."""
         self.__connection = connection
         self.__lock = asyncio.Lock()
+        self.__rego_type = rego_type
 
     @classmethod
-    def connect(cls, url: str) -> Self:
+    def connect(cls, url: str, rego_type: str) -> Self:
         """Create a client for the given serial URL."""
         connection = SerialConnection(url)
-        return cls(connection)
+        return cls(connection, rego_type)
 
     @property
     def registers(self) -> list[Register]:
         """Return the register database."""
-        return RegisterRepository.registers()
+        return RegisterRepository.registers(self.__rego_type)
 
     async def dispose(self):
         """Close the underlying connection."""

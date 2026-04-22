@@ -11,7 +11,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.device_registry import DeviceInfo
 
-from .const import DOMAIN
+from .const import CONF_REGO_TYPE, DEFAULT_REGO_TYPE, DOMAIN
 from .rego600 import HeatPump, RegoError
 
 _LOGGER = logging.getLogger(__name__)
@@ -34,7 +34,10 @@ _PLATFORMS: list[Platform] = [Platform.BINARY_SENSOR, Platform.NUMBER, Platform.
 async def async_setup_entry(hass: HomeAssistant, entry: RegoConfigEntry) -> bool:
     """Set up Rego Heat Pump from a config entry."""
 
-    hp = HeatPump.connect(url=entry.data[CONF_URL])
+    hp = HeatPump.connect(
+        url=entry.data[CONF_URL],
+        rego_type=entry.data.get(CONF_REGO_TYPE, DEFAULT_REGO_TYPE),
+    )
 
     try:
         await hp.verify()

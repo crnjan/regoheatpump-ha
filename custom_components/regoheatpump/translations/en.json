@@ -10,12 +10,14 @@
         "step": {
             "reconfigure": {
                 "data": {
+                    "rego_type": "Controller type",
                     "url": "URL"
                 },
                 "description": "Update the serial device (e.g. /dev/ttyUSB0) or socket URL (e.g. socket://host:port) of the heat pump"
             },
             "user": {
                 "data": {
+                    "rego_type": "Controller type",
                     "url": "URL"
                 },
                 "description": "Enter the serial device (e.g. /dev/ttyUSB0) or socket URL (e.g. socket://host:port) of the heat pump"

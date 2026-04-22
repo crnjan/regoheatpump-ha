@@ -15,7 +15,7 @@ from custom_components.regoheatpump.sensor import (
     async_setup_entry,
 )
 from custom_components.regoheatpump.rego600 import Group, Identifier, LastError, Type
-from custom_components.regoheatpump.rego600.register_factory import RegisterFactory
+from custom_components.regoheatpump.rego600.repositories.register_factory import RegisterFactory
 
 
 @pytest.mark.parametrize(

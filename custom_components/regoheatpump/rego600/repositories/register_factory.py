@@ -1,11 +1,11 @@
 """Helpers for creating common register definitions."""
 
-from .decoders import Decoders
-from .identifier import Identifier
-from .register import Register
-from .sources import Sources
-from .transformations import Transformations
-from .type import Type
+from ..decoders import Decoders
+from ..identifier import Identifier
+from ..register import Register
+from ..sources import Sources
+from ..transformations import Transformations
+from ..type import Type
 
 
 class RegisterFactory:
