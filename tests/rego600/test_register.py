@@ -1,6 +1,6 @@
 import pytest
 
-from custom_components.regoheatpump.rego600 import Identifier, Register, REGO_TYPE_637
+from custom_components.regoheatpump.rego600 import Identifier, Register, RegoType
 from custom_components.regoheatpump.rego600.identifiers import Identifiers
 from custom_components.regoheatpump.rego600.repositories.register_repository import RegisterRepository
 
@@ -12,7 +12,7 @@ def verify_read(
     expectedDecodedValue: float,
     expectedValue: float,
 ) -> Register:
-    register = next(r for r in RegisterRepository.registers(REGO_TYPE_637) if r.identifier == identifer)
+    register = next(r for r in RegisterRepository.registers(RegoType.REGO637) if r.identifier == identifer)
     command = register.read()
     assert command.payload == expectedPayload
     assert command.decoder.decode(responseBytes) == expectedDecodedValue

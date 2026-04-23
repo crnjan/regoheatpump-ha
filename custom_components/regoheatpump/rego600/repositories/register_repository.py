@@ -1,17 +1,17 @@
 from .register_factory import RegisterFactory
 from .rego636 import Rego636RegisterRepository
 from .rego637 import Rego637RegisterRepository
-from ..const import REGO_TYPE_636, REGO_TYPE_637
 from ..identifiers import Identifiers
+from ..rego_type import RegoType
 from ..register import Register
 
 
 class RegisterRepository:
     @staticmethod
-    def _repository(rego_type: str):
+    def _repository(rego_type: RegoType):
         repositories = {
-            REGO_TYPE_637: Rego637RegisterRepository,
-            REGO_TYPE_636: Rego636RegisterRepository,
+            RegoType.REGO637: Rego637RegisterRepository,
+            RegoType.REGO636: Rego636RegisterRepository,
         }
         return repositories[rego_type]
 
@@ -21,5 +21,5 @@ class RegisterRepository:
         return RegisterFactory.version(identifier=Identifiers.VERSION)
 
     @staticmethod
-    def registers(rego_type: str):
+    def registers(rego_type: RegoType):
         return RegisterRepository._repository(rego_type).registers()

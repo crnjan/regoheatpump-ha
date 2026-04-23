@@ -1,2 +1,0 @@
-REGO_TYPE_636 = "rego636"
-REGO_TYPE_637 = "rego637"

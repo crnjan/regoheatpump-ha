@@ -16,7 +16,7 @@ from homeassistant.helpers.selector import (
 )
 
 from .const import CONF_REGO_TYPE, DEFAULT_REGO_TYPE, DOMAIN, REGO_TYPE_LABELS
-from .rego600 import HeatPump, RegoError
+from .rego600 import HeatPump, RegoError, RegoType
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -27,7 +27,7 @@ class CannotConnect(Exception):
 
 def build_schema(
     url_default: Any = vol.UNDEFINED,
-    rego_type_default: Any = DEFAULT_REGO_TYPE,
+    rego_type_default: str = DEFAULT_REGO_TYPE,
 ) -> vol.Schema:
     """Build config flow schema."""
     return vol.Schema(
@@ -36,8 +36,8 @@ def build_schema(
             vol.Required(CONF_REGO_TYPE, default=rego_type_default): SelectSelector(
                 SelectSelectorConfig(
                     options=[
-                        {"value": key, "label": label}
-                        for key, label in REGO_TYPE_LABELS.items()
+                        {"value": rego_type, "label": label}
+                        for rego_type, label in REGO_TYPE_LABELS.items()
                     ],
                     mode=SelectSelectorMode.DROPDOWN,
                 )
@@ -59,7 +59,7 @@ def normalize_connection_url(url: str) -> str:
 async def validate_input(data: dict[str, Any]) -> dict[str, str]:
     """Validate the user input allows us to connect."""
     url = normalize_connection_url(data[CONF_URL])
-    rego_type = data[CONF_REGO_TYPE]
+    rego_type = RegoType(data[CONF_REGO_TYPE])
 
     hp = HeatPump.connect(url=url, rego_type=rego_type)
 
@@ -73,7 +73,7 @@ async def validate_input(data: dict[str, Any]) -> dict[str, str]:
     return {
         "title": f"Rego Heat Pump ({REGO_TYPE_LABELS[rego_type]}, {url})",
         "url": url,
-        "rego_type": rego_type,
+        "rego_type": rego_type.value,
     }
 
 
@@ -92,7 +92,7 @@ class RegoConfigFlow(ConfigFlow, domain=DOMAIN):
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Handle the initial step."""
+        """Handle the initial config step."""
         errors: dict[str, str] = {}
 
         if user_input is not None:

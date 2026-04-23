@@ -5,6 +5,7 @@ from asyncio import timeout as asyncio_timeout
 import logging
 from typing import Self
 
+from .rego_type import RegoType
 from .connection import Connection
 from .decoders import Decoder
 from .last_error import LastError
@@ -21,14 +22,14 @@ _RETRIES: int = 3
 class HeatPump:
     """High-level API for Rego controller communication."""
 
-    def __init__(self, connection: Connection, rego_type: str) -> None:
+    def __init__(self, connection: Connection, rego_type: RegoType) -> None:
         """Initialize the client with a transport connection."""
         self.__connection = connection
         self.__lock = asyncio.Lock()
         self.__rego_type = rego_type
 
     @classmethod
-    def connect(cls, url: str, rego_type: str) -> Self:
+    def connect(cls, url: str, rego_type: RegoType) -> Self:
         """Create a client for the given serial URL."""
         connection = SerialConnection(url)
         return cls(connection, rego_type)
