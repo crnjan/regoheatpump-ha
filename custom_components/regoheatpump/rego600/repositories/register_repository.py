@@ -1,3 +1,5 @@
+"""Dispatch repository that routes register lookups to the correct controller repository."""
+
 from .register_factory import RegisterFactory
 from .rego636 import Rego636RegisterRepository
 from .rego637 import Rego637RegisterRepository
@@ -7,6 +9,8 @@ from ..register import Register
 
 
 class RegisterRepository:
+    """Selects the appropriate controller-specific register repository based on RegoType."""
+
     @staticmethod
     def version() -> Register:
         """Version register."""
