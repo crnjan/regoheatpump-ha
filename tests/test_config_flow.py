@@ -161,6 +161,14 @@ async def test_reconfigure_shows_form_with_existing_value(hass):
     assert result["type"] == "form"
     assert result["step_id"] == "reconfigure"
 
+    schema_defaults = {
+        k.schema: k.default()
+        for k in result["data_schema"].schema
+        if hasattr(k, "default") and callable(k.default)
+    }
+    assert schema_defaults[CONF_URL] == "socket://old-host:5000"
+    assert schema_defaults[CONF_REGO_TYPE] == RegoType.REGO636.value
+
 
 async def test_reconfigure_updates_entry(hass):
     """Test reconfigure updates URL and rego type."""
