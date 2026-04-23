@@ -1,7 +1,6 @@
 """Client for reading and writing Rego 600 registers."""
 
 import asyncio
-from asyncio import timeout as asyncio_timeout
 import logging
 from typing import Self
 
@@ -88,7 +87,7 @@ class HeatPump:
     ) -> float | LastError | None:
         try:
             if not self.__connection.is_connected:
-                await self.__connection.connect()
+                await asyncio.wait_for(self.__connection.connect(), timeout=2)
 
             # Protocol is request driven so there should be no data available before sending
             # a command to the heat pump. After reconnect give more time to read any potential
@@ -102,7 +101,7 @@ class HeatPump:
                     buffer.hex(),
                 )
 
-            async with asyncio_timeout(2):
+            async with asyncio.timeout(2):
                 _LOGGER.debug("Sending '%s'", payload.hex())
                 await self.__connection.write(payload)
                 response = await self.__connection.read(decoder.length)
