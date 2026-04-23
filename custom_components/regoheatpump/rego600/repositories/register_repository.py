@@ -8,8 +8,9 @@ from ..register import Register
 
 class RegisterRepository:
     @staticmethod
-    def _repository(rego_type: RegoType):
-        repositories = {
+    def _repository(rego_type: RegoType) -> type[Rego636RegisterRepository] | type[Rego637RegisterRepository]:
+        """Return the register repository class for the given controller type."""
+        repositories: dict[RegoType, type[Rego636RegisterRepository] | type[Rego637RegisterRepository]] = {
             RegoType.REGO637: Rego637RegisterRepository,
             RegoType.REGO636: Rego636RegisterRepository,
         }
@@ -21,5 +22,6 @@ class RegisterRepository:
         return RegisterFactory.version(identifier=Identifiers.VERSION)
 
     @staticmethod
-    def registers(rego_type: RegoType):
+    def registers(rego_type: RegoType) -> list[Register]:
+        """Return all registers for the given controller type."""
         return RegisterRepository._repository(rego_type).registers()
