@@ -80,7 +80,7 @@ class RegoEntity(Entity):
         try:
             self._process_value(await self._heat_pump.read(self._register))
             self._attr_available = True
-        except OSError, RegoError:
+        except (OSError, RegoError):
             self._attr_available = False
 
     def _process_value(self, value: float | LastError | None) -> None:

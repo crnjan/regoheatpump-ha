@@ -1,15 +1,15 @@
 """Client for reading and writing Rego 600 registers."""
 
 import asyncio
-from asyncio import timeout as asyncio_timeout
 import logging
 from typing import Self
 
+from .rego_type import RegoType
 from .connection import Connection
 from .decoders import Decoder
 from .last_error import LastError
 from .register import Register
-from .register_repository import RegisterRepository
+from .repositories import RegisterRepository
 from .regoerror import RegoError
 from .serial_connection import SerialConnection
 from .transformations import Transformation
@@ -21,21 +21,22 @@ _RETRIES: int = 3
 class HeatPump:
     """High-level API for Rego controller communication."""
 
-    def __init__(self, connection: Connection) -> None:
+    def __init__(self, connection: Connection, rego_type: RegoType) -> None:
         """Initialize the client with a transport connection."""
         self.__connection = connection
         self.__lock = asyncio.Lock()
+        self.__rego_type = rego_type
 
     @classmethod
-    def connect(cls, url: str) -> Self:
+    def connect(cls, url: str, rego_type: RegoType) -> Self:
         """Create a client for the given serial URL."""
         connection = SerialConnection(url)
-        return cls(connection)
+        return cls(connection, rego_type)
 
     @property
     def registers(self) -> list[Register]:
         """Return the register database."""
-        return RegisterRepository.registers()
+        return RegisterRepository.registers(self.__rego_type)
 
     async def dispose(self):
         """Close the underlying connection."""
@@ -86,7 +87,7 @@ class HeatPump:
     ) -> float | LastError | None:
         try:
             if not self.__connection.is_connected:
-                await self.__connection.connect()
+                await asyncio.wait_for(self.__connection.connect(), timeout=2)
 
             # Protocol is request driven so there should be no data available before sending
             # a command to the heat pump. After reconnect give more time to read any potential
@@ -100,7 +101,7 @@ class HeatPump:
                     buffer.hex(),
                 )
 
-            async with asyncio_timeout(2):
+            async with asyncio.timeout(2):
                 _LOGGER.debug("Sending '%s'", payload.hex())
                 await self.__connection.write(payload)
                 response = await self.__connection.read(decoder.length)

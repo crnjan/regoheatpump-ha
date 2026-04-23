@@ -1,5 +1,6 @@
 """Rego 600 protocol client and models."""
 
+from .rego_type import RegoType
 from .group import Group
 from .heatpump import HeatPump
 from .identifier import Identifier
@@ -17,5 +18,6 @@ __all__ = [
     "LastError",
     "Register",
     "RegoError",
+    "RegoType",
     "Type",
 ]

@@ -1,21 +1,16 @@
-"""Test."""
+"""Register definitions for Rego 637 style mappings."""
 
-from .identifiers import Identifiers
-from .register import Register
+from ..identifiers import Identifiers
+from ..register import Register
 from .register_factory import RegisterFactory
 
 
-class RegisterRepository:
-    """Test."""
-
-    @staticmethod
-    def version() -> Register:
-        """Test."""
-        return RegisterFactory.version(identifier=Identifiers.VERSION)
+class Rego637RegisterRepository:
+    """Rego637 Registers."""
 
     @staticmethod
     def registers() -> list[Register]:
-        """Test."""
+        """List of registers."""
         return [
             # Last error
             RegisterFactory.last_error(identifier=Identifiers.LAST_ERROR),

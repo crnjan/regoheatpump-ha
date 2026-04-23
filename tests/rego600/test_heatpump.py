@@ -5,10 +5,10 @@ from unittest import mock
 from unittest.mock import PropertyMock, call
 
 
-from custom_components.regoheatpump.rego600 import HeatPump, RegoError
+from custom_components.regoheatpump.rego600 import HeatPump, RegoError, RegoType
 from custom_components.regoheatpump.rego600.connection import Connection
 from custom_components.regoheatpump.rego600.identifiers import Identifiers
-from custom_components.regoheatpump.rego600.register_factory import RegisterFactory
+from custom_components.regoheatpump.rego600.repositories.register_factory import RegisterFactory
 
 _REGISTER = RegisterFactory.system_temperature(Identifiers.SENSOR_VALUES_INDOOR, 0x020D)
 
@@ -18,7 +18,7 @@ async def test_connect_fails():
     connection = mock.create_autospec(Connection)
     type(connection).is_connected = PropertyMock(return_value=False)
     connection.connect.side_effect = OSError
-    hp = HeatPump(connection)
+    hp = HeatPump(connection, RegoType.REGO637)
     with pytest.raises(OSError):
         await hp.read(_REGISTER, retry=0)
     connection.close.assert_called_once()
@@ -31,7 +31,7 @@ async def test_verify_fails(readReturnValue):
     type(connection).is_connected = PropertyMock(return_value=False)
     connection.clear_reader_buffer.return_value = None
     connection.read.return_value = readReturnValue
-    hp = HeatPump(connection)
+    hp = HeatPump(connection, RegoType.REGO637)
     with pytest.raises(RegoError):
         await hp.verify(retry=0)
     connection.connect.assert_called_once()
@@ -44,7 +44,7 @@ async def test_verify():
     type(connection).is_connected = PropertyMock(return_value=False)
     connection.clear_reader_buffer.return_value = None
     connection.read.return_value = b"\x01\x00\x04\x58\x5c"
-    hp = HeatPump(connection)
+    hp = HeatPump(connection, RegoType.REGO637)
     await hp.verify()
     connection.write.assert_called_once_with(b"\x81\x7f\x00\x00\x00\x00\x00\x00\x00")
     connection.connect.assert_called_once()
@@ -62,7 +62,7 @@ async def test_waiting_for_response_should_timeout():
     type(connection).is_connected = PropertyMock(return_value=False)
     connection.clear_reader_buffer.return_value = None
     connection.read.side_effect = looongRead
-    hp = HeatPump(connection)
+    hp = HeatPump(connection, RegoType.REGO637)
     with pytest.raises(TimeoutError):
         await hp.read(_REGISTER, retry=0)
     connection.connect.assert_called_once()
@@ -81,7 +81,7 @@ async def test_waiting_for_response_should_timeout_and_retry():
     type(connection).is_connected = PropertyMock(return_value=False)
     connection.clear_reader_buffer.return_value = None
     connection.read.side_effect = read
-    hp = HeatPump(connection)
+    hp = HeatPump(connection, RegoType.REGO637)
     assert await hp.read(_REGISTER, retry=1) == 0.9
     assert len(connection.connect.mock_calls) == 2
     connection.close.assert_called_once()
@@ -96,7 +96,7 @@ async def test_read():
         b"\x01\x00\x00\x08\x08",
         b"\x01\x00\x00\x0a\x0a",
     ]
-    hp = HeatPump(connection)
+    hp = HeatPump(connection, RegoType.REGO637)
     assert await hp.read(_REGISTER) == 0.8
     assert await hp.read(_REGISTER) == 1
     connection.connect.assert_called_once()
@@ -117,7 +117,7 @@ async def test_write():
     type(connection).is_connected = PropertyMock(return_value=True)
     connection.clear_reader_buffer.return_value = None
     connection.read.return_value = b"\x01"
-    hp = HeatPump(connection)
+    hp = HeatPump(connection, RegoType.REGO637)
     await hp.write(_REGISTER, 1.2)
     connection.connect.assert_not_called()
     connection.write.assert_called_once_with(b"\x81\x03\x00\x04\x0d\x00\x00\x0c\x05")

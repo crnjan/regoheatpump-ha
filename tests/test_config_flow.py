@@ -4,7 +4,12 @@ from homeassistant import config_entries
 from homeassistant.const import CONF_URL
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.regoheatpump.const import DOMAIN
+from custom_components.regoheatpump.const import (
+    CONF_REGO_TYPE,
+    DEFAULT_REGO_TYPE,
+    DOMAIN,
+)
+from custom_components.regoheatpump.rego600 import RegoType
 
 
 async def test_user_step_creates_entry(hass):
@@ -17,7 +22,7 @@ async def test_user_step_creates_entry(hass):
         patch(
             "custom_components.regoheatpump.config_flow.HeatPump.connect",
             return_value=hp,
-        ),
+        ) as mock_connect,
         patch(
             "custom_components.regoheatpump.async_setup_entry",
             return_value=True,
@@ -33,13 +38,23 @@ async def test_user_step_creates_entry(hass):
 
         result = await hass.config_entries.flow.async_configure(
             result["flow_id"],
-            user_input={CONF_URL: "socket://HOST:5000/"},
+            user_input={
+                CONF_URL: "socket://HOST:5000/",
+                CONF_REGO_TYPE: RegoType.REGO637.value,
+            },
         )
 
     assert result["type"] == "create_entry"
-    assert result["title"] == "Rego Heat Pump (socket://host:5000)"
-    assert result["data"] == {CONF_URL: "socket://host:5000"}
+    assert result["title"] == "Rego Heat Pump (Rego 637, socket://host:5000)"
+    assert result["data"] == {
+        CONF_URL: "socket://host:5000",
+        CONF_REGO_TYPE: RegoType.REGO637.value,
+    }
 
+    mock_connect.assert_called_once_with(
+        url="socket://host:5000",
+        rego_type=RegoType.REGO637,
+    )
     hp.verify.assert_awaited_once_with(retry=0)
     hp.dispose.assert_awaited_once()
 
@@ -53,7 +68,7 @@ async def test_user_step_cannot_connect(hass):
     with patch(
         "custom_components.regoheatpump.config_flow.HeatPump.connect",
         return_value=hp,
-    ):
+    ) as mock_connect:
         result = await hass.config_entries.flow.async_init(
             DOMAIN,
             context={"source": config_entries.SOURCE_USER},
@@ -64,13 +79,20 @@ async def test_user_step_cannot_connect(hass):
 
         result = await hass.config_entries.flow.async_configure(
             result["flow_id"],
-            user_input={CONF_URL: "socket://host:5000"},
+            user_input={
+                CONF_URL: "socket://host:5000",
+                CONF_REGO_TYPE: RegoType.REGO636.value,
+            },
         )
 
     assert result["type"] == "form"
     assert result["step_id"] == "user"
     assert result["errors"] == {"base": "cannot_connect"}
 
+    mock_connect.assert_called_once_with(
+        url="socket://host:5000",
+        rego_type=RegoType.REGO636,
+    )
     hp.verify.assert_awaited_once_with(retry=0)
     hp.dispose.assert_awaited_once()
 
@@ -80,7 +102,10 @@ async def test_user_step_aborts_if_already_configured(hass):
     existing_entry = MockConfigEntry(
         domain=DOMAIN,
         title="Rego Heat Pump (socket://host:5000)",
-        data={CONF_URL: "socket://host:5000"},
+        data={
+            CONF_URL: "socket://host:5000",
+            CONF_REGO_TYPE: RegoType.REGO637.value,
+        },
     )
     existing_entry.add_to_hass(hass)
 
@@ -91,7 +116,7 @@ async def test_user_step_aborts_if_already_configured(hass):
     with patch(
         "custom_components.regoheatpump.config_flow.HeatPump.connect",
         return_value=hp,
-    ):
+    ) as mock_connect:
         result = await hass.config_entries.flow.async_init(
             DOMAIN,
             context={"source": config_entries.SOURCE_USER},
@@ -99,14 +124,18 @@ async def test_user_step_aborts_if_already_configured(hass):
 
         result = await hass.config_entries.flow.async_configure(
             result["flow_id"],
-            user_input={CONF_URL: "socket://HOST:5000/"},
+            user_input={
+                CONF_URL: "socket://HOST:5000/",
+                CONF_REGO_TYPE: RegoType.REGO636.value,
+            },
         )
 
     assert result["type"] == "abort"
     assert result["reason"] == "already_configured"
 
-    hp.verify.assert_awaited_once_with(retry=0)
-    hp.dispose.assert_awaited_once()
+    mock_connect.assert_not_called()
+    hp.verify.assert_not_called()
+    hp.dispose.assert_not_called()
 
 
 async def test_reconfigure_shows_form_with_existing_value(hass):
@@ -114,7 +143,10 @@ async def test_reconfigure_shows_form_with_existing_value(hass):
     entry = MockConfigEntry(
         domain=DOMAIN,
         title="Rego Heat Pump (socket://old-host:5000)",
-        data={CONF_URL: "socket://old-host:5000"},
+        data={
+            CONF_URL: "socket://old-host:5000",
+            CONF_REGO_TYPE: RegoType.REGO636.value,
+        },
     )
     entry.add_to_hass(hass)
 
@@ -129,13 +161,24 @@ async def test_reconfigure_shows_form_with_existing_value(hass):
     assert result["type"] == "form"
     assert result["step_id"] == "reconfigure"
 
+    schema_defaults = {
+        k.schema: (k.default() if callable(k.default) else k.default)
+        for k in result["data_schema"].schema
+        if hasattr(k, "default")
+    }
+    assert schema_defaults[CONF_URL] == "socket://old-host:5000"
+    assert schema_defaults[CONF_REGO_TYPE] == RegoType.REGO636.value
+
 
 async def test_reconfigure_updates_entry(hass):
-    """Test reconfigure updates URL."""
+    """Test reconfigure updates URL and rego type."""
     entry = MockConfigEntry(
         domain=DOMAIN,
         title="Rego Heat Pump (socket://old-host:5000)",
-        data={CONF_URL: "socket://old-host:5000"},
+        data={
+            CONF_URL: "socket://old-host:5000",
+            CONF_REGO_TYPE: RegoType.REGO637.value,
+        },
     )
     entry.add_to_hass(hass)
 
@@ -147,7 +190,7 @@ async def test_reconfigure_updates_entry(hass):
         patch(
             "custom_components.regoheatpump.config_flow.HeatPump.connect",
             return_value=hp,
-        ),
+        ) as mock_connect,
         patch(
             "custom_components.regoheatpump.async_setup_entry",
             return_value=True,
@@ -166,7 +209,10 @@ async def test_reconfigure_updates_entry(hass):
 
         result = await hass.config_entries.flow.async_configure(
             result["flow_id"],
-            user_input={CONF_URL: "socket://NEW-HOST:5000/"},
+            user_input={
+                CONF_URL: "socket://NEW-HOST:5000/",
+                CONF_REGO_TYPE: RegoType.REGO636.value,
+            },
         )
 
     assert result["type"] == "abort"
@@ -174,8 +220,15 @@ async def test_reconfigure_updates_entry(hass):
 
     updated_entry = hass.config_entries.async_get_entry(entry.entry_id)
     assert updated_entry is not None
-    assert updated_entry.data == {CONF_URL: "socket://new-host:5000"}
+    assert updated_entry.data == {
+        CONF_URL: "socket://new-host:5000",
+        CONF_REGO_TYPE: RegoType.REGO636.value,
+    }
 
+    mock_connect.assert_called_once_with(
+        url="socket://new-host:5000",
+        rego_type=RegoType.REGO636,
+    )
     hp.verify.assert_awaited_once_with(retry=0)
     hp.dispose.assert_awaited_once()
 
@@ -185,14 +238,20 @@ async def test_reconfigure_rejects_other_existing_entry(hass):
     entry_a = MockConfigEntry(
         domain=DOMAIN,
         title="A",
-        data={CONF_URL: "socket://a:5000"},
+        data={
+            CONF_URL: "socket://a:5000",
+            CONF_REGO_TYPE: RegoType.REGO637.value,
+        },
     )
     entry_a.add_to_hass(hass)
 
     entry_b = MockConfigEntry(
         domain=DOMAIN,
         title="B",
-        data={CONF_URL: "socket://b:5000"},
+        data={
+            CONF_URL: "socket://b:5000",
+            CONF_REGO_TYPE: RegoType.REGO636.value,
+        },
     )
     entry_b.add_to_hass(hass)
 
@@ -203,7 +262,7 @@ async def test_reconfigure_rejects_other_existing_entry(hass):
     with patch(
         "custom_components.regoheatpump.config_flow.HeatPump.connect",
         return_value=hp,
-    ):
+    ) as mock_connect:
         result = await hass.config_entries.flow.async_init(
             DOMAIN,
             context={
@@ -217,7 +276,10 @@ async def test_reconfigure_rejects_other_existing_entry(hass):
 
         result = await hass.config_entries.flow.async_configure(
             result["flow_id"],
-            user_input={CONF_URL: "socket://B:5000/"},
+            user_input={
+                CONF_URL: "socket://B:5000/",
+                CONF_REGO_TYPE: RegoType.REGO637.value,
+            },
         )
 
     assert result["type"] == "abort"
@@ -225,10 +287,14 @@ async def test_reconfigure_rejects_other_existing_entry(hass):
 
     unchanged_entry = hass.config_entries.async_get_entry(entry_a.entry_id)
     assert unchanged_entry is not None
-    assert unchanged_entry.data == {CONF_URL: "socket://a:5000"}
+    assert unchanged_entry.data == {
+        CONF_URL: "socket://a:5000",
+        CONF_REGO_TYPE: RegoType.REGO637.value,
+    }
 
-    hp.verify.assert_awaited_once_with(retry=0)
-    hp.dispose.assert_awaited_once()
+    mock_connect.assert_not_called()
+    hp.verify.assert_not_called()
+    hp.dispose.assert_not_called()
 
 
 async def test_user_step_unexpected_error(hass):
@@ -240,7 +306,7 @@ async def test_user_step_unexpected_error(hass):
     with patch(
         "custom_components.regoheatpump.config_flow.HeatPump.connect",
         return_value=hp,
-    ):
+    ) as mock_connect:
         result = await hass.config_entries.flow.async_init(
             DOMAIN,
             context={"source": config_entries.SOURCE_USER},
@@ -248,11 +314,18 @@ async def test_user_step_unexpected_error(hass):
 
         result = await hass.config_entries.flow.async_configure(
             result["flow_id"],
-            user_input={CONF_URL: "socket://host:5000"},
+            user_input={
+                CONF_URL: "socket://host:5000",
+                CONF_REGO_TYPE: DEFAULT_REGO_TYPE,
+            },
         )
 
     assert result["type"] == "form"
     assert result["step_id"] == "user"
     assert result["errors"] == {"base": "unknown"}
 
+    mock_connect.assert_called_once_with(
+        url="socket://host:5000",
+        rego_type=RegoType(DEFAULT_REGO_TYPE),
+    )
     hp.dispose.assert_awaited_once()
