@@ -324,6 +324,6 @@ async def test_user_step_unexpected_error(hass):
 
     mock_connect.assert_called_once_with(
         url="socket://host:5000",
-        rego_type=DEFAULT_REGO_TYPE,
+        rego_type=RegoType(DEFAULT_REGO_TYPE),
     )
     hp.dispose.assert_awaited_once()
