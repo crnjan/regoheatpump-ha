@@ -71,7 +71,7 @@ async def validate_input(data: dict[str, Any]) -> dict[str, str]:
         await hp.dispose()
 
     return {
-        "title": f"Rego Heat Pump ({REGO_TYPE_LABELS[rego_type]}, {url})",
+        "title": f"Rego Heat Pump ({REGO_TYPE_LABELS[rego_type.value]}, {url})",
         "url": url,
         "rego_type": rego_type.value,
     }
