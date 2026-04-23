@@ -327,3 +327,26 @@ async def test_user_step_unexpected_error(hass):
         rego_type=RegoType(DEFAULT_REGO_TYPE),
     )
     hp.dispose.assert_awaited_once()
+
+
+async def test_user_step_invalid_rego_type(hass):
+    """Test config flow returns field-level error for an invalid rego type."""
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN,
+        context={"source": config_entries.SOURCE_USER},
+    )
+
+    assert result["type"] == "form"
+    assert result["step_id"] == "user"
+
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        user_input={
+            CONF_URL: "socket://host:5000",
+            CONF_REGO_TYPE: "invalid_type",
+        },
+    )
+
+    assert result["type"] == "form"
+    assert result["step_id"] == "user"
+    assert result["errors"] == {CONF_REGO_TYPE: "invalid_rego_type"}

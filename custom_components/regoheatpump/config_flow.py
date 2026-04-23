@@ -25,6 +25,10 @@ class CannotConnect(Exception):
     """Error to indicate we cannot connect."""
 
 
+class InvalidRegoType(Exception):
+    """Error to indicate an invalid rego type was submitted."""
+
+
 def build_schema(
     url_default: Any = vol.UNDEFINED,
     rego_type_default: str = DEFAULT_REGO_TYPE,
@@ -59,7 +63,10 @@ def normalize_connection_url(url: str) -> str:
 async def validate_input(data: dict[str, Any]) -> dict[str, str]:
     """Validate the user input allows us to connect."""
     url = normalize_connection_url(data[CONF_URL])
-    rego_type = RegoType(data[CONF_REGO_TYPE])
+    try:
+        rego_type = RegoType(data[CONF_REGO_TYPE])
+    except ValueError as err:
+        raise InvalidRegoType from err
 
     hp = HeatPump.connect(url=url, rego_type=rego_type)
 
@@ -101,6 +108,8 @@ class RegoConfigFlow(ConfigFlow, domain=DOMAIN):
             except CannotConnect as err:
                 _LOGGER.debug("Cannot connect to heat pump: %s", err)
                 errors["base"] = "cannot_connect"
+            except InvalidRegoType:
+                errors[CONF_REGO_TYPE] = "invalid_rego_type"
             except Exception:
                 _LOGGER.exception("Unexpected exception during config flow")
                 errors["base"] = "unknown"
@@ -135,6 +144,8 @@ class RegoConfigFlow(ConfigFlow, domain=DOMAIN):
             except CannotConnect as err:
                 _LOGGER.debug("Cannot connect to heat pump during reconfigure: %s", err)
                 errors["base"] = "cannot_connect"
+            except InvalidRegoType:
+                errors[CONF_REGO_TYPE] = "invalid_rego_type"
             except Exception:
                 _LOGGER.exception("Unexpected exception during reconfigure")
                 errors["base"] = "unknown"
