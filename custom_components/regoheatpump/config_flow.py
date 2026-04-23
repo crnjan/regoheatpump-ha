@@ -59,7 +59,7 @@ def normalize_connection_url(url: str) -> str:
 
 
 async def check_connection(url: str, rego_type: RegoType):
-    """Validate if we can sucesfully connect to selected url."""
+    """Validate if we can successfully connect to selected url."""
 
     hp = HeatPump.connect(url=url, rego_type=rego_type)
 
