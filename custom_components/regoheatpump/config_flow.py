@@ -154,11 +154,18 @@ class RegoConfigFlow(ConfigFlow, domain=DOMAIN):
                 _LOGGER.exception("Unexpected exception during reconfigure")
                 errors["base"] = "unknown"
 
+        rego_type_str = entry.data.get(CONF_REGO_TYPE, DEFAULT_REGO_TYPE.value)
+        rego_type = (
+            RegoType(rego_type_str)
+            if rego_type_str in REGO_TYPE_LABELS
+            else DEFAULT_REGO_TYPE
+        )
+
         return self.async_show_form(
             step_id="reconfigure",
             data_schema=build_schema(
                 entry.data[CONF_URL],
-                RegoType(entry.data.get(CONF_REGO_TYPE, DEFAULT_REGO_TYPE)),
+                rego_type,
             ),
             errors=errors,
         )
