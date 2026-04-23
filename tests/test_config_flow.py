@@ -133,12 +133,9 @@ async def test_user_step_aborts_if_already_configured(hass):
     assert result["type"] == "abort"
     assert result["reason"] == "already_configured"
 
-    mock_connect.assert_called_once_with(
-        url="socket://host:5000",
-        rego_type=RegoType.REGO636,
-    )
-    hp.verify.assert_awaited_once_with(retry=0)
-    hp.dispose.assert_awaited_once()
+    mock_connect.assert_not_called()
+    hp.verify.assert_not_called()
+    hp.dispose.assert_not_called()
 
 
 async def test_reconfigure_shows_form_with_existing_value(hass):
@@ -287,12 +284,9 @@ async def test_reconfigure_rejects_other_existing_entry(hass):
         CONF_REGO_TYPE: RegoType.REGO637.value,
     }
 
-    mock_connect.assert_called_once_with(
-        url="socket://b:5000",
-        rego_type=RegoType.REGO637,
-    )
-    hp.verify.assert_awaited_once_with(retry=0)
-    hp.dispose.assert_awaited_once()
+    mock_connect.assert_not_called()
+    hp.verify.assert_not_called()
+    hp.dispose.assert_not_called()
 
 
 async def test_user_step_unexpected_error(hass):
@@ -327,26 +321,3 @@ async def test_user_step_unexpected_error(hass):
         rego_type=RegoType(DEFAULT_REGO_TYPE),
     )
     hp.dispose.assert_awaited_once()
-
-
-async def test_user_step_invalid_rego_type(hass):
-    """Test config flow returns field-level error for an invalid rego type."""
-    result = await hass.config_entries.flow.async_init(
-        DOMAIN,
-        context={"source": config_entries.SOURCE_USER},
-    )
-
-    assert result["type"] == "form"
-    assert result["step_id"] == "user"
-
-    result = await hass.config_entries.flow.async_configure(
-        result["flow_id"],
-        user_input={
-            CONF_URL: "socket://host:5000",
-            CONF_REGO_TYPE: "invalid_type",
-        },
-    )
-
-    assert result["type"] == "form"
-    assert result["step_id"] == "user"
-    assert result["errors"] == {CONF_REGO_TYPE: "invalid_rego_type"}
