@@ -2,8 +2,7 @@
 
 import asyncio
 import logging
-
-import serial_asyncio_fast as serial_asyncio
+import serialx
 
 from .connection import Connection
 from .regoerror import RegoError
@@ -28,7 +27,7 @@ class SerialConnection(Connection):
     async def connect(self) -> None:
         """Open the serial connection."""
         _LOGGER.debug("Connecting to '%s'", self.__url)
-        self.__reader, self.__writer = await serial_asyncio.open_serial_connection(
+        self.__reader, self.__writer = await serialx.open_serial_connection(
             url=self.__url, baudrate=19200
         )
 
