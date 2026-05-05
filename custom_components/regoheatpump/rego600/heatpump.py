@@ -4,13 +4,13 @@ import asyncio
 import logging
 from typing import Self
 
-from .rego_type import RegoType
 from .connection import Connection
 from .decoders import Decoder
 from .last_error import LastError
 from .register import Register
-from .repositories import RegisterRepository
+from .rego_type import RegoType
 from .regoerror import RegoError
+from .repositories import RegisterRepository
 from .serial_connection import SerialConnection
 from .transformations import Transformation
 
@@ -108,7 +108,7 @@ class HeatPump:
                 _LOGGER.debug("Received %s", response.hex())
             return transformation.to_value(decoder.decode(response))
 
-        except (OSError, EOFError, RegoError) as e:
+        except (TimeoutError, RegoError) as e:
             _LOGGER.debug("Sending '%s' failed due %r", payload.hex(), e)
             await self.__connection.close()
             if retry > 0:
