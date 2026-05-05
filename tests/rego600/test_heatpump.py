@@ -17,9 +17,9 @@ _REGISTER = RegisterFactory.system_temperature(Identifiers.SENSOR_VALUES_INDOOR,
 async def test_connect_fails():
     connection = mock.create_autospec(Connection)
     type(connection).is_connected = PropertyMock(return_value=False)
-    connection.connect.side_effect = OSError
+    connection.connect.side_effect = RegoError
     hp = HeatPump(connection, RegoType.REGO637)
-    with pytest.raises(OSError):
+    with pytest.raises(RegoError):
         await hp.read(_REGISTER, retry=0)
     connection.close.assert_called_once()
 
