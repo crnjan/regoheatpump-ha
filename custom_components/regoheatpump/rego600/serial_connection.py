@@ -11,9 +11,9 @@ from .regoerror import RegoError
 try:
     from aioesphomeapi.core import APIConnectionError
 except ImportError:
-    _COMM_ERRORS = (OSError, serialx.SerialException)
+    _COMM_ERRORS = (EOFError, OSError, serialx.SerialException)
 else:
-    _COMM_ERRORS = (OSError, serialx.SerialException, APIConnectionError)
+    _COMM_ERRORS = (EOFError, OSError, serialx.SerialException, APIConnectionError)
 
 _LOGGER = logging.getLogger(__name__)
 
