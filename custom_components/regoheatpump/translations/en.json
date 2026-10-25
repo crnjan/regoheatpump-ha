@@ -185,14 +185,14 @@
                     "6": "Sensor heat transfer fluid out (GT8)",
                     "7": "Sensor heat transfer fluid in (GT9)",
                     "8": "Sensor cold transfer fluid in (GT10)",
-                    "9": "Sensor cold transfer fluid in (GT11)"
+                    "9": "Sensor cold transfer fluid out (GT11)"
                 }
             },
             "operating_times-add_heat_in_operation_dhw": {
-                "name": "Add. heat in oper. - radiators"
+                "name": "Add. heat in oper. - DHW"
             },
             "operating_times-add_heat_in_operation_rad": {
-                "name": "Add. heat in oper. - DHW"
+                "name": "Add. heat in oper. - radiators"
             },
             "operating_times-heat_pump_in_operation_dhw": {
                 "name": "HP in oper. - DHW"
