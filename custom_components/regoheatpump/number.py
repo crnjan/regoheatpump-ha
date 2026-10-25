@@ -34,7 +34,11 @@ _RANGES = {
     Identifiers.SETTINGS_HOTWATER_TARGET: ValueDescription(min=35, max=54),
     Identifiers.SETTINGS_HOTWATER_TARGET_HYSTERESIS: ValueDescription(min=2, max=15),
     Identifiers.SETTINGS_HEAT_CURVE: ValueDescription(min=0, max=10),
+    Identifiers.SETTINGS_HEAT_CURVE_FINE_ADJ: ValueDescription(min=-10, max=10),
+    Identifiers.SETTINGS_HEAT_CURVE_COUPLING_DIFF: ValueDescription(min=2, max=15),
     Identifiers.SETTINGS_HEAT_CURVE_2: ValueDescription(min=0, max=10),
+    Identifiers.SETTINGS_HEAT_CURVE_2_FINE_ADJ: ValueDescription(min=-10, max=10),
+    Identifiers.SETTINGS_INDOOR_TEMP_SETTING: ValueDescription(min=10, max=30),
     Identifiers.SETTINGS_SUMMER_DISCONNECTION: ValueDescription(min=10, max=30),
 }
 
