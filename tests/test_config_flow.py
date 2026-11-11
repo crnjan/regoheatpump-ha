@@ -1,9 +1,12 @@
 from unittest.mock import AsyncMock, MagicMock, patch
 
+import pytest
+
 from homeassistant import config_entries
 from homeassistant.const import CONF_URL
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
+from custom_components.regoheatpump.config_flow import normalize_connection_url
 from custom_components.regoheatpump.const import (
     CONF_REGO_TYPE,
     DEFAULT_REGO_TYPE,
@@ -329,3 +332,111 @@ async def test_user_step_unexpected_error(hass):
         rego_type=RegoType(DEFAULT_REGO_TYPE),
     )
     hp.dispose.assert_awaited_once()
+
+
+@pytest.mark.parametrize(
+    ("url", "expected"),
+    [
+        ("/dev/ttyUSB0", "/dev/ttyUSB0"),
+        ("  /dev/serial/by-id/usb-FTDI_AB12  ", "/dev/serial/by-id/usb-FTDI_AB12"),
+        ("socket://HOST:5000/", "socket://host:5000"),
+        ("SOCKET://Host:5000", "socket://host:5000"),
+        (
+            "esphome://HeatPump.local/?port_name=Rego&key=AbC%2BdEf%3D",
+            "esphome://heatpump.local/?port_name=Rego&key=AbC%2BdEf%3D",
+        ),
+        (
+            "esphome://HeatPump.local:6053/Rego",
+            "esphome://heatpump.local:6053/Rego",
+        ),
+        ("rfc2217://User:Pass@HOST:4000", "rfc2217://User:Pass@host:4000"),
+    ],
+)
+def test_normalize_connection_url(url: str, expected: str) -> None:
+    """Only scheme and host are lowercased; path, query and credentials are kept."""
+    assert normalize_connection_url(url) == expected
+
+
+async def _run_flow(hass, source: str, url: str, rego_type: RegoType, entry=None):
+    """Run a user or reconfigure flow with a mocked heat pump."""
+    hp = MagicMock()
+    hp.verify = AsyncMock()
+    hp.dispose = AsyncMock()
+
+    context = {"source": source}
+    if entry is not None:
+        context["entry_id"] = entry.entry_id
+
+    with (
+        patch(
+            "custom_components.regoheatpump.config_flow.HeatPump.connect",
+            return_value=hp,
+        ),
+        patch(
+            "custom_components.regoheatpump.async_setup_entry",
+            return_value=True,
+        ),
+    ):
+        result = await hass.config_entries.flow.async_init(DOMAIN, context=context)
+        return await hass.config_entries.flow.async_configure(
+            result["flow_id"],
+            user_input={CONF_URL: url, CONF_REGO_TYPE: rego_type.value},
+        )
+
+
+async def test_user_step_title_hides_encryption_key(hass):
+    """The entry title never contains the ESPHome API key; the data keeps it."""
+    url = "esphome://HeatPump.local/?port_name=Rego&key=AbC%2BdEf%3D"
+
+    result = await _run_flow(hass, config_entries.SOURCE_USER, url, RegoType.REGO637)
+
+    assert result["type"] == "create_entry"
+    assert result["title"] == (
+        "Rego Heat Pump (Rego 637, esphome://heatpump.local/?port_name=Rego&key=***)"
+    )
+    assert result["data"][CONF_URL] == (
+        "esphome://heatpump.local/?port_name=Rego&key=AbC%2BdEf%3D"
+    )
+
+
+@pytest.mark.parametrize(
+    ("old_title", "expected_title"),
+    [
+        # Auto-generated title from an older version, containing the key
+        (
+            "Rego Heat Pump (Rego 637, esphome://hp.local/?key=old)",
+            "Rego Heat Pump (Rego 637, esphome://hp.local/?key=***)",
+        ),
+        # Current auto-generated (redacted) title
+        (
+            "Rego Heat Pump (Rego 637, esphome://hp.local/?key=***)",
+            "Rego Heat Pump (Rego 637, esphome://hp.local/?key=***)",
+        ),
+        # User renamed the entry: keep their title
+        ("My heat pump", "My heat pump"),
+    ],
+)
+async def test_reconfigure_refreshes_generated_title(hass, old_title, expected_title):
+    """Reconfigure replaces generated titles but keeps user-chosen ones."""
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        title=old_title,
+        data={
+            CONF_URL: "esphome://hp.local/?key=old",
+            CONF_REGO_TYPE: RegoType.REGO637.value,
+        },
+    )
+    entry.add_to_hass(hass)
+
+    result = await _run_flow(
+        hass,
+        config_entries.SOURCE_RECONFIGURE,
+        "esphome://hp.local/?key=new",
+        RegoType.REGO637,
+        entry,
+    )
+
+    assert result["reason"] == "reconfigure_successful"
+    updated = hass.config_entries.async_get_entry(entry.entry_id)
+    assert updated.title == expected_title
+    assert updated.data[CONF_URL] == "esphome://hp.local/?key=new"

@@ -56,3 +56,22 @@ async def test_number_entity_value_range(
     assert entity.native_min_value == expected_min
     assert entity.native_max_value == expected_max
     assert entity.native_step == 0.1
+
+
+async def test_write_failure_raises_home_assistant_error() -> None:
+    """A failed register write surfaces as a HomeAssistantError."""
+    from unittest.mock import AsyncMock
+
+    from homeassistant.exceptions import HomeAssistantError
+
+    from custom_components.regoheatpump.rego600 import RegoError
+
+    entities = await _number_entities(RegoType.REGO637)
+    entity = entities[f"test-entry-{Identifiers.SETTINGS_HOTWATER_TARGET}"]
+    entity._heat_pump = Mock(write=AsyncMock(side_effect=RegoError("Write failed")))
+    entity.async_write_ha_state = Mock()
+
+    with pytest.raises(HomeAssistantError, match="Failed to write 50"):
+        await entity.async_set_native_value(50)
+
+    entity.async_write_ha_state.assert_not_called()

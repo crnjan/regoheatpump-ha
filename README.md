@@ -2,7 +2,7 @@
 
 [![GitHub Release](https://img.shields.io/github/v/release/crnjan/regoheatpump-ha.svg)](https://github.com/crnjan/regoheatpump-ha/releases)
 [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-Integration-41BDF5?logo=home-assistant&logoColor=white)](https://www.home-assistant.io/)
-[![HACS](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://hacs.xyz/)
+[![HACS](https://img.shields.io/badge/HACS%20%7C%20Marketplace-Custom-orange.svg)](https://hacs.xyz/)
 [![Home Assistant Validation](https://github.com/crnjan/regoheatpump-ha/actions/workflows/hassfest.yaml/badge.svg)](https://github.com/crnjan/regoheatpump-ha/actions/workflows/hassfest.yaml)
 [![HACS Validation](https://github.com/crnjan/regoheatpump-ha/actions/workflows/hacs_validate.yml/badge.svg)](https://github.com/crnjan/regoheatpump-ha/actions/workflows/hacs_validate.yml)
 
@@ -39,19 +39,33 @@ This integration provides local monitoring and control of your heat pump via ser
 
 ---
 
-## 📦 Installation (HACS Recommended)
+## 📦 Installation
 
-### Install via HACS
+Requires **Home Assistant 2026.5.0** or newer.
+
+### Home Assistant 2026.11 and newer (Marketplace)
+
+1. Go to **Settings → Marketplace**
+2. Select **Add from link** (upper-right corner)
+3. Enter `crnjan/regoheatpump-ha` and select **Add**  
+   (custom repositories require a connected GitHub account; if asked for a type, choose **Integration**)
+4. Open **Rego Heat Pump** and select **Install**, then confirm
+5. Continue with the setup dialog, or later go to **Settings → Devices & Services → Add Integration** and search for **Rego Heat Pump**
+
+### Home Assistant 2026.5 – 2026.10 (HACS)
 
 1. Open **HACS**
-2. Go to **Integrations**
-3. Click **⋮ → Custom repositories**
-4. Add this repository URL
-5. Select **Integration** as the category
-6. Click **Install**
-7. Restart Home Assistant
-8. Go to **Settings → Devices & Services → Add Integration**
-9. Search for **Rego Heat Pump**
+2. Click **⋮ → Custom repositories**
+3. Add `https://github.com/crnjan/regoheatpump-ha`
+4. Select **Integration** as the category
+5. Find **Rego Heat Pump** and click **Download**
+6. Restart Home Assistant
+7. Go to **Settings → Devices & Services → Add Integration**
+8. Search for **Rego Heat Pump**
+
+### Updating
+
+Updates appear in the Marketplace (or HACS). A restart of Home Assistant is required after updating.
 
 ---
 
@@ -62,122 +76,140 @@ After installation:
 1. Go to **Settings → Devices & Services**
 2. Click **Add Integration**
 3. Search for **Rego Heat Pump**
-4. Enter your serial device (e.g. `socket://192.168.1.100:9500`)
+4. Enter the connection URL of your serial device (see examples below)
 5. Complete the setup wizard
 
 No YAML configuration required.
 
----
+### Connection URL examples
 
-## 🔧 Requirements
+| Connection | Example URL |
+|---|---|
+| Local serial adapter | `/dev/ttyUSB0` or `/dev/serial/by-id/usb-FTDI_…` |
+| Serial-to-network bridge (raw TCP) | `socket://192.168.1.100:9500` |
+| RFC 2217 server | `rfc2217://192.168.1.100:4000` |
+| [ESPHome serial proxy](https://esphome.io/components/serial_proxy/) | `esphome://heatpump.local/?port_name=rego&key=<api-encryption-key>` |
 
-- Rego 6xx controller  
-- Serial connection to the Home Assistant host  
-  (USB-RS485 or compatible serial adapter)  
-- HACS (recommended for installation)  
+For the ESPHome serial proxy:
+
+- `port_name` is the name of the serial proxy in your ESPHome config, and `key` is the device's API encryption key. The API port defaults to 6053.
+- URL-encode the key, as it usually contains `+`, `/` or `=` (`+` → `%2B`, `/` → `%2F`, `=` → `%3D`).
 
 ---
 
 ## 📊 Supported Entities
 
-### 🌡️ Temperature Sensors (`sensor`)
+Entity IDs below assume the default device name **Heat Pump**. Home Assistant creates them when the integration is first set up, so they may differ if you renamed the device or entities. Entities not enabled by default can be enabled under **Settings → Devices & Services → Entities**.
 
-| Entity ID | Description | Access |
-|-----------|------------|--------|
-| `sensor.radiator_return` | Radiator return temperature | R |
-| `sensor.radiator_forward` | Radiator forward temperature | R |
-| `sensor.outdoor` | Outdoor temperature | R |
-| `sensor.indoor` | Indoor temperature | R |
-| `sensor.hot_water` | Domestic hot water temperature | R |
-| `sensor.external_hot_water` | External hot water temperature | R |
-| `sensor.compressor_temp` | Compressor temperature | R |
-| `sensor.heat_fluid_out` | Heat fluid out temperature | R |
-| `sensor.heat_fluid_in` | Heat fluid in temperature | R |
-| `sensor.cold_fluid_in` | Cold fluid in temperature | R |
-| `sensor.cold_fluid_out` | Cold fluid out temperature | R |
+### 🌡️ Temperatures (`sensor`)
 
----
-
-### 🎛 Control Values (`number`)
-
-| Entity ID | Description | Access |
-|-----------|------------|--------|
-| `number.radiator_return_target` | Radiator return target | R |
-| `number.radiator_return_on` | Radiator return ON threshold | R |
-| `number.radiator_return_off` | Radiator return OFF threshold | R |
-| `number.hot_water_on` | Hot water ON threshold | R |
-| `number.hot_water_off` | Hot water OFF threshold | R |
-| `number.radiator_forward_target` | Radiator forward target | R |
-| `number.hot_water_target` | Hot water target temperature | RW |
-| `number.hot_water_target_hysteresis` | Hot water hysteresis | RW |
-| `number.heat_curve` | Heat curve value | RW |
-| `number.heat_curve_fine_adj` | Heat curve fine adjustment | RW |
-| `number.heat_curve_2` | Secondary heat curve | RW |
-| `number.heat_curve_2_fine_adj` | Secondary heat curve fine adjustment | RW |
-| `number.indoor_temp_setting` | Indoor temperature setting | RW |
-| `number.curve_infl_by_in_temp` | Curve influence by indoor temp | RW |
-| `number.adj_curve_at_20` | Curve adjustment at 20°C | RW |
-| `number.adj_curve_at_15` | Curve adjustment at 15°C | RW |
-| `number.adj_curve_at_10` | Curve adjustment at 10°C | RW |
-| `number.adj_curve_at_5` | Curve adjustment at 5°C | RW |
-| `number.adj_curve_at_0` | Curve adjustment at 0°C | RW |
-| `number.adj_curve_at_minus5` | Curve adjustment at -5°C | RW |
-| `number.adj_curve_at_minus10` | Curve adjustment at -10°C | RW |
-| `number.adj_curve_at_minus15` | Curve adjustment at -15°C | RW |
-| `number.adj_curve_at_minus20` | Curve adjustment at -20°C | RW |
-| `number.adj_curve_at_minus25` | Curve adjustment at -25°C | RW |
-| `number.adj_curve_at_minus30` | Curve adjustment at -30°C | RW |
-| `number.adj_curve_at_minus35` | Curve adjustment at -35°C | RW |
-| `number.heat_curve_coupling_diff` | Heat curve coupling difference | RW |
-| `number.summer_disconnection` | Summer disconnection temperature | RW |
-| `number.add_heat_power` | Additional heat power (%) | R |
+| Entity ID | Name | Enabled by default |
+|---|---|:---:|
+| `sensor.heat_pump_radiator_return` | Radiator return | ✅ |
+| `sensor.heat_pump_outdoor` | Outdoor | ✅ |
+| `sensor.heat_pump_dhw` | DHW | ✅ |
+| `sensor.heat_pump_radiator_forward` | Radiator forward | ✅ |
+| `sensor.heat_pump_indoor` | Indoor |  |
+| `sensor.heat_pump_compressor` | Compressor | ✅ |
+| `sensor.heat_pump_heat_fluid_out` | Heat fluid out | ✅ |
+| `sensor.heat_pump_heat_fluid_in` | Heat fluid in | ✅ |
+| `sensor.heat_pump_cold_fluid_in` | Cold fluid in | ✅ |
+| `sensor.heat_pump_cold_fluid_out` | Cold fluid out | ✅ |
+| `sensor.heat_pump_dhw_external` | DHW external (Rego 637 only) | ✅ |
 
 ---
 
-### 🔄 Switches (`switch`)
+### 🎯 Control values (`sensor`)
 
-| Entity ID | Description | Access |
-|-----------|------------|--------|
-| `switch.power_lamp` | Power indicator lamp | R |
-| `switch.heat_pump_lamp` | Heat pump active lamp | R |
-| `switch.additional_heat_lamp` | Additional heat lamp | R |
-| `switch.hot_water_lamp` | Hot water lamp | R |
-| `switch.alarm_lamp` | Alarm lamp | R |
-| `switch.cold_fluid_pump` | Cold fluid pump | R |
-| `switch.compressor` | Compressor state | R |
-| `switch.additional_heat_3kw` | Additional heat 3kW | R |
-| `switch.additional_heat_6kw` | Additional heat 6kW | R |
-| `switch.radiator_pump` | Radiator pump | R |
-| `switch.heat_fluid_pump` | Heat fluid pump | R |
-| `switch.switch_value` | Generic switch value | R |
-| `switch.alarm` | Alarm state | R |
+Values calculated by the controller (read-only).
+
+| Entity ID | Name | Enabled by default |
+|---|---|:---:|
+| `sensor.heat_pump_radiator_forward_target` | Radiator forward target | ✅ |
+| `sensor.heat_pump_radiator_return_target` | Radiator return target |  |
+| `sensor.heat_pump_radiator_return_on` | Radiator return on | ✅ |
+| `sensor.heat_pump_radiator_return_off` | Radiator return off | ✅ |
+| `sensor.heat_pump_dhw_on` | DHW on | ✅ |
+| `sensor.heat_pump_dhw_off` | DHW off | ✅ |
 
 ---
 
-### ⏱ Operating Time (`sensor`)
+### 🎛 Settings (`number`)
 
-| Entity ID | Description | Unit | Access |
-|-----------|------------|------|--------|
-| `sensor.heatpump_operation_rad` | Heat pump runtime (Radiator) | h | R |
-| `sensor.heatpump_operation_dhw` | Heat pump runtime (DHW) | h | R |
-| `sensor.addheat_operation_rad` | Additional heat runtime (Radiator) | h | R |
-| `sensor.addheat_operation_dhw` | Additional heat runtime (DHW) | h | R |
+Writable controller settings.
+
+| Entity ID | Name | Range | Enabled by default |
+|---|---|---|:---:|
+| `number.heat_pump_heat_curve` | Heat curve | 0 … 10 | ✅ |
+| `number.heat_pump_heat_curve_fine_tune` | Heat curve fine tune | -10 … 10 | ✅ |
+| `number.heat_pump_heat_curve_coupling_diff` | Heat curve coupling diff | 2 … 15 |  |
+| `number.heat_pump_heat_curve_2` | Heat curve 2 | 0 … 10 |  |
+| `number.heat_pump_heat_curve_2_fine_tune` | Heat curve 2 fine tune | -10 … 10 |  |
+| `number.heat_pump_adjust_heat_curve_at_20_degc` | Adjust heat curve at 20 °C | -10 … 10 |  |
+| `number.heat_pump_adjust_heat_curve_at_15_degc` | Adjust heat curve at 15 °C | -10 … 10 |  |
+| `number.heat_pump_adjust_heat_curve_at_10_degc` | Adjust heat curve at 10 °C | -10 … 10 |  |
+| `number.heat_pump_adjust_heat_curve_at_5_degc` | Adjust heat curve at 5 °C | -10 … 10 |  |
+| `number.heat_pump_adjust_heat_curve_at_0_degc` | Adjust heat curve at 0 °C | -10 … 10 |  |
+| `number.heat_pump_adjust_heat_curve_at_minus_5_degc` | Adjust heat curve at minus 5 °C | -10 … 10 |  |
+| `number.heat_pump_adjust_heat_curve_at_minus_10_degc` | Adjust heat curve at minus 10 °C | -10 … 10 |  |
+| `number.heat_pump_adjust_heat_curve_at_minus_15_degc` | Adjust heat curve at minus 15 °C | -10 … 10 |  |
+| `number.heat_pump_adjust_heat_curve_at_minus_20_degc` | Adjust heat curve at minus 20 °C | -10 … 10 |  |
+| `number.heat_pump_adjust_heat_curve_at_minus_25_degc` | Adjust heat curve at minus 25 °C | -10 … 10 |  |
+| `number.heat_pump_adjust_heat_curve_at_minus_30_degc` | Adjust heat curve at minus 30 °C | -10 … 10 |  |
+| `number.heat_pump_adjust_heat_curve_at_minus_35_degc` | Adjust heat curve at minus 35 °C | -10 … 10 |  |
+| `number.heat_pump_indoor_target` | Indoor target | 10 … 30 |  |
+| `number.heat_pump_indoor_sensor_influence` | Indoor sensor influence | -10 … 10 |  |
+| `number.heat_pump_summer_disconnection` | Summer disconnection | 10 … 30 | ✅ |
+| `number.heat_pump_dhw_target` | DHW target | 35 … 54 | ✅ |
+| `number.heat_pump_dhw_hysteresis` | DHW hysteresis | 2 … 15 | ✅ |
 
 ---
 
-### ⚠ Status Sensors (`sensor`)
+### 🔄 Device states (`binary_sensor`)
 
-| Entity ID | Description | Access |
-|-----------|------------|--------|
-| `sensor.last_error_timestamp` | Timestamp of last error | R |
-| `sensor.last_error_type` | Last error type | R |
+| Entity ID | Name | Enabled by default |
+|---|---|:---:|
+| `binary_sensor.heat_pump_cold_fluid_pump` | Cold fluid pump | ✅ |
+| `binary_sensor.heat_pump_compressor` | Compressor | ✅ |
+| `binary_sensor.heat_pump_additional_heat_3kw` | Additional heat 3kW | ✅ |
+| `binary_sensor.heat_pump_additional_heat_6kw` | Additional heat 6kW | ✅ |
+| `binary_sensor.heat_pump_radiator_pump` | Radiator pump | ✅ |
+| `binary_sensor.heat_pump_heat_fluid_pump` | Heat fluid pump | ✅ |
+| `binary_sensor.heat_pump_switch_valve` | Switch valve | ✅ |
+| `binary_sensor.heat_pump_alarm` | Alarm | ✅ |
 
 ---
 
-**Access Legend**
+### 💡 Front panel lamps (`binary_sensor`)
 
-- **R** = Read-only  
-- **RW** = Read & Write  
+| Entity ID | Name | Enabled by default |
+|---|---|:---:|
+| `binary_sensor.heat_pump_power_lamp` | Power lamp |  |
+| `binary_sensor.heat_pump_heat_pump_lamp` | Heat pump lamp |  |
+| `binary_sensor.heat_pump_additional_heat_lamp` | Additional heat lamp |  |
+| `binary_sensor.heat_pump_dhw_lamp` | DHW lamp |  |
+| `binary_sensor.heat_pump_alarm_lamp` | Alarm lamp |  |
+
+---
+
+### ⏱ Operating times (`sensor`, hours)
+
+| Entity ID | Name | Enabled by default |
+|---|---|:---:|
+| `sensor.heat_pump_hp_in_oper_radiators` | HP in oper. - radiators | ✅ |
+| `sensor.heat_pump_hp_in_oper_dhw` | HP in oper. - DHW | ✅ |
+| `sensor.heat_pump_add_heat_in_oper_radiators` | Add. heat in oper. - radiators | ✅ |
+| `sensor.heat_pump_add_heat_in_oper_dhw` | Add. heat in oper. - DHW | ✅ |
+
+---
+
+### ⚠ Last error (`sensor`)
+
+The state is the error code (shown as its description in the UI); the `timestamp` attribute holds when it occurred.
+
+| Entity ID | Name | Enabled by default |
+|---|---|:---:|
+| `sensor.heat_pump_last_error` | Last error | ✅ |
 
 ---
 

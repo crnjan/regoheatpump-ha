@@ -1,14 +1,13 @@
 {
   "domain": "regoheatpump",
   "name": "Rego Heat Pump",
-  "codeowners": [
-    "@crnjan"
-  ],
+  "categories": ["climate.heat_pumps_air_conditioning"],
+  "codeowners": ["@crnjan"],
   "config_flow": true,
   "documentation": "https://github.com/crnjan/regoheatpump-ha",
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/crnjan/regoheatpump-ha/issues",
-  "loggers": ["regoheatpump"],
+  "loggers": ["regoheatpump", "serialx"],
   "requirements": ["serialx>=1.4.1"],
-  "version": "0.0.8"
+  "version": "0.0.9"
 }

@@ -198,25 +198,25 @@
         "name": "Adjust heat curve at 0 °C"
       },
       "settings-adj_curve_at_minus_5": {
-        "name": "Adjust heat curve at -5 °C"
+        "name": "Adjust heat curve at minus 5 °C"
       },
       "settings-adj_curve_at_minus_10": {
-        "name": "Adjust heat curve at -10 °C"
+        "name": "Adjust heat curve at minus 10 °C"
       },
       "settings-adj_curve_at_minus_15": {
-        "name": "Adjust heat curve at -15 °C"
+        "name": "Adjust heat curve at minus 15 °C"
       },
       "settings-adj_curve_at_minus_20": {
-        "name": "Adjust heat curve at -20 °C"
+        "name": "Adjust heat curve at minus 20 °C"
       },
       "settings-adj_curve_at_minus_25": {
-        "name": "Adjust heat curve at -25 °C"
+        "name": "Adjust heat curve at minus 25 °C"
       },
       "settings-adj_curve_at_minus_30": {
-        "name": "Adjust heat curve at -30 °C"
+        "name": "Adjust heat curve at minus 30 °C"
       },
       "settings-adj_curve_at_minus_35": {
-        "name": "Adjust heat curve at -35 °C"
+        "name": "Adjust heat curve at minus 35 °C"
       },
       "settings-indoor_temp_setting": {
         "name": "Indoor target"

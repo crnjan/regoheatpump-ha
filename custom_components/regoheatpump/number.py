@@ -10,11 +10,12 @@ from homeassistant.components.number import (
 )
 from homeassistant.const import UnitOfTemperature
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from . import RegoConfigEntry
 from .entity import POLL_INTERVAL, RegoEntity
-from .rego600 import Identifiers, LastError, Register, Type
+from .rego600 import Identifiers, LastError, Register, RegoError, Type
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -84,7 +85,12 @@ class RegoNumberEntity(NumberEntity, RegoEntity):
 
     async def async_set_native_value(self, value: float) -> None:
         """Write new value to heat pump register."""
-        await self._heat_pump.write(self._register, value)
+        try:
+            await self._heat_pump.write(self._register, value)
+        except (OSError, RegoError) as err:
+            raise HomeAssistantError(
+                f"Failed to write {value} to {self._register.identifier}"
+            ) from err
         self._attr_native_value = value
         self.async_write_ha_state()
 

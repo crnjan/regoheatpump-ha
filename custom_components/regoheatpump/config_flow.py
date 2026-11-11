@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 from typing import Any
+from urllib.parse import urlsplit, urlunsplit
 
 import voluptuous as vol
 
@@ -16,7 +17,7 @@ from homeassistant.helpers.selector import (
 )
 
 from .const import CONF_REGO_TYPE, DEFAULT_REGO_TYPE, DOMAIN, REGO_TYPE_LABELS
-from .rego600 import HeatPump, RegoError, RegoType
+from .rego600 import HeatPump, RegoError, RegoType, redact_url
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -49,13 +50,28 @@ def build_schema(
 
 
 def normalize_connection_url(url: str) -> str:
-    """Normalize connection URL/path for storage and duplicate checks."""
+    """Normalize connection URL/path for storage and duplicate checks.
+
+    Only the scheme and host are case-insensitive; the path and query (e.g. an
+    ESPHome port name or API encryption key) are kept exactly as entered.
+    """
     url = url.strip()
 
     if "://" not in url:
         return url
 
-    return url.rstrip("/").lower()
+    parts = urlsplit(url.rstrip("/"))
+    userinfo, sep, hostport = parts.netloc.rpartition("@")
+    netloc = f"{userinfo}{sep}{hostport.lower()}"
+
+    return urlunsplit(
+        (parts.scheme.lower(), netloc, parts.path, parts.query, parts.fragment)
+    )
+
+
+def entry_title(url: str, rego_type: RegoType) -> str:
+    """Build the config entry title, without secrets from the URL."""
+    return f"Rego Heat Pump ({REGO_TYPE_LABELS[rego_type]}, {redact_url(url)})"
 
 
 async def check_connection(url: str, rego_type: RegoType):
@@ -106,7 +122,7 @@ class RegoConfigFlow(ConfigFlow, domain=DOMAIN):
                 errors["base"] = "unknown"
             else:
                 return self.async_create_entry(
-                    title=f"Rego Heat Pump ({REGO_TYPE_LABELS[rego_type]}, {url})",
+                    title=entry_title(url, rego_type),
                     data={
                         CONF_URL: url,
                         CONF_REGO_TYPE: rego_type.value,
@@ -139,8 +155,21 @@ class RegoConfigFlow(ConfigFlow, domain=DOMAIN):
                     return self.async_abort(reason="already_configured")
 
                 await check_connection(url, rego_type)
+
+                # Refresh the title only if the user has not renamed the entry.
+                # Titles from older versions may contain the unredacted URL.
+                title = entry.title
+                old_url = entry.data.get(CONF_URL, "")
+                old_type = entry.data.get(CONF_REGO_TYPE, DEFAULT_REGO_TYPE.value)
+                if old_type in REGO_TYPE_LABELS and entry.title in (
+                    f"Rego Heat Pump ({REGO_TYPE_LABELS[RegoType(old_type)]}, {old_url})",
+                    entry_title(old_url, RegoType(old_type)),
+                ):
+                    title = entry_title(url, rego_type)
+
                 return self.async_update_reload_and_abort(
                     entry,
+                    title=title,
                     data_updates={
                         CONF_URL: url,
                         CONF_REGO_TYPE: rego_type.value,

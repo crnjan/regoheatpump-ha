@@ -87,25 +87,25 @@
                 "name": "Adjust heat curve at 5 \u00b0C"
             },
             "settings-adj_curve_at_minus_10": {
-                "name": "Adjust heat curve at -10 \u00b0C"
+                "name": "Adjust heat curve at minus 10 \u00b0C"
             },
             "settings-adj_curve_at_minus_15": {
-                "name": "Adjust heat curve at -15 \u00b0C"
+                "name": "Adjust heat curve at minus 15 \u00b0C"
             },
             "settings-adj_curve_at_minus_20": {
-                "name": "Adjust heat curve at -20 \u00b0C"
+                "name": "Adjust heat curve at minus 20 \u00b0C"
             },
             "settings-adj_curve_at_minus_25": {
-                "name": "Adjust heat curve at -25 \u00b0C"
+                "name": "Adjust heat curve at minus 25 \u00b0C"
             },
             "settings-adj_curve_at_minus_30": {
-                "name": "Adjust heat curve at -30 \u00b0C"
+                "name": "Adjust heat curve at minus 30 \u00b0C"
             },
             "settings-adj_curve_at_minus_35": {
-                "name": "Adjust heat curve at -35 \u00b0C"
+                "name": "Adjust heat curve at minus 35 \u00b0C"
             },
             "settings-adj_curve_at_minus_5": {
-                "name": "Adjust heat curve at -5 \u00b0C"
+                "name": "Adjust heat curve at minus 5 \u00b0C"
             },
             "settings-curve_infl_by_in_temp": {
                 "name": "Indoor sensor influence"

@@ -1,3 +1,4 @@
 {
-  "name": "Rego Heat Pump"
+  "name": "Rego Heat Pump",
+  "homeassistant": "2026.5.0"
 }
