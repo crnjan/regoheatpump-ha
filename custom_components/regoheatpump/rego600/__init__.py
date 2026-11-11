@@ -5,7 +5,7 @@ from .group import Group
 from .heatpump import HeatPump
 from .identifier import Identifier
 from .identifiers import Identifiers
-from .redact import redact_url
+from .redact import redact_url, redact_urls_in_text
 from .last_error import LastError
 from .register import Register
 from .regoerror import RegoError, RegoProtocolError
@@ -23,4 +23,5 @@ __all__ = [
     "RegoType",
     "Type",
     "redact_url",
+    "redact_urls_in_text",
 ]

@@ -39,6 +39,11 @@ class SerialConnection(Connection):
         except (OSError, serialx.SerialException) as err:
             serial.abort()
             raise RegoError("Failed to connect") from err
+        except asyncio.CancelledError:
+            # E.g. the caller's connect timeout. The transport is not stored yet,
+            # so close() could not clean it up later.
+            serial.abort()
+            raise
         self.__serial = serial
 
     async def close(self) -> None:

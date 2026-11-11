@@ -1,5 +1,6 @@
 """Tests for the serialx transport adapter."""
 
+import asyncio
 from unittest import mock
 
 import pytest
@@ -66,6 +67,22 @@ async def test_connect_timeout(serial, serial_factory) -> None:
 
     with pytest.raises(RegoError, match="Failed to connect"):
         await connection.connect()
+
+
+async def test_cancelled_connect_aborts_transport(serial, serial_factory) -> None:
+    """A connect cancelled while opening (e.g. by a timeout) aborts the transport."""
+
+    async def stalled_open() -> None:
+        await asyncio.sleep(10)
+
+    serial.open.side_effect = stalled_open
+    connection = SerialConnection("esphome://hp.local/?port_name=rego")
+
+    with pytest.raises(TimeoutError):
+        await asyncio.wait_for(connection.connect(), timeout=0.01)
+
+    serial.abort.assert_called_once()
+    assert not connection.is_connected
 
 
 async def test_dropped_link_reports_disconnected(serial, serial_factory) -> None:

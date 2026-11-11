@@ -1,9 +1,14 @@
 """Helpers for hiding secrets in connection URLs."""
 
+import re
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 _SECRET_PARAMS = frozenset({"key", "noise_psk", "password"})
 _MASK = "***"
+
+# A URL inside free text, e.g. "Rego Heat Pump (Rego 637, esphome://…)".
+# Stops at whitespace and ")" so surrounding text is kept.
+_EMBEDDED_URL = re.compile(r"[A-Za-z][A-Za-z0-9+.-]*://[^\s)]+")
 
 
 def redact_url(url: str) -> str:
@@ -36,3 +41,8 @@ def redact_url(url: str) -> str:
             )
 
     return urlunsplit((parts.scheme, netloc, parts.path, query, parts.fragment))
+
+
+def redact_urls_in_text(text: str) -> str:
+    """Return the text with every embedded URL redacted."""
+    return _EMBEDDED_URL.sub(lambda match: redact_url(match.group()), text)

@@ -9,7 +9,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 
 from . import RegoConfigEntry
-from .rego600 import redact_url
+from .rego600 import redact_url, redact_urls_in_text
 
 
 async def async_get_config_entry_diagnostics(
@@ -37,16 +37,28 @@ async def async_get_config_entry_diagnostics(
             }
         )
 
+    # Not set if setup failed (e.g. pump unreachable) or the entry is unloaded
+    runtime_data = getattr(entry, "runtime_data", None)
+    if runtime_data is None:
+        heat_pump: dict[str, Any] = {"available": False}
+    else:
+        heat_pump = {
+            "available": True,
+            "offline": runtime_data.heat_pump.is_offline,
+            "register_count": len(runtime_data.heat_pump.registers),
+        }
+
     return {
         "entry": {
-            # Titles from versions before 0.0.9 may contain the unredacted URL
-            "title": entry.title.replace(url, redact_url(url)) if url else entry.title,
+            # Legacy or user-chosen titles may contain URLs, including ones
+            # that are no longer configured
+            "title": redact_urls_in_text(entry.title),
             "data": {**entry.data, CONF_URL: redact_url(url)},
             "version": entry.version,
+            "state": entry.state,
+            # Setup error message, e.g. why the pump was not reachable
+            "reason": entry.reason,
         },
-        "heat_pump": {
-            "offline": entry.runtime_data.heat_pump.is_offline,
-            "register_count": len(entry.runtime_data.heat_pump.registers),
-        },
+        "heat_pump": heat_pump,
         "entities": sorted(entities, key=lambda item: item["entity_id"]),
     }
