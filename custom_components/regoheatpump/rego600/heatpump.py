@@ -1,7 +1,9 @@
 """Client for reading and writing Rego 600 registers."""
 
 import asyncio
+from collections.abc import Callable
 import logging
+import time
 from typing import Self
 
 from .connection import Connection
@@ -9,7 +11,7 @@ from .decoders import Decoder
 from .last_error import LastError
 from .register import Register
 from .rego_type import RegoType
-from .regoerror import RegoError
+from .regoerror import RegoError, RegoProtocolError
 from .repositories import RegisterRepository
 from .serial_connection import SerialConnection
 from .transformations import Transformation
@@ -17,21 +19,37 @@ from .transformations import Transformation
 _LOGGER = logging.getLogger(__name__)
 _RETRIES: int = 3
 
+# After a request fails all its retries, further requests fail immediately for
+# this long instead of each waiting for its own timeouts and retries.
+OFFLINE_BACKOFF: float = 30.0
+
 
 class HeatPump:
     """High-level API for Rego controller communication."""
 
-    def __init__(self, connection: Connection, rego_type: RegoType) -> None:
+    def __init__(
+        self,
+        connection: Connection,
+        rego_type: RegoType,
+        clock: Callable[[], float] = time.monotonic,
+    ) -> None:
         """Initialize the client with a transport connection."""
         self.__connection = connection
         self.__lock = asyncio.Lock()
         self.__rego_type = rego_type
+        self.__clock = clock
+        self.__offline_until: float | None = None
 
     @classmethod
     def connect(cls, url: str, rego_type: RegoType) -> Self:
         """Create a client for the given serial URL."""
         connection = SerialConnection(url)
         return cls(connection, rego_type)
+
+    @property
+    def is_offline(self) -> bool:
+        """Return True if the heat pump is considered unreachable."""
+        return self.__offline_until is not None
 
     @property
     def registers(self) -> list[Register]:
@@ -73,9 +91,38 @@ class HeatPump:
         retry: int,
     ) -> float | LastError | None:
         async with self.__lock:
-            return await self.__synchronised_send(
-                payload, decoder, transformation, retry
-            )
+            if (
+                self.__offline_until is not None
+                and self.__clock() < self.__offline_until
+            ):
+                raise RegoError("Heat pump is offline")
+
+            try:
+                value = await self.__synchronised_send(
+                    payload, decoder, transformation, retry
+                )
+            except RegoProtocolError:
+                # The controller answered, just not as expected: it is reachable,
+                # so only this request fails.
+                self.__mark_online()
+                raise
+            except (TimeoutError, RegoError) as err:
+                if not self.is_offline:
+                    _LOGGER.warning(
+                        "Heat pump is not responding, retrying in %d seconds: %r",
+                        OFFLINE_BACKOFF,
+                        err,
+                    )
+                self.__offline_until = self.__clock() + OFFLINE_BACKOFF
+                raise
+
+            self.__mark_online()
+            return value
+
+    def __mark_online(self) -> None:
+        if self.is_offline:
+            _LOGGER.info("Heat pump is responding again")
+            self.__offline_until = None
 
     async def __synchronised_send(
         self,

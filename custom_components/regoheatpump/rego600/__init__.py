@@ -8,7 +8,7 @@ from .identifiers import Identifiers
 from .redact import redact_url
 from .last_error import LastError
 from .register import Register
-from .regoerror import RegoError
+from .regoerror import RegoError, RegoProtocolError
 from .type import Type
 
 __all__ = [
@@ -19,6 +19,7 @@ __all__ = [
     "LastError",
     "Register",
     "RegoError",
+    "RegoProtocolError",
     "RegoType",
     "Type",
     "redact_url",

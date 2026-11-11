@@ -21,6 +21,15 @@ from custom_components.regoheatpump.rego600 import redact_url
         ("esphome://heatpump.local:6053/Rego", "esphome://heatpump.local:6053/Rego"),
         ("rfc2217://user:pass@host:4000", "rfc2217://user:***@host:4000"),
         ("rfc2217://user@host:4000", "rfc2217://user@host:4000"),
+        # ")" inside secrets (review regression cases)
+        (
+            "rfc2217://operator:demo)password@hp.local:4000",
+            "rfc2217://operator:***@hp.local:4000",
+        ),
+        (
+            "esphome://hp.local/?password=pa)ssword&key=SECRET",
+            "esphome://hp.local/?password=***&key=***",
+        ),
     ],
 )
 def test_redact_url(url: str, expected: str) -> None:
