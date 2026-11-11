@@ -41,7 +41,7 @@ This integration provides local monitoring and control of your heat pump via ser
 
 ## 📦 Installation
 
-Requires **Home Assistant 2026.5.0** or newer.
+Requires **Home Assistant 2026.6.0** or newer.
 
 ### Home Assistant 2026.11 and newer (Marketplace)
 
@@ -52,7 +52,7 @@ Requires **Home Assistant 2026.5.0** or newer.
 4. Open **Rego Heat Pump** and select **Install**, then confirm
 5. Continue with the setup dialog, or later go to **Settings → Devices & Services → Add Integration** and search for **Rego Heat Pump**
 
-### Home Assistant 2026.5 – 2026.10 (HACS)
+### Home Assistant 2026.6 – 2026.10 (HACS)
 
 1. Open **HACS**
 2. Click **⋮ → Custom repositories**

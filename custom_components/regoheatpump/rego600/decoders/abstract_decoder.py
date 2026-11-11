@@ -4,7 +4,7 @@ from abc import abstractmethod
 
 from ..checksum import checksum
 from ..last_error import LastError
-from ..regoerror import RegoError
+from ..regoerror import RegoProtocolError
 from .decoder import Decoder
 
 
@@ -14,18 +14,18 @@ class AbstractDecoder(Decoder):
     def decode(self, buffer: bytes) -> int | LastError | None:
         """Validate header/checksum and convert payload."""
         if self.length < 1 or len(buffer) != self.length:
-            raise RegoError(
+            raise RegoProtocolError(
                 f"Unexpected size of '{buffer.hex()}'; expecting: {self.length}, got: {len(buffer)}"
             )
 
         if buffer[0] != 0x01:
-            raise RegoError(f"Invalid header for '{buffer.hex()}'")
+            raise RegoProtocolError(f"Invalid header for '{buffer.hex()}'")
 
         if (
             self.length > 1
             and checksum(buffer[1 : self.length - 1]) != buffer[self.length - 1]
         ):
-            raise RegoError(f"Invalid crc of '{buffer.hex()}'")
+            raise RegoProtocolError(f"Invalid crc of '{buffer.hex()}'")
 
         return self._convert(buffer)
 
