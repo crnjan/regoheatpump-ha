@@ -6,6 +6,7 @@ import logging
 import serialx
 
 from .connection import Connection
+from .redact import redact_url
 from .regoerror import RegoError
 
 try:
@@ -34,7 +35,7 @@ class SerialConnection(Connection):
 
     async def connect(self) -> None:
         """Open the serial connection."""
-        _LOGGER.debug("Connecting to '%s'", self.__url)
+        _LOGGER.debug("Connecting to '%s'", redact_url(self.__url))
         try:
             self.__reader, self.__writer = await serialx.open_serial_connection(
                 url=self.__url, baudrate=19200
