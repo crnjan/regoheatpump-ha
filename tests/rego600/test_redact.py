@@ -2,7 +2,7 @@
 
 import pytest
 
-from custom_components.regoheatpump.rego600 import redact_url, redact_urls_in_text
+from custom_components.regoheatpump.rego600 import redact_url
 
 
 @pytest.mark.parametrize(
@@ -21,29 +21,17 @@ from custom_components.regoheatpump.rego600 import redact_url, redact_urls_in_te
         ("esphome://heatpump.local:6053/Rego", "esphome://heatpump.local:6053/Rego"),
         ("rfc2217://user:pass@host:4000", "rfc2217://user:***@host:4000"),
         ("rfc2217://user@host:4000", "rfc2217://user@host:4000"),
+        # ")" inside secrets (review regression cases)
+        (
+            "rfc2217://operator:demo)password@hp.local:4000",
+            "rfc2217://operator:***@hp.local:4000",
+        ),
+        (
+            "esphome://hp.local/?password=pa)ssword&key=SECRET",
+            "esphome://hp.local/?password=***&key=***",
+        ),
     ],
 )
 def test_redact_url(url: str, expected: str) -> None:
     """Secrets are masked, everything else is kept."""
     assert redact_url(url) == expected
-
-
-@pytest.mark.parametrize(
-    ("text", "expected"),
-    [
-        ("My heat pump", "My heat pump"),
-        (
-            "Rego Heat Pump (Rego 637, esphome://hp.local/?port_name=rego&key=A%2Bb)",
-            "Rego Heat Pump (Rego 637, esphome://hp.local/?port_name=rego&key=***)",
-        ),
-        (
-            "Old esphome://a.local/?key=one and new esphome://b.local/?key=two",
-            "Old esphome://a.local/?key=*** and new esphome://b.local/?key=***",
-        ),
-        ("HP on /dev/ttyUSB0", "HP on /dev/ttyUSB0"),
-        ("socket://host:5000", "socket://host:5000"),
-    ],
-)
-def test_redact_urls_in_text(text: str, expected: str) -> None:
-    """Every URL in free text is redacted; other text is kept."""
-    assert redact_urls_in_text(text) == expected

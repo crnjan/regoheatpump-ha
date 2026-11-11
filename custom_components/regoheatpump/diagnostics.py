@@ -9,7 +9,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 
 from . import RegoConfigEntry
-from .rego600 import redact_url, redact_urls_in_text
+from .rego600 import redact_url
 
 
 async def async_get_config_entry_diagnostics(
@@ -50,9 +50,8 @@ async def async_get_config_entry_diagnostics(
 
     return {
         "entry": {
-            # Legacy or user-chosen titles may contain URLs, including ones
-            # that are no longer configured
-            "title": redact_urls_in_text(entry.title),
+            # The title is left out on purpose: it is free text (legacy or
+            # user-chosen) that can contain URLs with secrets.
             "data": {**entry.data, CONF_URL: redact_url(url)},
             "version": entry.version,
             "state": entry.state,

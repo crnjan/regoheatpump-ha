@@ -3,6 +3,8 @@
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
 
+import pytest
+
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.const import CONF_URL
 from homeassistant.helpers import entity_registry as er
@@ -51,9 +53,7 @@ async def test_diagnostics_redacts_and_lists_entities(hass) -> None:
     result = await async_get_config_entry_diagnostics(hass, entry)
 
     assert "SECRET" not in str(result)
-    assert result["entry"]["title"] == (
-        "Rego Heat Pump (Rego 637, esphome://hp.local/?port_name=rego&key=***)"
-    )
+    assert "title" not in result["entry"]
     assert result["entry"]["data"][CONF_URL] == (
         "esphome://hp.local/?port_name=rego&key=***"
     )
@@ -80,11 +80,21 @@ async def test_diagnostics_redacts_and_lists_entities(hass) -> None:
     ]
 
 
-async def test_diagnostics_redacts_url_no_longer_configured(hass) -> None:
-    """A title keeping an older URL (e.g. after reconfigure) is redacted too."""
+@pytest.mark.parametrize(
+    "title",
+    [
+        # Older URL kept in a title after reconfigure
+        "Heat pump (was esphome://old.local/?port_name=rego&key=OLDSECRET)",
+        # ")" inside credentials or query values (review regression cases)
+        "HP (rfc2217://operator:demo)OLDSECRET@hp.local:4000)",
+        "HP (esphome://hp.local/?password=pa)ssword&key=OLDSECRET)",
+    ],
+)
+async def test_diagnostics_never_include_title(hass, title: str) -> None:
+    """Free-form titles are left out, so secrets in them can never leak."""
     entry = MockConfigEntry(
         domain=DOMAIN,
-        title="Heat pump (was esphome://old.local/?port_name=rego&key=OLDSECRET)",
+        title=title,
         data={CONF_URL: _URL, CONF_REGO_TYPE: RegoType.REGO637.value},
     )
     entry.add_to_hass(hass)
@@ -94,11 +104,29 @@ async def test_diagnostics_redacts_url_no_longer_configured(hass) -> None:
 
     result = await async_get_config_entry_diagnostics(hass, entry)
 
-    assert "OLDSECRET" not in str(result)
+    assert "title" not in result["entry"]
     assert "SECRET" not in str(result)
-    assert result["entry"]["title"] == (
-        "Heat pump (was esphome://old.local/?port_name=rego&key=***)"
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        "rfc2217://operator:demo)SECRET@hp.local:4000",
+        "esphome://hp.local/?password=pa)SECRET&key=SECRET",
+    ],
+)
+async def test_diagnostics_redact_secrets_containing_parenthesis(hass, url) -> None:
+    """The configured URL is masked even if secrets contain ")"."""
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        title="Heat pump",
+        data={CONF_URL: url, CONF_REGO_TYPE: RegoType.REGO637.value},
     )
+    entry.add_to_hass(hass)
+
+    result = await async_get_config_entry_diagnostics(hass, entry)
+
+    assert "SECRET" not in str(result)
 
 
 async def test_diagnostics_without_runtime_data(hass) -> None:
