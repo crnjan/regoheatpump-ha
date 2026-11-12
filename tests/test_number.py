@@ -4,6 +4,7 @@ from types import SimpleNamespace
 from unittest.mock import Mock
 
 import pytest
+from homeassistant.const import EntityCategory
 from homeassistant.helpers.device_registry import DeviceInfo
 
 from custom_components.regoheatpump.number import RegoNumberEntity, async_setup_entry
@@ -75,3 +76,12 @@ async def test_write_failure_raises_home_assistant_error() -> None:
         await entity.async_set_native_value(50)
 
     entity.async_write_ha_state.assert_not_called()
+
+
+@pytest.mark.parametrize("rego_type", [RegoType.REGO636, RegoType.REGO637])
+async def test_settings_are_config_entities(rego_type) -> None:
+    """All writable settings are shown under Configuration."""
+    entities = await _number_entities(rego_type)
+
+    assert entities
+    assert {e.entity_category for e in entities.values()} == {EntityCategory.CONFIG}

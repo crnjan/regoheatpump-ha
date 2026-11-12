@@ -33,7 +33,7 @@ _DESCRIPTIONS = {
         key=Type.HOURS.name,
         native_unit_of_measurement=UnitOfTime.HOURS,
         device_class=SensorDeviceClass.DURATION,
-        state_class=SensorStateClass.TOTAL,
+        state_class=SensorStateClass.TOTAL_INCREASING,
     ),
     Type.ERROR: SensorEntityDescription(
         key=Type.ERROR.name,
@@ -73,3 +73,4 @@ class RegoSensorEntity(SensorEntity, RegoEntity):
             self._attr_extra_state_attributes = {"timestamp": value.timestamp}
         else:
             self._attr_native_value = value
+            self._attr_extra_state_attributes = {}

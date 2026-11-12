@@ -246,3 +246,44 @@ async def test_unexpected_response_after_backoff_marks_online(caplog):
         await hp.read(_REGISTER, retry=0)
     assert not hp.is_offline
     assert "Heat pump is responding again" in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_unparsable_payload_does_not_mark_offline():
+    """A frame that passes CRC but cannot be decoded fails only that request."""
+    connection = mock.create_autospec(Connection)
+    type(connection).is_connected = PropertyMock(return_value=False)
+    connection.clear_reader_buffer.return_value = None
+    # Valid header + checksum, but timestamp "000000 00:00:00" (month 0)
+    body = [0x00, 0x0B] + [n for c in b"000000 00:00:00" for n in (c >> 4, c & 0x0F)]
+    body += [0] * (40 - len(body))
+    crc = 0
+    for value in body:
+        crc ^= value
+    connection.read.return_value = bytes([0x01, *body, crc])
+    hp = HeatPump(connection, RegoType.REGO637, clock=_FakeClock())
+
+    last_error = RegisterFactory.last_error(Identifiers.LAST_ERROR)
+    with pytest.raises(RegoProtocolError, match="Invalid payload"):
+        await hp.read(last_error, retry=0)
+    assert not hp.is_offline
+
+
+@pytest.mark.asyncio
+async def test_unexpected_response_is_logged(caplog):
+    """An unexpected response is logged with the request and the error."""
+    connection = mock.create_autospec(Connection)
+    type(connection).is_connected = PropertyMock(return_value=False)
+    connection.clear_reader_buffer.return_value = None
+    connection.read.return_value = b"\x01\x00\x00\x09\x00"  # bad CRC
+    hp = HeatPump(connection, RegoType.REGO637, clock=_FakeClock())
+
+    with pytest.raises(RegoProtocolError):
+        await hp.read(_REGISTER, retry=0)
+
+    warnings = [r for r in caplog.records if r.levelname == "WARNING"]
+    assert len(warnings) == 1
+    message = warnings[0].getMessage()
+    assert "Unexpected response from heat pump to request" in message
+    assert _REGISTER.read().payload.hex() in message
+    assert "crc" in message

@@ -33,7 +33,7 @@ from custom_components.regoheatpump.rego600.repositories.register_factory import
             RegisterFactory.system_hours(Identifier("hours", Group.OPERATING_TIMES), 0x0301),
             UnitOfTime.HOURS,
             SensorDeviceClass.DURATION,
-            SensorStateClass.TOTAL,
+            SensorStateClass.TOTAL_INCREASING,
         ),
         (
             RegisterFactory.last_error(Identifier("last_error", Group.DEVICE_VALUES)),
@@ -95,7 +95,7 @@ async def test_process_value_sets_native_value_for_regular_sensor_value() -> Non
     entity._process_value(12.3)
 
     assert entity.native_value == 12.3
-    assert entity.extra_state_attributes is None
+    assert not entity.extra_state_attributes
 
 
 async def test_process_value_sets_error_code_and_timestamp_for_last_error() -> None:
@@ -116,6 +116,45 @@ async def test_process_value_sets_error_code_and_timestamp_for_last_error() -> N
 
     assert entity.native_value == 42
     assert entity.extra_state_attributes == {"timestamp": timestamp}
+
+
+async def test_process_value_clears_timestamp_when_last_error_is_cleared() -> None:
+    register = RegisterFactory.last_error(
+        Identifier("last_error", Group.DEVICE_VALUES)
+    )
+    entry = Mock()
+    entry.entry_id = "test-entry"
+    entry.runtime_data = SimpleNamespace(
+        heat_pump=SimpleNamespace(),
+        device_info=DeviceInfo(identifiers={("regoheatpump", "test-entry")}, name="Heat Pump"),
+    )
+
+    entity = RegoSensorEntity(entry, register, _DESCRIPTIONS[Type.ERROR])
+    entity._process_value(LastError(code=42, timestamp=datetime(2026, 3, 9, 12, 0, 0)))
+
+    entity._process_value(None)
+
+    assert entity.native_value is None
+    assert not entity.extra_state_attributes
+
+
+async def test_process_value_none_without_previous_attributes() -> None:
+    register = RegisterFactory.system_temperature(
+        Identifier("outdoor", Group.SENSOR_VALUES), 0x020D
+    )
+    entry = Mock()
+    entry.entry_id = "test-entry"
+    entry.runtime_data = SimpleNamespace(
+        heat_pump=SimpleNamespace(),
+        device_info=DeviceInfo(identifiers={("regoheatpump", "test-entry")}, name="Heat Pump"),
+    )
+
+    entity = RegoSensorEntity(entry, register, _DESCRIPTIONS[Type.TEMPERATURE])
+
+    entity._process_value(None)  # e.g. sensor not connected (-483)
+
+    assert entity.native_value is None
+    assert not entity.extra_state_attributes
 
 
 async def test_async_update_reads_value_from_heat_pump_and_marks_entity_available() -> None:
