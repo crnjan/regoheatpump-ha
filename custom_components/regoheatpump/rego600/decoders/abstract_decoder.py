@@ -27,7 +27,12 @@ class AbstractDecoder(Decoder):
         ):
             raise RegoProtocolError(f"Invalid crc of '{buffer.hex()}'")
 
-        return self._convert(buffer)
+        try:
+            return self._convert(buffer)
+        except (ValueError, IndexError) as err:
+            # A well-formed frame with a payload that cannot be interpreted,
+            # e.g. an invalid date in the last error record
+            raise RegoProtocolError(f"Invalid payload '{buffer.hex()}'") from err
 
     @abstractmethod
     def _convert(self, buffer: bytes) -> int | LastError | None:

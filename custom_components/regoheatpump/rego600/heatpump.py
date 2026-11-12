@@ -101,10 +101,15 @@ class HeatPump:
                 value = await self.__synchronised_send(
                     payload, decoder, transformation, retry
                 )
-            except RegoProtocolError:
+            except RegoProtocolError as err:
                 # The controller answered, just not as expected: it is reachable,
                 # so only this request fails.
                 self.__mark_online()
+                _LOGGER.warning(
+                    "Unexpected response from heat pump to request '%s': %s",
+                    payload.hex(),
+                    err,
+                )
                 raise
             except (TimeoutError, RegoError) as err:
                 if not self.is_offline:

@@ -3,14 +3,23 @@
 from datetime import timedelta
 import logging
 
+from homeassistant.const import EntityCategory
 from homeassistant.helpers.entity import Entity
 
 from . import RegoConfigEntry
-from .rego600 import HeatPump, Identifiers, LastError, Register, RegoError
+from .rego600 import Group, HeatPump, Identifiers, LastError, Register, RegoError
 
 POLL_INTERVAL = timedelta(minutes=1)
 
 _LOGGER = logging.getLogger(__name__)
+
+# Groups not listed are primary entities (sensor values, control data, devices)
+_ENTITY_CATEGORIES = {
+    Group.SETTINGS: EntityCategory.CONFIG,
+    Group.FRONT_PANEL: EntityCategory.DIAGNOSTIC,
+    Group.OPERATING_TIMES: EntityCategory.DIAGNOSTIC,
+    Group.INFO: EntityCategory.DIAGNOSTIC,
+}
 
 _ENABLED_ENTITIES = [
     Identifiers.LAST_ERROR,
@@ -67,6 +76,7 @@ class RegoEntity(Entity):
         self._attr_unique_id = f"{entry.entry_id}-{register.identifier}"
         self._attr_device_info = entry.runtime_data.device_info
         self._attr_translation_key = str(register.identifier)
+        self._attr_entity_category = _ENTITY_CATEGORIES.get(register.identifier.group)
         self._attr_entity_registry_enabled_default = (
             register.identifier in _ENABLED_ENTITIES
         )
