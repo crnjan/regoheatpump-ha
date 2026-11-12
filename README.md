@@ -43,6 +43,10 @@ This integration provides local monitoring and control of your heat pump via ser
 
 Requires **Home Assistant 2026.6.0** or newer.
 
+[![Open your Home Assistant instance and open this repository in the Marketplace or HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=crnjan&repository=regoheatpump-ha&category=integration)
+
+The button opens this repository in your Home Assistant: in the Marketplace on 2026.11 and newer, in HACS on older versions. Or follow the steps below.
+
 ### Home Assistant 2026.11 and newer (Marketplace)
 
 1. Go to **Settings → Marketplace**
