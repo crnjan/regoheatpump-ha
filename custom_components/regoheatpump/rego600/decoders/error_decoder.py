@@ -19,11 +19,9 @@ class ErrorDecoder(AbstractDecoder):
         if buffer[1] == 0xFF:
             return None
         timestamp_str = string_from_bytes(buffer, 3, 15)
-        year = int(timestamp_str[:2]) + 1000
-        if year < 1950:
-            year += 1000
         timestamp = datetime.datetime(
-            year,
+            # The controller reports a two-digit year
+            2000 + int(timestamp_str[:2]),
             int(timestamp_str[2:4]),
             int(timestamp_str[4:6]),
             int(timestamp_str[7:9]),

@@ -85,3 +85,12 @@ def test_frame_helper_matches_valid_value():
     last_error = Decoders.ERROR.decode(_frame(11, "250128 05:11:52"))
     assert last_error.code == 11
     assert last_error.timestamp == datetime.datetime(2025, 1, 28, 5, 11, 52)
+
+
+@pytest.mark.parametrize(
+    ("timestamp", "expected_year"),
+    [("000101 00:00:00", 2000), ("491231 23:59:59", 2049), ("991231 23:59:59", 2099)],
+)
+def test_decode_two_digit_year_is_in_this_century(timestamp, expected_year):
+    last_error = Decoders.ERROR.decode(_frame(11, timestamp))
+    assert last_error.timestamp.year == expected_year
