@@ -297,3 +297,16 @@ async def test_unexpected_response_is_logged(caplog):
     assert "Unexpected response from heat pump to request" in message
     assert _REGISTER.read().payload.hex() in message
     assert "crc" in message
+
+
+@pytest.mark.parametrize(
+    ("rego_type", "only_on_637"),
+    [(RegoType.REGO636, False), (RegoType.REGO637, True)],
+)
+def test_registers_match_controller_type(rego_type, only_on_637):
+    hp = HeatPump(mock.create_autospec(Connection), rego_type)
+
+    assert (
+        Identifiers.SENSOR_VALUES_EXTERNAL_HOTWATER
+        in {register.identifier for register in hp.registers}
+    ) is only_on_637

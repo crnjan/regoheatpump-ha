@@ -36,35 +36,43 @@ async def _number_entities(rego_type: RegoType) -> dict[str, RegoNumberEntity]:
     return {entity.unique_id: entity for entity in async_add_entities.call_args.args[0]}
 
 
-@pytest.mark.parametrize("rego_type", [RegoType.REGO636, RegoType.REGO637])
-@pytest.mark.parametrize(
-    ("identifier", "expected_min", "expected_max"),
-    [
-        (Identifiers.SETTINGS_HEAT_CURVE, 0, 10),
-        (Identifiers.SETTINGS_HEAT_CURVE_FINE_ADJ, -10, 10),
-        (Identifiers.SETTINGS_HEAT_CURVE_COUPLING_DIFF, 2, 15),
-        (Identifiers.SETTINGS_HEAT_CURVE_2, 0, 10),
-        (Identifiers.SETTINGS_HEAT_CURVE_2_FINE_ADJ, -10, 10),
-        (Identifiers.SETTINGS_INDOOR_TEMP_SETTING, 10, 30),
-        (Identifiers.SETTINGS_SUMMER_DISCONNECTION, 10, 30),
-        (Identifiers.SETTINGS_HOTWATER_TARGET, 35, 54),
-        (Identifiers.SETTINGS_HOTWATER_TARGET_HYSTERESIS, 2, 15),
-        # Registers without an explicit range fall back to -10..10.
-        (Identifiers.SETTINGS_ADJ_CURVE_AT_0, -10, 10),
-    ],
-)
-async def test_number_entity_value_range(
-    rego_type,
-    identifier,
-    expected_min,
-    expected_max,
-) -> None:
-    entities = await _number_entities(rego_type)
+# Written out by hand, on purpose not derived from the production table
+_EXPECTED_RANGES = {
+    "settings-heat_curve": (0, 10),
+    "settings-heat_curve_fine_adj": (-10, 10),
+    "settings-heat_curve_coupling_diff": (2, 15),
+    "settings-heat_curve_2": (0, 10),
+    "settings-heat_curve_2_fine_adj": (-10, 10),
+    "settings-adj_curve_at_20": (-10, 10),
+    "settings-adj_curve_at_15": (-10, 10),
+    "settings-adj_curve_at_10": (-10, 10),
+    "settings-adj_curve_at_5": (-10, 10),
+    "settings-adj_curve_at_0": (-10, 10),
+    "settings-adj_curve_at_minus_5": (-10, 10),
+    "settings-adj_curve_at_minus_10": (-10, 10),
+    "settings-adj_curve_at_minus_15": (-10, 10),
+    "settings-adj_curve_at_minus_20": (-10, 10),
+    "settings-adj_curve_at_minus_25": (-10, 10),
+    "settings-adj_curve_at_minus_30": (-10, 10),
+    "settings-adj_curve_at_minus_35": (-10, 10),
+    "settings-indoor_temp_setting": (10, 30),
+    "settings-curve_infl_by_in_temp": (-10, 10),
+    "settings-summer_disconnection": (10, 30),
+    "settings-hot_water_target": (35, 54),
+    "settings-hot_water_target_hysteresis": (2, 15),
+}
 
-    entity = entities[f"test-entry-{identifier}"]
-    assert entity.native_min_value == expected_min
-    assert entity.native_max_value == expected_max
-    assert entity.native_step == 0.1
+
+@pytest.mark.parametrize("rego_type", [RegoType.REGO636, RegoType.REGO637])
+async def test_number_entity_value_ranges(rego_type) -> None:
+    """Every writable register has its own range, in steps of 0.1."""
+    entities = (await _number_entities(rego_type)).values()
+
+    assert {
+        str(e._register.identifier): (e.native_min_value, e.native_max_value)
+        for e in entities
+    } == _EXPECTED_RANGES
+    assert {e.native_step for e in entities} == {0.1}
 
 
 async def test_write_failure_raises_home_assistant_error() -> None:

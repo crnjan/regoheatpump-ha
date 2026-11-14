@@ -61,3 +61,12 @@ async def test_state_follows_register_value(value, expected) -> None:
     entity._process_value(value)
 
     assert entity.is_on is expected
+
+
+async def test_missing_value_is_unknown_not_on() -> None:
+    """Without a value the state is unknown instead of on."""
+    entity = (await _binary_sensors(RegoType.REGO637))["device_values-alarm"]
+
+    entity._process_value(None)
+
+    assert entity.is_on is None

@@ -31,16 +31,30 @@ class ValueDescription:
     max: int
 
 
-_RANGES = {
-    Identifiers.SETTINGS_HOTWATER_TARGET: ValueDescription(min=35, max=54),
-    Identifiers.SETTINGS_HOTWATER_TARGET_HYSTERESIS: ValueDescription(min=2, max=15),
+# Every writable register needs an entry
+_RANGES: dict[Identifier, ValueDescription] = {
     Identifiers.SETTINGS_HEAT_CURVE: ValueDescription(min=0, max=10),
     Identifiers.SETTINGS_HEAT_CURVE_FINE_ADJ: ValueDescription(min=-10, max=10),
     Identifiers.SETTINGS_HEAT_CURVE_COUPLING_DIFF: ValueDescription(min=2, max=15),
     Identifiers.SETTINGS_HEAT_CURVE_2: ValueDescription(min=0, max=10),
     Identifiers.SETTINGS_HEAT_CURVE_2_FINE_ADJ: ValueDescription(min=-10, max=10),
+    Identifiers.SETTINGS_ADJ_CURVE_AT_20: ValueDescription(min=-10, max=10),
+    Identifiers.SETTINGS_ADJ_CURVE_AT_15: ValueDescription(min=-10, max=10),
+    Identifiers.SETTINGS_ADJ_CURVE_AT_10: ValueDescription(min=-10, max=10),
+    Identifiers.SETTINGS_ADJ_CURVE_AT_5: ValueDescription(min=-10, max=10),
+    Identifiers.SETTINGS_ADJ_CURVE_AT_0: ValueDescription(min=-10, max=10),
+    Identifiers.SETTINGS_ADJ_CURVE_AT_MINUS_5: ValueDescription(min=-10, max=10),
+    Identifiers.SETTINGS_ADJ_CURVE_AT_MINUS_10: ValueDescription(min=-10, max=10),
+    Identifiers.SETTINGS_ADJ_CURVE_AT_MINUS_15: ValueDescription(min=-10, max=10),
+    Identifiers.SETTINGS_ADJ_CURVE_AT_MINUS_20: ValueDescription(min=-10, max=10),
+    Identifiers.SETTINGS_ADJ_CURVE_AT_MINUS_25: ValueDescription(min=-10, max=10),
+    Identifiers.SETTINGS_ADJ_CURVE_AT_MINUS_30: ValueDescription(min=-10, max=10),
+    Identifiers.SETTINGS_ADJ_CURVE_AT_MINUS_35: ValueDescription(min=-10, max=10),
     Identifiers.SETTINGS_INDOOR_TEMP_SETTING: ValueDescription(min=10, max=30),
+    Identifiers.SETTINGS_CURVE_INFL_BY_IN_TEMP: ValueDescription(min=-10, max=10),
     Identifiers.SETTINGS_SUMMER_DISCONNECTION: ValueDescription(min=10, max=30),
+    Identifiers.SETTINGS_HOTWATER_TARGET: ValueDescription(min=35, max=54),
+    Identifiers.SETTINGS_HOTWATER_TARGET_HYSTERESIS: ValueDescription(min=2, max=15),
 }
 
 
@@ -110,9 +124,7 @@ class RegoNumberEntity(NumberEntity, RegoEntity):
         super().__init__(entry, register)
         self.entity_description = _DESCRIPTIONS[register.identifier]
         self._attr_native_step = 0.1
-        description = _RANGES.get(
-            register.identifier, ValueDescription(min=-10, max=10)
-        )
+        description = _RANGES[register.identifier]
         self._attr_native_min_value = description.min
         self._attr_native_max_value = description.max
 

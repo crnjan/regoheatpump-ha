@@ -53,4 +53,5 @@ class RegoBinarySensorEntity(BinarySensorEntity, RegoEntity):
         self._attr_device_class = _DEVICE_CLASSES.get(register.identifier)
 
     def _process_value(self, value: float | LastError | None) -> None:
-        self._attr_is_on = value != 0
+        # No value means the state is unknown, not "on"
+        self._attr_is_on = None if value is None else value != 0

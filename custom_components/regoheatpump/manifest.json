@@ -5,6 +5,7 @@
   "codeowners": ["@crnjan"],
   "config_flow": true,
   "documentation": "https://github.com/crnjan/regoheatpump-ha",
+  "integration_type": "device",
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/crnjan/regoheatpump-ha/issues",
   "loggers": ["regoheatpump", "serialx"],
