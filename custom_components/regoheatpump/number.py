@@ -44,6 +44,34 @@ _RANGES = {
 }
 
 
+# Temperature registers holding a difference, not a temperature. Home Assistant
+# must not convert these like a temperature (2.5 °C is 36.5 °F, but a 2.5 °C
+# difference is 4.5 °F).
+_TEMPERATURE_DELTAS = {
+    Identifiers.SETTINGS_HEAT_CURVE_FINE_ADJ,
+    Identifiers.SETTINGS_HEAT_CURVE_COUPLING_DIFF,
+    Identifiers.SETTINGS_HEAT_CURVE_2_FINE_ADJ,
+    Identifiers.SETTINGS_ADJ_CURVE_AT_20,
+    Identifiers.SETTINGS_ADJ_CURVE_AT_15,
+    Identifiers.SETTINGS_ADJ_CURVE_AT_10,
+    Identifiers.SETTINGS_ADJ_CURVE_AT_5,
+    Identifiers.SETTINGS_ADJ_CURVE_AT_0,
+    Identifiers.SETTINGS_ADJ_CURVE_AT_MINUS_5,
+    Identifiers.SETTINGS_ADJ_CURVE_AT_MINUS_10,
+    Identifiers.SETTINGS_ADJ_CURVE_AT_MINUS_15,
+    Identifiers.SETTINGS_ADJ_CURVE_AT_MINUS_20,
+    Identifiers.SETTINGS_ADJ_CURVE_AT_MINUS_25,
+    Identifiers.SETTINGS_ADJ_CURVE_AT_MINUS_30,
+    Identifiers.SETTINGS_ADJ_CURVE_AT_MINUS_35,
+    Identifiers.SETTINGS_HOTWATER_TARGET_HYSTERESIS,
+}
+
+_TEMPERATURE_DELTA_DESCRIPTION = NumberEntityDescription(
+    key="TEMPERATURE_DELTA",
+    native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+    device_class=NumberDeviceClass.TEMPERATURE_DELTA,
+)
+
 _DESCRIPTIONS = {
     Type.TEMPERATURE: NumberEntityDescription(
         key=Type.TEMPERATURE.name,
@@ -75,7 +103,11 @@ class RegoNumberEntity(NumberEntity, RegoEntity):
     def __init__(self, entry: RegoConfigEntry, register: Register) -> None:
         """Initialize writable register entity."""
         super().__init__(entry, register)
-        self.entity_description = _DESCRIPTIONS[register.type]
+        self.entity_description = (
+            _TEMPERATURE_DELTA_DESCRIPTION
+            if register.identifier in _TEMPERATURE_DELTAS
+            else _DESCRIPTIONS[register.type]
+        )
         self._attr_native_step = 0.1
         description = _RANGES.get(
             register.identifier, ValueDescription(min=-10, max=10)
