@@ -230,17 +230,36 @@ Shown under **Diagnostic**.
 
 ### ⚠ Last error (`sensor`)
 
-The state is the error code (shown as its description in the UI); the `timestamp` attribute holds when it occurred. Shown under **Sensors**.
+Shown under **Sensors**.
 
 | Entity ID | Name | Enabled by default |
 |---|---|:---:|
 | `sensor.heat_pump_last_error` | Last error | ✅ |
 
+The entity carries two pieces of information:
+
+| What | Where | Example |
+|---|---|---|
+| Which error | State: the error code, shown as its description | `22`, shown as *High delta GT8/GT9* |
+| When it occurred | `timestamp` attribute | `2025-01-28 05:11:52` |
+
+To see the timestamp, open the entity and expand **Attributes**. To use it in a template, automation or dashboard card:
+
+```jinja
+{{ state_attr('sensor.heat_pump_last_error', 'timestamp') }}
+```
+
+The timestamp comes from the controller's own clock. When no error is recorded, the state is unknown and there is no `timestamp` attribute.
+
 ---
 
 ## 🔗 Resources
 
-The following resources provide detailed technical information about how to connect to Rego 6xx based heat pumps, including serial interface details, communication protocols, and hardware considerations.
+Where to ask questions about this integration, and where to find technical details on connecting to Rego 6xx based heat pumps: the serial interface, the communication protocol and hardware considerations.
+
+- 🏠 **Home Assistant Community – Rego 6xx Based Heat Pumps**  
+  The discussion thread for this integration: setup help, serial bridge and ESPHome examples, questions and feedback.  
+  https://community.home-assistant.io/t/rego-6xx-based-heat-pumps/986807
 
 - 🔧 **Rego600 Heat Pump Controller Interface (SourceForge)**  
   Documentation and tools related to the Rego600/6xx communication interface, including protocol insights and serial communication details.  
