@@ -1,15 +1,21 @@
 import asyncio
-import pytest
-
 from unittest import mock
 from unittest.mock import PropertyMock, call
 
+import pytest
 
-from custom_components.regoheatpump.rego600 import HeatPump, RegoError, RegoProtocolError, RegoType
-from custom_components.regoheatpump.rego600.heatpump import OFFLINE_BACKOFF
+from custom_components.regoheatpump.rego600 import (
+    HeatPump,
+    RegoError,
+    RegoProtocolError,
+    RegoType,
+)
 from custom_components.regoheatpump.rego600.connection import Connection
+from custom_components.regoheatpump.rego600.heatpump import OFFLINE_BACKOFF
 from custom_components.regoheatpump.rego600.identifiers import Identifiers
-from custom_components.regoheatpump.rego600.repositories.register_factory import RegisterFactory
+from custom_components.regoheatpump.rego600.repositories.register_factory import (
+    RegisterFactory,
+)
 
 _REGISTER = RegisterFactory.system_temperature(Identifiers.SENSOR_VALUES_INDOOR, 0x020D)
 
@@ -26,7 +32,9 @@ async def test_connect_fails():
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("readReturnValue", [b"\xca\xfe\xba\xbe", b"\x01\x00\x00\x00\x00", b""])
+@pytest.mark.parametrize(
+    "readReturnValue", [b"\xca\xfe\xba\xbe", b"\x01\x00\x00\x00\x00", b""]
+)
 async def test_verify_fails(readReturnValue):
     connection = mock.create_autospec(Connection)
     type(connection).is_connected = PropertyMock(return_value=False)
@@ -91,7 +99,9 @@ async def test_waiting_for_response_should_timeout_and_retry():
 @pytest.mark.asyncio
 async def test_read():
     connection = mock.create_autospec(Connection)
-    type(connection).is_connected = PropertyMock(side_effect=lambda: len(connection.connect.mock_calls) > 0)
+    type(connection).is_connected = PropertyMock(
+        side_effect=lambda: len(connection.connect.mock_calls) > 0
+    )
     connection.clear_reader_buffer.return_value = None
     connection.read.side_effect = [
         b"\x01\x00\x00\x08\x08",

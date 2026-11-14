@@ -1,8 +1,12 @@
 import datetime
+
 import pytest
 
 from custom_components.regoheatpump.rego600.decoders import Decoders
-from custom_components.regoheatpump.rego600.regoerror import RegoError, RegoProtocolError
+from custom_components.regoheatpump.rego600.regoerror import (
+    RegoError,
+    RegoProtocolError,
+)
 
 
 def test_expected_len():
@@ -15,7 +19,9 @@ def test_decode_empty_buffer():
 
 
 def test_decode_non_empty_buffer_with_invalid_len():
-    with pytest.raises(RegoError, match="Unexpected size of '00010203'; expecting: 42, got: 4"):
+    with pytest.raises(
+        RegoError, match="Unexpected size of '00010203'; expecting: 42, got: 4"
+    ):
         Decoders.ERROR.decode(b"\x00\x01\x02\x03")
 
 

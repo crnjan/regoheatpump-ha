@@ -4,18 +4,20 @@ from datetime import datetime
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, Mock
 
-import pytest
 from homeassistant.components.sensor import SensorDeviceClass, SensorStateClass
 from homeassistant.const import UnitOfTemperature, UnitOfTime
 from homeassistant.helpers.device_registry import DeviceInfo
+import pytest
 
+from custom_components.regoheatpump.rego600 import Group, Identifier, LastError, Type
+from custom_components.regoheatpump.rego600.repositories.register_factory import (
+    RegisterFactory,
+)
 from custom_components.regoheatpump.sensor import (
-    RegoSensorEntity,
     _DESCRIPTIONS,
+    RegoSensorEntity,
     async_setup_entry,
 )
-from custom_components.regoheatpump.rego600 import Group, Identifier, LastError, Type
-from custom_components.regoheatpump.rego600.repositories.register_factory import RegisterFactory
 
 
 @pytest.mark.parametrize(
@@ -30,7 +32,9 @@ from custom_components.regoheatpump.rego600.repositories.register_factory import
             SensorStateClass.MEASUREMENT,
         ),
         (
-            RegisterFactory.system_hours(Identifier("hours", Group.OPERATING_TIMES), 0x0301),
+            RegisterFactory.system_hours(
+                Identifier("hours", Group.OPERATING_TIMES), 0x0301
+            ),
             UnitOfTime.HOURS,
             SensorDeviceClass.DURATION,
             SensorStateClass.TOTAL_INCREASING,
@@ -59,8 +63,12 @@ async def test_async_setup_entry_creates_supported_read_only_sensor_entities(
     entry = Mock()
     entry.entry_id = "test-entry"
     entry.runtime_data = SimpleNamespace(
-        heat_pump=SimpleNamespace(registers=[register, writable_register, unsupported_register]),
-        device_info=DeviceInfo(identifiers={("regoheatpump", "test-entry")}, name="Heat Pump"),
+        heat_pump=SimpleNamespace(
+            registers=[register, writable_register, unsupported_register]
+        ),
+        device_info=DeviceInfo(
+            identifiers={("regoheatpump", "test-entry")}, name="Heat Pump"
+        ),
     )
 
     async_add_entities = Mock()
@@ -87,7 +95,9 @@ async def test_process_value_sets_native_value_for_regular_sensor_value() -> Non
     entry.entry_id = "test-entry"
     entry.runtime_data = SimpleNamespace(
         heat_pump=SimpleNamespace(),
-        device_info=DeviceInfo(identifiers={("regoheatpump", "test-entry")}, name="Heat Pump"),
+        device_info=DeviceInfo(
+            identifiers={("regoheatpump", "test-entry")}, name="Heat Pump"
+        ),
     )
 
     entity = RegoSensorEntity(entry, register, _DESCRIPTIONS[Type.TEMPERATURE])
@@ -99,14 +109,14 @@ async def test_process_value_sets_native_value_for_regular_sensor_value() -> Non
 
 
 async def test_process_value_sets_error_code_and_timestamp_for_last_error() -> None:
-    register = RegisterFactory.last_error(
-        Identifier("last_error", Group.DEVICE_VALUES)
-    )
+    register = RegisterFactory.last_error(Identifier("last_error", Group.DEVICE_VALUES))
     entry = Mock()
     entry.entry_id = "test-entry"
     entry.runtime_data = SimpleNamespace(
         heat_pump=SimpleNamespace(),
-        device_info=DeviceInfo(identifiers={("regoheatpump", "test-entry")}, name="Heat Pump"),
+        device_info=DeviceInfo(
+            identifiers={("regoheatpump", "test-entry")}, name="Heat Pump"
+        ),
     )
 
     entity = RegoSensorEntity(entry, register, _DESCRIPTIONS[Type.ERROR])
@@ -119,14 +129,14 @@ async def test_process_value_sets_error_code_and_timestamp_for_last_error() -> N
 
 
 async def test_process_value_clears_timestamp_when_last_error_is_cleared() -> None:
-    register = RegisterFactory.last_error(
-        Identifier("last_error", Group.DEVICE_VALUES)
-    )
+    register = RegisterFactory.last_error(Identifier("last_error", Group.DEVICE_VALUES))
     entry = Mock()
     entry.entry_id = "test-entry"
     entry.runtime_data = SimpleNamespace(
         heat_pump=SimpleNamespace(),
-        device_info=DeviceInfo(identifiers={("regoheatpump", "test-entry")}, name="Heat Pump"),
+        device_info=DeviceInfo(
+            identifiers={("regoheatpump", "test-entry")}, name="Heat Pump"
+        ),
     )
 
     entity = RegoSensorEntity(entry, register, _DESCRIPTIONS[Type.ERROR])
@@ -146,7 +156,9 @@ async def test_process_value_none_without_previous_attributes() -> None:
     entry.entry_id = "test-entry"
     entry.runtime_data = SimpleNamespace(
         heat_pump=SimpleNamespace(),
-        device_info=DeviceInfo(identifiers={("regoheatpump", "test-entry")}, name="Heat Pump"),
+        device_info=DeviceInfo(
+            identifiers={("regoheatpump", "test-entry")}, name="Heat Pump"
+        ),
     )
 
     entity = RegoSensorEntity(entry, register, _DESCRIPTIONS[Type.TEMPERATURE])
@@ -157,7 +169,9 @@ async def test_process_value_none_without_previous_attributes() -> None:
     assert not entity.extra_state_attributes
 
 
-async def test_async_update_reads_value_from_heat_pump_and_marks_entity_available() -> None:
+async def test_async_update_reads_value_from_heat_pump_and_marks_entity_available() -> (
+    None
+):
     register = RegisterFactory.system_temperature(
         Identifier("outdoor", Group.SENSOR_VALUES), 0x020D
     )
@@ -167,7 +181,9 @@ async def test_async_update_reads_value_from_heat_pump_and_marks_entity_availabl
     entry.entry_id = "test-entry"
     entry.runtime_data = SimpleNamespace(
         heat_pump=heat_pump,
-        device_info=DeviceInfo(identifiers={("regoheatpump", "test-entry")}, name="Heat Pump"),
+        device_info=DeviceInfo(
+            identifiers={("regoheatpump", "test-entry")}, name="Heat Pump"
+        ),
     )
 
     entity = RegoSensorEntity(entry, register, _DESCRIPTIONS[Type.TEMPERATURE])

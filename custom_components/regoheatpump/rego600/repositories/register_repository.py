@@ -1,11 +1,11 @@
 """Dispatch repository that routes register lookups to the correct controller repository."""
 
+from ..identifiers import Identifiers
+from ..register import Register
+from ..rego_type import RegoType
 from .register_factory import RegisterFactory
 from .rego636 import Rego636RegisterRepository
 from .rego637 import Rego637RegisterRepository
-from ..identifiers import Identifiers
-from ..rego_type import RegoType
-from ..register import Register
 
 
 class RegisterRepository:

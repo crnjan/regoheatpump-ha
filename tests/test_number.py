@@ -3,18 +3,19 @@ from __future__ import annotations
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
-import pytest
 from homeassistant.components.number import NumberDeviceClass
 from homeassistant.const import CONF_URL, UnitOfTemperature
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.util.unit_system import US_CUSTOMARY_SYSTEM
+import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.regoheatpump.const import CONF_REGO_TYPE, DOMAIN
-
 from custom_components.regoheatpump.number import RegoNumberEntity, async_setup_entry
 from custom_components.regoheatpump.rego600 import Identifiers, RegoType
-from custom_components.regoheatpump.rego600.repositories.register_repository import RegisterRepository
+from custom_components.regoheatpump.rego600.repositories.register_repository import (
+    RegisterRepository,
+)
 
 
 async def _number_entities(rego_type: RegoType) -> dict[str, RegoNumberEntity]:
@@ -22,7 +23,9 @@ async def _number_entities(rego_type: RegoType) -> dict[str, RegoNumberEntity]:
     entry.entry_id = "test-entry"
     entry.runtime_data = SimpleNamespace(
         heat_pump=SimpleNamespace(registers=RegisterRepository.registers(rego_type)),
-        device_info=DeviceInfo(identifiers={("regoheatpump", "test-entry")}, name="Heat Pump"),
+        device_info=DeviceInfo(
+            identifiers={("regoheatpump", "test-entry")}, name="Heat Pump"
+        ),
     )
 
     async_add_entities = Mock()

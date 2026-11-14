@@ -1,13 +1,13 @@
 """Rego 600 protocol client and models."""
 
-from .rego_type import RegoType
 from .group import Group
 from .heatpump import HeatPump
 from .identifier import Identifier
 from .identifiers import Identifiers
-from .redact import redact_url
 from .last_error import LastError
+from .redact import redact_url
 from .register import Register
+from .rego_type import RegoType
 from .regoerror import RegoError, RegoProtocolError
 from .type import Type
 
