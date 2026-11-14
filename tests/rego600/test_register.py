@@ -2,7 +2,9 @@ import pytest
 
 from custom_components.regoheatpump.rego600 import Identifier, Register, RegoType
 from custom_components.regoheatpump.rego600.identifiers import Identifiers
-from custom_components.regoheatpump.rego600.repositories.register_repository import RegisterRepository
+from custom_components.regoheatpump.rego600.repositories.register_repository import (
+    RegisterRepository,
+)
 
 
 def verify_read(
@@ -13,7 +15,9 @@ def verify_read(
     expectedValue: float,
     rego_type: RegoType = RegoType.REGO637,
 ) -> Register:
-    register = next(r for r in RegisterRepository.registers(rego_type) if r.identifier == identifier)
+    register = next(
+        r for r in RegisterRepository.registers(rego_type) if r.identifier == identifier
+    )
     command = register.read()
     assert command.payload == expectedPayload
     assert command.decoder.decode(responseBytes) == expectedDecodedValue
@@ -60,6 +64,7 @@ def test_device_values_compressor():
         expectedValue=1,
     )
 
+
 def test_system_reg_operating_times_hp_in_oper_rad():
     verify_read(
         identifier=Identifiers.OPERATING_TIMES_HP_IN_OPERATION_RAD,
@@ -69,6 +74,7 @@ def test_system_reg_operating_times_hp_in_oper_rad():
         expectedValue=29595,
     )
 
+
 def test_system_reg_operating_times_hp_in_oper_rad_uint16():
     verify_read(
         identifier=Identifiers.OPERATING_TIMES_HP_IN_OPERATION_RAD,
@@ -77,6 +83,7 @@ def test_system_reg_operating_times_hp_in_oper_rad_uint16():
         expectedDecodedValue=33595,
         expectedValue=33595,
     )
+
 
 def test_settings_heat_curve():
     register = verify_read(
@@ -118,6 +125,7 @@ def test_sensor_values_indoor_not_available():
 
 
 # Rego 636 – verify that register addresses differ from Rego 637 where expected
+
 
 def test_rego636_sensor_values_radiator_return():
     verify_read(

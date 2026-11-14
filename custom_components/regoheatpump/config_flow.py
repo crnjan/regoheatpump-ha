@@ -6,8 +6,6 @@ import logging
 from typing import Any
 from urllib.parse import urlsplit, urlunsplit
 
-import voluptuous as vol
-
 from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
 from homeassistant.const import CONF_URL
 from homeassistant.helpers.selector import (
@@ -15,6 +13,7 @@ from homeassistant.helpers.selector import (
     SelectSelectorConfig,
     SelectSelectorMode,
 )
+import voluptuous as vol
 
 from .const import CONF_REGO_TYPE, DEFAULT_REGO_TYPE, DOMAIN, REGO_TYPE_LABELS
 from .rego600 import HeatPump, RegoError, RegoType, redact_url

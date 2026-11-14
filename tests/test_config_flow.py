@@ -1,9 +1,8 @@
 from unittest.mock import AsyncMock, MagicMock, patch
 
-import pytest
-
 from homeassistant import config_entries
 from homeassistant.const import CONF_URL
+import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.regoheatpump.config_flow import normalize_connection_url

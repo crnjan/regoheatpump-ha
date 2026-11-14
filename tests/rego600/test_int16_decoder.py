@@ -14,7 +14,9 @@ def test_decode_empty_buffer():
 
 
 def test_decode_non_empty_buffer_with_invalid_len():
-    with pytest.raises(RegoError, match="Unexpected size of '00010203'; expecting: 5, got: 4"):
+    with pytest.raises(
+        RegoError, match="Unexpected size of '00010203'; expecting: 5, got: 4"
+    ):
         Decoders.INT_16.decode(b"\x00\x01\x02\x03")
 
 
