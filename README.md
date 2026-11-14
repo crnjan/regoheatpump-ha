@@ -144,32 +144,43 @@ Values calculated by the controller (read-only). Shown under **Diagnostic**.
 
 ### 🎛 Settings (`number`)
 
-Writable controller settings. The ones changed day to day are shown under **Controls**, installer settings under **Configuration**.
+Writable controller settings.
 
-| Entity ID | Name | Range | Shown under | Enabled by default |
-|---|---|---|---|:---:|
-| `number.heat_pump_heat_curve` | Heat curve | 0 … 10 | Controls | ✅ |
-| `number.heat_pump_heat_curve_fine_tune` | Heat curve fine tune | -10 … 10 | Controls | ✅ |
-| `number.heat_pump_heat_curve_coupling_diff` | Heat curve coupling diff | 2 … 15 | Configuration |  |
-| `number.heat_pump_heat_curve_2` | Heat curve 2 | 0 … 10 | Configuration |  |
-| `number.heat_pump_heat_curve_2_fine_tune` | Heat curve 2 fine tune | -10 … 10 | Configuration |  |
-| `number.heat_pump_adjust_heat_curve_at_20_degc` | Adjust heat curve at 20 °C | -10 … 10 | Configuration |  |
-| `number.heat_pump_adjust_heat_curve_at_15_degc` | Adjust heat curve at 15 °C | -10 … 10 | Configuration |  |
-| `number.heat_pump_adjust_heat_curve_at_10_degc` | Adjust heat curve at 10 °C | -10 … 10 | Configuration |  |
-| `number.heat_pump_adjust_heat_curve_at_5_degc` | Adjust heat curve at 5 °C | -10 … 10 | Configuration |  |
-| `number.heat_pump_adjust_heat_curve_at_0_degc` | Adjust heat curve at 0 °C | -10 … 10 | Configuration |  |
-| `number.heat_pump_adjust_heat_curve_at_minus_5_degc` | Adjust heat curve at minus 5 °C | -10 … 10 | Configuration |  |
-| `number.heat_pump_adjust_heat_curve_at_minus_10_degc` | Adjust heat curve at minus 10 °C | -10 … 10 | Configuration |  |
-| `number.heat_pump_adjust_heat_curve_at_minus_15_degc` | Adjust heat curve at minus 15 °C | -10 … 10 | Configuration |  |
-| `number.heat_pump_adjust_heat_curve_at_minus_20_degc` | Adjust heat curve at minus 20 °C | -10 … 10 | Configuration |  |
-| `number.heat_pump_adjust_heat_curve_at_minus_25_degc` | Adjust heat curve at minus 25 °C | -10 … 10 | Configuration |  |
-| `number.heat_pump_adjust_heat_curve_at_minus_30_degc` | Adjust heat curve at minus 30 °C | -10 … 10 | Configuration |  |
-| `number.heat_pump_adjust_heat_curve_at_minus_35_degc` | Adjust heat curve at minus 35 °C | -10 … 10 | Configuration |  |
-| `number.heat_pump_indoor_target` | Indoor target | 10 … 30 | Controls |  |
-| `number.heat_pump_indoor_sensor_influence` | Indoor sensor influence | -10 … 10 | Configuration |  |
-| `number.heat_pump_summer_disconnection` | Summer disconnection | 10 … 30 | Configuration | ✅ |
-| `number.heat_pump_dhw_target` | DHW target | 35 … 54 | Controls | ✅ |
-| `number.heat_pump_dhw_hysteresis` | DHW hysteresis | 2 … 15 | Configuration | ✅ |
+#### Day-to-day settings
+
+Shown under **Controls**.
+
+| Entity ID | Name | Range | Enabled by default |
+|---|---|---|:---:|
+| `number.heat_pump_heat_curve` | Heat curve | 0&nbsp;…&nbsp;10 | ✅ |
+| `number.heat_pump_heat_curve_fine_tune` | Heat curve fine tune | -10&nbsp;…&nbsp;10 | ✅ |
+| `number.heat_pump_indoor_target` | Indoor target | 10&nbsp;…&nbsp;30 |  |
+| `number.heat_pump_dhw_target` | DHW target | 35&nbsp;…&nbsp;54 | ✅ |
+
+#### Installer settings
+
+Shown under **Configuration**.
+
+| Entity ID | Name | Range | Enabled by default |
+|---|---|---|:---:|
+| `number.heat_pump_heat_curve_coupling_diff` | Heat curve coupling diff | 2&nbsp;…&nbsp;15 |  |
+| `number.heat_pump_heat_curve_2` | Heat curve 2 | 0&nbsp;…&nbsp;10 |  |
+| `number.heat_pump_heat_curve_2_fine_tune` | Heat curve 2 fine tune | -10&nbsp;…&nbsp;10 |  |
+| `number.heat_pump_adjust_heat_curve_at_20_degc` | Adjust heat curve at 20 °C | -10&nbsp;…&nbsp;10 |  |
+| `number.heat_pump_adjust_heat_curve_at_15_degc` | Adjust heat curve at 15 °C | -10&nbsp;…&nbsp;10 |  |
+| `number.heat_pump_adjust_heat_curve_at_10_degc` | Adjust heat curve at 10 °C | -10&nbsp;…&nbsp;10 |  |
+| `number.heat_pump_adjust_heat_curve_at_5_degc` | Adjust heat curve at 5 °C | -10&nbsp;…&nbsp;10 |  |
+| `number.heat_pump_adjust_heat_curve_at_0_degc` | Adjust heat curve at 0 °C | -10&nbsp;…&nbsp;10 |  |
+| `number.heat_pump_adjust_heat_curve_at_minus_5_degc` | Adjust heat curve at minus 5 °C | -10&nbsp;…&nbsp;10 |  |
+| `number.heat_pump_adjust_heat_curve_at_minus_10_degc` | Adjust heat curve at minus 10 °C | -10&nbsp;…&nbsp;10 |  |
+| `number.heat_pump_adjust_heat_curve_at_minus_15_degc` | Adjust heat curve at minus 15 °C | -10&nbsp;…&nbsp;10 |  |
+| `number.heat_pump_adjust_heat_curve_at_minus_20_degc` | Adjust heat curve at minus 20 °C | -10&nbsp;…&nbsp;10 |  |
+| `number.heat_pump_adjust_heat_curve_at_minus_25_degc` | Adjust heat curve at minus 25 °C | -10&nbsp;…&nbsp;10 |  |
+| `number.heat_pump_adjust_heat_curve_at_minus_30_degc` | Adjust heat curve at minus 30 °C | -10&nbsp;…&nbsp;10 |  |
+| `number.heat_pump_adjust_heat_curve_at_minus_35_degc` | Adjust heat curve at minus 35 °C | -10&nbsp;…&nbsp;10 |  |
+| `number.heat_pump_indoor_sensor_influence` | Indoor sensor influence | -10&nbsp;…&nbsp;10 |  |
+| `number.heat_pump_summer_disconnection` | Summer disconnection | 10&nbsp;…&nbsp;30 | ✅ |
+| `number.heat_pump_dhw_hysteresis` | DHW hysteresis | 2&nbsp;…&nbsp;15 | ✅ |
 
 ---
 
