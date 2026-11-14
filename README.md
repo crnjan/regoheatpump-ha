@@ -241,7 +241,7 @@ The entity carries two pieces of information:
 | What | Where | Example |
 |---|---|---|
 | Which error | State: the error code, shown as its description in the UI | `22`, shown as *High delta GT8/GT9* |
-| **When it occurred** | **`timestamp` attribute** | `2025-01-28 05:11:52` |
+| When it occurred | `timestamp` attribute | `2025-01-28 05:11:52` |
 
 To see the timestamp, open the entity and expand **Attributes**. To use it in a template, automation or dashboard card:
 
