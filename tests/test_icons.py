@@ -18,7 +18,7 @@ def test_last_error_has_alert_icon() -> None:
 def test_icons_only_reference_known_entities() -> None:
     """Every icon belongs to an entity that has a name (catches typos)."""
     icons = json.loads((_COMPONENT / "icons.json").read_text())
-    strings = json.loads((_COMPONENT / "strings.json").read_text())
+    translations = json.loads((_COMPONENT / "translations" / "en.json").read_text())
 
     for platform, entities in icons["entity"].items():
-        assert set(entities) <= set(strings["entity"][platform]), platform
+        assert set(entities) <= set(translations["entity"][platform]), platform
