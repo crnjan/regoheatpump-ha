@@ -80,8 +80,7 @@ class HeatPump:
         self, register: Register, value: float, retry: int = _RETRIES
     ) -> None:
         """Write a register value."""
-        transformed = register.transformation.from_value(value)
-        await self.__send(*register.write(transformed), retry)
+        await self.__send(*register.write(value), retry)
 
     async def __send(
         self,

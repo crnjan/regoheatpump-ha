@@ -7,18 +7,59 @@ from homeassistant.const import EntityCategory
 from homeassistant.helpers.entity import Entity
 
 from . import RegoConfigEntry
-from .rego600 import Group, HeatPump, Identifiers, LastError, Register, RegoError
+from .rego600 import (
+    HeatPump,
+    Identifier,
+    Identifiers,
+    LastError,
+    Register,
+    RegoError,
+)
 
 POLL_INTERVAL = timedelta(minutes=1)
 
 _LOGGER = logging.getLogger(__name__)
 
-# Groups not listed are primary entities (sensor values, control data, devices)
-_ENTITY_CATEGORIES = {
-    Group.SETTINGS: EntityCategory.CONFIG,
-    Group.FRONT_PANEL: EntityCategory.DIAGNOSTIC,
-    Group.OPERATING_TIMES: EntityCategory.DIAGNOSTIC,
-    Group.INFO: EntityCategory.DIAGNOSTIC,
+# Entities not listed are primary entities. Last error is deliberately primary
+# so it shows up next to the alarm state on generated dashboards.
+_ENTITY_CATEGORIES: dict[Identifier, EntityCategory] = {
+    # Installer configuration
+    Identifiers.SETTINGS_HEAT_CURVE_COUPLING_DIFF: EntityCategory.CONFIG,
+    Identifiers.SETTINGS_HEAT_CURVE_2: EntityCategory.CONFIG,
+    Identifiers.SETTINGS_HEAT_CURVE_2_FINE_ADJ: EntityCategory.CONFIG,
+    Identifiers.SETTINGS_ADJ_CURVE_AT_20: EntityCategory.CONFIG,
+    Identifiers.SETTINGS_ADJ_CURVE_AT_15: EntityCategory.CONFIG,
+    Identifiers.SETTINGS_ADJ_CURVE_AT_10: EntityCategory.CONFIG,
+    Identifiers.SETTINGS_ADJ_CURVE_AT_5: EntityCategory.CONFIG,
+    Identifiers.SETTINGS_ADJ_CURVE_AT_0: EntityCategory.CONFIG,
+    Identifiers.SETTINGS_ADJ_CURVE_AT_MINUS_5: EntityCategory.CONFIG,
+    Identifiers.SETTINGS_ADJ_CURVE_AT_MINUS_10: EntityCategory.CONFIG,
+    Identifiers.SETTINGS_ADJ_CURVE_AT_MINUS_15: EntityCategory.CONFIG,
+    Identifiers.SETTINGS_ADJ_CURVE_AT_MINUS_20: EntityCategory.CONFIG,
+    Identifiers.SETTINGS_ADJ_CURVE_AT_MINUS_25: EntityCategory.CONFIG,
+    Identifiers.SETTINGS_ADJ_CURVE_AT_MINUS_30: EntityCategory.CONFIG,
+    Identifiers.SETTINGS_ADJ_CURVE_AT_MINUS_35: EntityCategory.CONFIG,
+    Identifiers.SETTINGS_CURVE_INFL_BY_IN_TEMP: EntityCategory.CONFIG,
+    Identifiers.SETTINGS_SUMMER_DISCONNECTION: EntityCategory.CONFIG,
+    Identifiers.SETTINGS_HOTWATER_TARGET_HYSTERESIS: EntityCategory.CONFIG,
+    # Front panel lamps (mirror the device states)
+    Identifiers.FRONT_PANEL_POWER_LAMP: EntityCategory.DIAGNOSTIC,
+    Identifiers.FRONT_PANEL_PUMP_LAMP: EntityCategory.DIAGNOSTIC,
+    Identifiers.FRONT_PANEL_ADDITIONAL_HEAT_LAMP: EntityCategory.DIAGNOSTIC,
+    Identifiers.FRONT_PANEL_WATER_HEATER_LAMP: EntityCategory.DIAGNOSTIC,
+    Identifiers.FRONT_PANEL_ALARM_LAMP: EntityCategory.DIAGNOSTIC,
+    # Targets and thresholds calculated by the controller
+    Identifiers.CONTROL_DATA_RADIATOR_FORWARD_TARGET: EntityCategory.DIAGNOSTIC,
+    Identifiers.CONTROL_DATA_RADIATOR_RETURN_TARGET: EntityCategory.DIAGNOSTIC,
+    Identifiers.CONTROL_DATA_RADIATOR_RETURN_ON: EntityCategory.DIAGNOSTIC,
+    Identifiers.CONTROL_DATA_RADIATOR_RETURN_OFF: EntityCategory.DIAGNOSTIC,
+    Identifiers.CONTROL_DATA_HOTWATER_ON: EntityCategory.DIAGNOSTIC,
+    Identifiers.CONTROL_DATA_HOTWATER_OFF: EntityCategory.DIAGNOSTIC,
+    # Operating time counters
+    Identifiers.OPERATING_TIMES_HP_IN_OPERATION_RAD: EntityCategory.DIAGNOSTIC,
+    Identifiers.OPERATING_TIMES_HP_IN_OPERATION_DHW: EntityCategory.DIAGNOSTIC,
+    Identifiers.OPERATING_TIMES_ADD_HEAT_IN_OPERATION_RAD: EntityCategory.DIAGNOSTIC,
+    Identifiers.OPERATING_TIMES_ADD_HEAT_IN_OPERATION_DHW: EntityCategory.DIAGNOSTIC,
 }
 
 _ENABLED_ENTITIES = [
@@ -76,7 +117,7 @@ class RegoEntity(Entity):
         self._attr_unique_id = f"{entry.entry_id}-{register.identifier}"
         self._attr_device_info = entry.runtime_data.device_info
         self._attr_translation_key = str(register.identifier)
-        self._attr_entity_category = _ENTITY_CATEGORIES.get(register.identifier.group)
+        self._attr_entity_category = _ENTITY_CATEGORIES.get(register.identifier)
         self._attr_entity_registry_enabled_default = (
             register.identifier in _ENABLED_ENTITIES
         )
