@@ -15,7 +15,7 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from . import RegoConfigEntry
 from .entity import POLL_INTERVAL, RegoEntity
-from .rego600 import Identifiers, LastError, Register, RegoError, Type
+from .rego600 import Identifier, Identifiers, LastError, Register, RegoError
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -44,15 +44,48 @@ _RANGES = {
 }
 
 
-_DESCRIPTIONS = {
-    Type.TEMPERATURE: NumberEntityDescription(
-        key=Type.TEMPERATURE.name,
-        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        device_class=NumberDeviceClass.TEMPERATURE,
-    ),
-    Type.UNITLESS: NumberEntityDescription(
-        key=Type.UNITLESS.name,
-    ),
+_TEMPERATURE = NumberEntityDescription(
+    key="TEMPERATURE",
+    native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+    device_class=NumberDeviceClass.TEMPERATURE,
+)
+
+# A difference, not a temperature. Home Assistant must not convert these like
+# a temperature (2.5 °C is 36.5 °F, but a 2.5 °C difference is 4.5 °F).
+_TEMPERATURE_DELTA = NumberEntityDescription(
+    key="TEMPERATURE_DELTA",
+    native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+    device_class=NumberDeviceClass.TEMPERATURE_DELTA,
+)
+
+_UNITLESS = NumberEntityDescription(
+    key="UNITLESS",
+)
+
+# Every writable register needs an entry
+_DESCRIPTIONS: dict[Identifier, NumberEntityDescription] = {
+    Identifiers.SETTINGS_HEAT_CURVE: _UNITLESS,
+    Identifiers.SETTINGS_HEAT_CURVE_FINE_ADJ: _TEMPERATURE_DELTA,
+    Identifiers.SETTINGS_HEAT_CURVE_COUPLING_DIFF: _TEMPERATURE_DELTA,
+    Identifiers.SETTINGS_HEAT_CURVE_2: _UNITLESS,
+    Identifiers.SETTINGS_HEAT_CURVE_2_FINE_ADJ: _TEMPERATURE_DELTA,
+    Identifiers.SETTINGS_ADJ_CURVE_AT_20: _TEMPERATURE_DELTA,
+    Identifiers.SETTINGS_ADJ_CURVE_AT_15: _TEMPERATURE_DELTA,
+    Identifiers.SETTINGS_ADJ_CURVE_AT_10: _TEMPERATURE_DELTA,
+    Identifiers.SETTINGS_ADJ_CURVE_AT_5: _TEMPERATURE_DELTA,
+    Identifiers.SETTINGS_ADJ_CURVE_AT_0: _TEMPERATURE_DELTA,
+    Identifiers.SETTINGS_ADJ_CURVE_AT_MINUS_5: _TEMPERATURE_DELTA,
+    Identifiers.SETTINGS_ADJ_CURVE_AT_MINUS_10: _TEMPERATURE_DELTA,
+    Identifiers.SETTINGS_ADJ_CURVE_AT_MINUS_15: _TEMPERATURE_DELTA,
+    Identifiers.SETTINGS_ADJ_CURVE_AT_MINUS_20: _TEMPERATURE_DELTA,
+    Identifiers.SETTINGS_ADJ_CURVE_AT_MINUS_25: _TEMPERATURE_DELTA,
+    Identifiers.SETTINGS_ADJ_CURVE_AT_MINUS_30: _TEMPERATURE_DELTA,
+    Identifiers.SETTINGS_ADJ_CURVE_AT_MINUS_35: _TEMPERATURE_DELTA,
+    Identifiers.SETTINGS_INDOOR_TEMP_SETTING: _TEMPERATURE,
+    Identifiers.SETTINGS_CURVE_INFL_BY_IN_TEMP: _UNITLESS,
+    Identifiers.SETTINGS_SUMMER_DISCONNECTION: _TEMPERATURE,
+    Identifiers.SETTINGS_HOTWATER_TARGET: _TEMPERATURE,
+    Identifiers.SETTINGS_HOTWATER_TARGET_HYSTERESIS: _TEMPERATURE_DELTA,
 }
 
 
@@ -75,7 +108,7 @@ class RegoNumberEntity(NumberEntity, RegoEntity):
     def __init__(self, entry: RegoConfigEntry, register: Register) -> None:
         """Initialize writable register entity."""
         super().__init__(entry, register)
-        self.entity_description = _DESCRIPTIONS[register.type]
+        self.entity_description = _DESCRIPTIONS[register.identifier]
         self._attr_native_step = 0.1
         description = _RANGES.get(
             register.identifier, ValueDescription(min=-10, max=10)
