@@ -36,7 +36,7 @@ class HeatPump:
         """Initialize the client with a transport connection."""
         self.__connection = connection
         self.__lock = asyncio.Lock()
-        self.__registers = RegisterRepository.registers(rego_type)
+        self.__rego_type = rego_type
         self.__clock = clock
         self.__offline_until: float | None = None
 
@@ -54,7 +54,7 @@ class HeatPump:
     @property
     def registers(self) -> list[Register]:
         """Return the register database."""
-        return self.__registers
+        return RegisterRepository.registers(self.__rego_type)
 
     async def dispose(self):
         """Close the underlying connection."""

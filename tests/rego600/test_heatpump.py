@@ -303,10 +303,9 @@ async def test_unexpected_response_is_logged(caplog):
     ("rego_type", "only_on_637"),
     [(RegoType.REGO636, False), (RegoType.REGO637, True)],
 )
-def test_registers_match_controller_type_and_are_built_once(rego_type, only_on_637):
+def test_registers_match_controller_type(rego_type, only_on_637):
     hp = HeatPump(mock.create_autospec(Connection), rego_type)
 
-    assert hp.registers is hp.registers
     assert (
         Identifiers.SENSOR_VALUES_EXTERNAL_HOTWATER
         in {register.identifier for register in hp.registers}
