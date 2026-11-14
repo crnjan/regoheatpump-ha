@@ -86,8 +86,7 @@ def test_settings_heat_curve():
         expectedDecodedValue=27,
         expectedValue=2.7,
     )
-    assert register.transformation.from_value(2.7) == 27
-    command = register.write(27)
+    command = register.write(2.7)
     assert command.payload == b"\x81\x03\x00\x00\x00\x00\x00\x1b\x1b"
     assert command.decoder.decode(b"\x01") == 0
     assert command.transformation.to_value(0) == 0

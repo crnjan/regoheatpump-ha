@@ -37,12 +37,12 @@ class Register:
             self.__payload(self.source.read, 0), self.decoder, self.transformation
         )
 
-    def write(self, data: int) -> Command:
-        """Build a write command for this register."""
+    def write(self, value: float) -> Command:
+        """Build a write command for this register from a native value."""
         if self.source.write is None:
             raise TypeError
         return Register.Command(
-            self.__payload(self.source.write, data),
+            self.__payload(self.source.write, self.transformation.from_value(value)),
             Decoders.EMPTY,
             Transformations.IDENTITY,
         )
