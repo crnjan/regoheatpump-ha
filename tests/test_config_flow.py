@@ -1,3 +1,5 @@
+import json
+from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
 from homeassistant import config_entries
@@ -439,3 +441,24 @@ async def test_reconfigure_refreshes_generated_title(hass, old_title, expected_t
     updated = hass.config_entries.async_get_entry(entry.entry_id)
     assert updated.title == expected_title
     assert updated.data[CONF_URL] == "esphome://hp.local/?key=new"
+
+
+def test_flow_outcomes_have_translations():
+    """Every abort reason and error the flow can end with has a message."""
+    translations = json.loads(
+        (
+            Path(__file__).parents[1]
+            / "custom_components"
+            / "regoheatpump"
+            / "translations"
+            / "en.json"
+        ).read_text()
+    )["config"]
+
+    # Written out by hand: the outcomes used in config_flow.py.
+    # "reconfigure_successful" is the default reason of a finished reconfigure.
+    assert set(translations["abort"]) == {
+        "already_configured",
+        "reconfigure_successful",
+    }
+    assert set(translations["error"]) == {"cannot_connect", "unknown"}
