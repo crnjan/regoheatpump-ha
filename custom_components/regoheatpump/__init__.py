@@ -11,7 +11,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.device_registry import DeviceInfo
 
-from .const import CONF_REGO_TYPE, DEFAULT_REGO_TYPE, DOMAIN
+from .const import CONF_REGO_TYPE, DEFAULT_REGO_TYPE, DOMAIN, REGO_TYPE_LABELS
 from .rego600 import HeatPump, RegoError, RegoType
 
 _LOGGER = logging.getLogger(__name__)
@@ -44,7 +44,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: RegoConfigEntry) -> bool
         await hp.dispose()
         raise ConfigEntryNotReady("Heat pump not reachable") from err
 
-    device_info = DeviceInfo(identifiers={(DOMAIN, entry.entry_id)}, name="Heat Pump")
+    device_info = DeviceInfo(
+        identifiers={(DOMAIN, entry.entry_id)},
+        name="Heat Pump",
+        model=REGO_TYPE_LABELS[rego_type],
+    )
 
     entry.runtime_data = RegoHeatPumpRuntimeData(hp, device_info)
     entry.async_on_unload(hp.dispose)

@@ -55,7 +55,7 @@ async def async_setup_entry(
 
 
 class RegoSensorEntity(SensorEntity, RegoEntity):
-    """An entity using RegoEntity."""
+    """Sensor for a read-only heat pump register."""
 
     def __init__(
         self,

@@ -19,9 +19,9 @@ class NumericTransformation(Transformation):
         if value is None or value == -483:
             return None
         if isinstance(value, int):
-            return round(value * self.multiplier * 1 / self.multiplier) / (
-                1 / self.multiplier
-            )
+            # Dividing by the inverse keeps tenths exact: 27 / 10 is 2.7,
+            # while 27 * 0.1 is 2.7000000000000006
+            return value / (1 / self.multiplier)
         raise RegoError("Unsupported transformation")
 
     def from_value(self, value: float) -> int:
