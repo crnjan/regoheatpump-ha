@@ -105,7 +105,11 @@ For the ESPHome serial proxy:
 
 Entity IDs below assume the default device name **Heat Pump**. Home Assistant creates them when the integration is first set up, so they may differ if you renamed the device or entities. Entities not enabled by default can be enabled under **Settings → Devices & Services → Entities**.
 
+On the device page, entities are grouped under **Controls**, **Sensors**, **Configuration** and **Diagnostic**. Each section below says where its entities are shown.
+
 ### 🌡️ Temperatures (`sensor`)
+
+Shown under **Sensors**.
 
 | Entity ID | Name | Enabled by default |
 |---|---|:---:|
@@ -125,7 +129,7 @@ Entity IDs below assume the default device name **Heat Pump**. Home Assistant cr
 
 ### 🎯 Control values (`sensor`)
 
-Values calculated by the controller (read-only).
+Values calculated by the controller (read-only). Shown under **Diagnostic**.
 
 | Entity ID | Name | Enabled by default |
 |---|---|:---:|
@@ -140,36 +144,38 @@ Values calculated by the controller (read-only).
 
 ### 🎛 Settings (`number`)
 
-Writable controller settings.
+Writable controller settings. The ones changed day to day are shown under **Controls**, installer settings under **Configuration**.
 
-| Entity ID | Name | Range | Enabled by default |
-|---|---|---|:---:|
-| `number.heat_pump_heat_curve` | Heat curve | 0 … 10 | ✅ |
-| `number.heat_pump_heat_curve_fine_tune` | Heat curve fine tune | -10 … 10 | ✅ |
-| `number.heat_pump_heat_curve_coupling_diff` | Heat curve coupling diff | 2 … 15 |  |
-| `number.heat_pump_heat_curve_2` | Heat curve 2 | 0 … 10 |  |
-| `number.heat_pump_heat_curve_2_fine_tune` | Heat curve 2 fine tune | -10 … 10 |  |
-| `number.heat_pump_adjust_heat_curve_at_20_degc` | Adjust heat curve at 20 °C | -10 … 10 |  |
-| `number.heat_pump_adjust_heat_curve_at_15_degc` | Adjust heat curve at 15 °C | -10 … 10 |  |
-| `number.heat_pump_adjust_heat_curve_at_10_degc` | Adjust heat curve at 10 °C | -10 … 10 |  |
-| `number.heat_pump_adjust_heat_curve_at_5_degc` | Adjust heat curve at 5 °C | -10 … 10 |  |
-| `number.heat_pump_adjust_heat_curve_at_0_degc` | Adjust heat curve at 0 °C | -10 … 10 |  |
-| `number.heat_pump_adjust_heat_curve_at_minus_5_degc` | Adjust heat curve at minus 5 °C | -10 … 10 |  |
-| `number.heat_pump_adjust_heat_curve_at_minus_10_degc` | Adjust heat curve at minus 10 °C | -10 … 10 |  |
-| `number.heat_pump_adjust_heat_curve_at_minus_15_degc` | Adjust heat curve at minus 15 °C | -10 … 10 |  |
-| `number.heat_pump_adjust_heat_curve_at_minus_20_degc` | Adjust heat curve at minus 20 °C | -10 … 10 |  |
-| `number.heat_pump_adjust_heat_curve_at_minus_25_degc` | Adjust heat curve at minus 25 °C | -10 … 10 |  |
-| `number.heat_pump_adjust_heat_curve_at_minus_30_degc` | Adjust heat curve at minus 30 °C | -10 … 10 |  |
-| `number.heat_pump_adjust_heat_curve_at_minus_35_degc` | Adjust heat curve at minus 35 °C | -10 … 10 |  |
-| `number.heat_pump_indoor_target` | Indoor target | 10 … 30 |  |
-| `number.heat_pump_indoor_sensor_influence` | Indoor sensor influence | -10 … 10 |  |
-| `number.heat_pump_summer_disconnection` | Summer disconnection | 10 … 30 | ✅ |
-| `number.heat_pump_dhw_target` | DHW target | 35 … 54 | ✅ |
-| `number.heat_pump_dhw_hysteresis` | DHW hysteresis | 2 … 15 | ✅ |
+| Entity ID | Name | Range | Shown under | Enabled by default |
+|---|---|---|---|:---:|
+| `number.heat_pump_heat_curve` | Heat curve | 0 … 10 | Controls | ✅ |
+| `number.heat_pump_heat_curve_fine_tune` | Heat curve fine tune | -10 … 10 | Controls | ✅ |
+| `number.heat_pump_heat_curve_coupling_diff` | Heat curve coupling diff | 2 … 15 | Configuration |  |
+| `number.heat_pump_heat_curve_2` | Heat curve 2 | 0 … 10 | Configuration |  |
+| `number.heat_pump_heat_curve_2_fine_tune` | Heat curve 2 fine tune | -10 … 10 | Configuration |  |
+| `number.heat_pump_adjust_heat_curve_at_20_degc` | Adjust heat curve at 20 °C | -10 … 10 | Configuration |  |
+| `number.heat_pump_adjust_heat_curve_at_15_degc` | Adjust heat curve at 15 °C | -10 … 10 | Configuration |  |
+| `number.heat_pump_adjust_heat_curve_at_10_degc` | Adjust heat curve at 10 °C | -10 … 10 | Configuration |  |
+| `number.heat_pump_adjust_heat_curve_at_5_degc` | Adjust heat curve at 5 °C | -10 … 10 | Configuration |  |
+| `number.heat_pump_adjust_heat_curve_at_0_degc` | Adjust heat curve at 0 °C | -10 … 10 | Configuration |  |
+| `number.heat_pump_adjust_heat_curve_at_minus_5_degc` | Adjust heat curve at minus 5 °C | -10 … 10 | Configuration |  |
+| `number.heat_pump_adjust_heat_curve_at_minus_10_degc` | Adjust heat curve at minus 10 °C | -10 … 10 | Configuration |  |
+| `number.heat_pump_adjust_heat_curve_at_minus_15_degc` | Adjust heat curve at minus 15 °C | -10 … 10 | Configuration |  |
+| `number.heat_pump_adjust_heat_curve_at_minus_20_degc` | Adjust heat curve at minus 20 °C | -10 … 10 | Configuration |  |
+| `number.heat_pump_adjust_heat_curve_at_minus_25_degc` | Adjust heat curve at minus 25 °C | -10 … 10 | Configuration |  |
+| `number.heat_pump_adjust_heat_curve_at_minus_30_degc` | Adjust heat curve at minus 30 °C | -10 … 10 | Configuration |  |
+| `number.heat_pump_adjust_heat_curve_at_minus_35_degc` | Adjust heat curve at minus 35 °C | -10 … 10 | Configuration |  |
+| `number.heat_pump_indoor_target` | Indoor target | 10 … 30 | Controls |  |
+| `number.heat_pump_indoor_sensor_influence` | Indoor sensor influence | -10 … 10 | Configuration |  |
+| `number.heat_pump_summer_disconnection` | Summer disconnection | 10 … 30 | Configuration | ✅ |
+| `number.heat_pump_dhw_target` | DHW target | 35 … 54 | Controls | ✅ |
+| `number.heat_pump_dhw_hysteresis` | DHW hysteresis | 2 … 15 | Configuration | ✅ |
 
 ---
 
 ### 🔄 Device states (`binary_sensor`)
+
+Shown under **Sensors**.
 
 | Entity ID | Name | Enabled by default |
 |---|---|:---:|
@@ -186,6 +192,8 @@ Writable controller settings.
 
 ### 💡 Front panel lamps (`binary_sensor`)
 
+Shown under **Diagnostic**.
+
 | Entity ID | Name | Enabled by default |
 |---|---|:---:|
 | `binary_sensor.heat_pump_power_lamp` | Power lamp |  |
@@ -198,6 +206,8 @@ Writable controller settings.
 
 ### ⏱ Operating times (`sensor`, hours)
 
+Shown under **Diagnostic**.
+
 | Entity ID | Name | Enabled by default |
 |---|---|:---:|
 | `sensor.heat_pump_hp_in_oper_radiators` | HP in oper. - radiators | ✅ |
@@ -209,7 +219,7 @@ Writable controller settings.
 
 ### ⚠ Last error (`sensor`)
 
-The state is the error code (shown as its description in the UI); the `timestamp` attribute holds when it occurred.
+The state is the error code (shown as its description in the UI); the `timestamp` attribute holds when it occurred. Shown under **Sensors**.
 
 | Entity ID | Name | Enabled by default |
 |---|---|:---:|

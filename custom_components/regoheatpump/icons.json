@@ -1,0 +1,9 @@
+{
+  "entity": {
+    "sensor": {
+      "info-last_error": {
+        "default": "mdi:alert-circle-outline"
+      }
+    }
+  }
+}
