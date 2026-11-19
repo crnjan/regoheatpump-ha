@@ -11,7 +11,7 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from . import RegoConfigEntry
 from .entity import POLL_INTERVAL, RegoEntity
-from .rego600 import Identifier, Identifiers, Register, RegoProtocolError, Type, Value
+from .rego600 import Identifier, Identifiers, LastError, Register, Type
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -44,7 +44,7 @@ async def async_setup_entry(
     )
 
 
-class RegoBinarySensorEntity(BinarySensorEntity, RegoEntity[Value]):
+class RegoBinarySensorEntity(BinarySensorEntity, RegoEntity):
     """Binary sensor for an on/off heat pump register."""
 
     def __init__(self, entry: RegoConfigEntry, register: Register) -> None:
@@ -52,8 +52,6 @@ class RegoBinarySensorEntity(BinarySensorEntity, RegoEntity[Value]):
         super().__init__(entry, register)
         self._attr_device_class = _DEVICE_CLASSES.get(register.identifier)
 
-    def _process_value(self, value: Value) -> None:
-        if value is not None and not isinstance(value, int | float):
-            raise RegoProtocolError(f"Expected a number, got {value!r}")
+    def _process_value(self, value: float | LastError | None) -> None:
         # No value means the state is unknown, not "on"
         self._attr_is_on = None if value is None else value != 0

@@ -1,7 +1,6 @@
 """Dispatch repository that routes register lookups to the correct controller repository."""
 
 from ..identifiers import Identifiers
-from ..readable_register import ReadableRegister, Value
 from ..register import Register
 from ..rego_type import RegoType
 from .register_factory import RegisterFactory
@@ -18,7 +17,7 @@ class RegisterRepository:
         return RegisterFactory.version(identifier=Identifiers.VERSION)
 
     @staticmethod
-    def registers(rego_type: RegoType) -> list[ReadableRegister[Value]]:
+    def registers(rego_type: RegoType) -> list[Register]:
         """Return all registers for the given controller type."""
         repositories = {
             RegoType.REGO636: Rego636RegisterRepository,

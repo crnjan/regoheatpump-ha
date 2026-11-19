@@ -12,4 +12,3 @@ class Type(Enum):
     UNITLESS = auto()
     ERROR = auto()
     VERSION = auto()
-    CLOCK = auto()

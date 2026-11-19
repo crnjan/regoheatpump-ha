@@ -97,11 +97,7 @@ async def test_entity_categories(rego_type) -> None:
     diagnostic = _identifiers_with_category(entities, EntityCategory.DIAGNOSTIC)
 
     assert config == _EXPECTED_CONFIG
-    # The controller clock is only verified on the Rego 637
-    expected_diagnostic = _EXPECTED_DIAGNOSTIC | (
-        {"info-clock"} if rego_type is RegoType.REGO637 else set()
-    )
-    assert diagnostic == expected_diagnostic
+    assert diagnostic == _EXPECTED_DIAGNOSTIC
 
 
 @pytest.mark.parametrize("rego_type", [RegoType.REGO636, RegoType.REGO637])

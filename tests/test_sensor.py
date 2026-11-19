@@ -15,7 +15,6 @@ from custom_components.regoheatpump.rego600.repositories.register_factory import
 )
 from custom_components.regoheatpump.sensor import (
     _DESCRIPTIONS,
-    RegoLastErrorSensorEntity,
     RegoSensorEntity,
     async_setup_entry,
 )
@@ -81,10 +80,7 @@ async def test_async_setup_entry_creates_supported_read_only_sensor_entities(
 
     assert len(added_entities) == 1
     entity = added_entities[0]
-    expected_class = (
-        RegoLastErrorSensorEntity if register.type is Type.ERROR else RegoSensorEntity
-    )
-    assert type(entity) is expected_class
+    assert isinstance(entity, RegoSensorEntity)
     assert entity.entity_description == _DESCRIPTIONS[register.type]
     assert entity.entity_description.native_unit_of_measurement == expected_unit
     assert entity.entity_description.device_class == expected_device_class
@@ -123,7 +119,7 @@ async def test_process_value_sets_error_code_and_timestamp_for_last_error() -> N
         ),
     )
 
-    entity = RegoLastErrorSensorEntity(entry, register, _DESCRIPTIONS[Type.ERROR])
+    entity = RegoSensorEntity(entry, register, _DESCRIPTIONS[Type.ERROR])
     timestamp = datetime(2026, 3, 9, 12, 0, 0)
 
     entity._process_value(LastError(code=42, timestamp=timestamp))
@@ -143,7 +139,7 @@ async def test_process_value_clears_timestamp_when_last_error_is_cleared() -> No
         ),
     )
 
-    entity = RegoLastErrorSensorEntity(entry, register, _DESCRIPTIONS[Type.ERROR])
+    entity = RegoSensorEntity(entry, register, _DESCRIPTIONS[Type.ERROR])
     entity._process_value(LastError(code=42, timestamp=datetime(2026, 3, 9, 12, 0, 0)))
 
     entity._process_value(None)
@@ -197,22 +193,3 @@ async def test_async_update_reads_value_from_heat_pump_and_marks_entity_availabl
     heat_pump.read.assert_awaited_once_with(register)
     assert entity.native_value == 7.5
     assert entity.available is True
-
-
-async def test_last_error_with_an_unexpected_value_is_unavailable() -> None:
-    register = RegisterFactory.last_error(Identifier("last_error", Group.DEVICE_VALUES))
-    heat_pump = Mock()
-    heat_pump.read = AsyncMock(return_value=12.3)
-    entry = Mock()
-    entry.entry_id = "test-entry"
-    entry.runtime_data = SimpleNamespace(
-        heat_pump=heat_pump,
-        device_info=DeviceInfo(
-            identifiers={("regoheatpump", "test-entry")}, name="Heat Pump"
-        ),
-    )
-    entity = RegoLastErrorSensorEntity(entry, register, _DESCRIPTIONS[Type.ERROR])
-
-    await entity.async_update()
-
-    assert entity.available is False
