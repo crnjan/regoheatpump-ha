@@ -162,12 +162,7 @@
                 "name": "Radiator return target"
             },
             "info-clock": {
-                "name": "Real-time clock",
-                "state_attributes": {
-                    "offset_minutes": {
-                        "name": "Offset (minutes)"
-                    }
-                }
+                "name": "Real-time clock offset"
             },
             "info-last_error": {
                 "name": "Last error",
