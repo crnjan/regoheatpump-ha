@@ -1,60 +1,42 @@
-"""Register definition and command payload builder."""
+"""Common interface of everything that can be read from the heat pump."""
 
-from dataclasses import dataclass
+from abc import ABC, abstractmethod
+from datetime import datetime
+from typing import NamedTuple
 
-from .checksum import checksum
-from .decoders import Decoder, Decoders
+from .decoders import Decoder
 from .identifier import Identifier
-from .readable_register import Command, ReadableRegister, Value
-from .source import Source
-from .transformations import Transformation, Transformations
+from .last_error import LastError
+from .transformations import Transformation
 from .type import Type
-from .value_converter import int16_to_seven_bit_format
+
+# Every value the integration can read
+type Value = float | LastError | datetime | None
 
 
-@dataclass(frozen=True)
-class Register(ReadableRegister[Value]):
-    """Definition of a single heat pump register."""
+class Command(NamedTuple):
+    """Command payload with decode/transform metadata."""
 
-    identifier: Identifier
-    source: Source
-    address: int
+    payload: bytes
     decoder: Decoder
     transformation: Transformation
+
+
+class Register(ABC):
+    """A value read with one or more commands, possibly writable."""
+
+    identifier: Identifier
     type: Type
-    is_writable: bool = False
+    is_writable: bool
 
-    def read(self) -> Command:
-        """Build a read command for this register."""
-        return Command(
-            self.__payload(self.source.read, 0), self.decoder, self.transformation
-        )
-
-    def write(self, value: float) -> Command:
-        """Build a write command for this register from a native value."""
-        if self.source.write is None:
-            raise TypeError
-        return Command(
-            self.__payload(self.source.write, self.transformation.from_value(value)),
-            Decoders.EMPTY,
-            Transformations.IDENTITY,
-        )
-
+    @abstractmethod
     def read_commands(self) -> list[Command]:
-        """A single read command."""
-        return [self.read()]
+        """Commands to send, in order, to read the value."""
 
+    @abstractmethod
     def combine(self, values: list[Value]) -> Value:
-        """The value of the single read."""
-        return values[0]
+        """Build the value from the results of the read commands, in order."""
 
-    def __payload(self, source: int, data: int) -> bytes:
-        payload_bytes = int16_to_seven_bit_format(
-            self.address
-        ) + int16_to_seven_bit_format(data)
-        return (
-            b"\x81"
-            + source.to_bytes()
-            + payload_bytes
-            + checksum(payload_bytes).to_bytes()
-        )
+    @abstractmethod
+    def write(self, value: float) -> Command:
+        """Command to write the value; only for registers that are writable."""

@@ -11,8 +11,8 @@ class Identifiers:
     VERSION = Identifier(id="version", group=Group.INFO)
     # Last error information
     LAST_ERROR = Identifier(id="last_error", group=Group.INFO)
-    # Controller clock
-    CONTROLLER_CLOCK = Identifier(id="clock", group=Group.INFO)
+    # Real-time clock
+    REAL_TIME_CLOCK = Identifier(id="clock", group=Group.INFO)
     # Front Panel
     FRONT_PANEL_POWER_LAMP = Identifier(id="power_lamp", group=Group.FRONT_PANEL)
     FRONT_PANEL_PUMP_LAMP = Identifier(id="heat_pump_lamp", group=Group.FRONT_PANEL)

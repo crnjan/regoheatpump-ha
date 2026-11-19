@@ -1,7 +1,7 @@
 """Register definitions for Rego 636 / 636MBK style mappings."""
 
 from ..identifiers import Identifiers
-from ..readable_register import ReadableRegister, Value
+from ..register import Register
 from .register_factory import RegisterFactory
 
 
@@ -9,7 +9,7 @@ class Rego636RegisterRepository:
     """Register repository for Rego 636-style controllers."""
 
     @staticmethod
-    def registers() -> list[ReadableRegister[Value]]:
+    def registers() -> list[Register]:
         """Return all supported registers."""
         return [
             # Last error

@@ -10,9 +10,8 @@ from typing import Self
 from .connection import Connection
 from .decoders import Decoder
 from .last_error import LastError
-from .readable_register import ReadableRegister, Value
 from .reading import Reading
-from .register import Register
+from .register import Register, Value
 from .rego_type import RegoType
 from .regoerror import RegoError, RegoProtocolError
 from .repositories import RegisterRepository
@@ -55,7 +54,7 @@ class HeatPump:
         return self.__offline_until is not None
 
     @property
-    def registers(self) -> list[ReadableRegister[Value]]:
+    def registers(self) -> list[Register]:
         """Return the register database."""
         return RegisterRepository.registers(self.__rego_type)
 
@@ -67,20 +66,17 @@ class HeatPump:
         """Verify the controller version."""
         _LOGGER.debug("Reading Rego device version")
         register = RegisterRepository.version()
-        async with self.__lock:
-            version = await self.__send(*register.read(), retry)
+        version = await self.read(register, retry)
         if version != 600:
             await self.__connection.close()
             raise RegoError(f"Invalid rego version received {version}")
         _LOGGER.debug("Connected to Rego version %s", version)
 
-    async def read[T](self, register: ReadableRegister[T], retry: int = _RETRIES) -> T:
+    async def read(self, register: Register, retry: int = _RETRIES) -> Value:
         """Read a value: all its commands under one lock, then combine them."""
         return (await self.read_timed(register, retry)).value
 
-    async def read_timed[T](
-        self, register: ReadableRegister[T], retry: int = _RETRIES
-    ) -> Reading[T]:
+    async def read_timed(self, register: Register, retry: int = _RETRIES) -> Reading:
         """Read a value, together with when its first command was sent.
 
         The time is taken once the lock is held, so waiting for other requests

@@ -1,4 +1,4 @@
-"""Tests for the controller clock sensor."""
+"""Tests for the real-time clock sensor."""
 
 from datetime import datetime, timedelta
 from types import SimpleNamespace

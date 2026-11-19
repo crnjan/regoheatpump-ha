@@ -6,10 +6,9 @@ from .heatpump import HeatPump
 from .identifier import Identifier
 from .identifiers import Identifiers
 from .last_error import LastError
-from .readable_register import ReadableRegister, Value
 from .reading import Reading
 from .redact import redact_url
-from .register import Register
+from .register import Register, Value
 from .rego_type import RegoType
 from .regoerror import RegoError, RegoProtocolError
 from .type import Type
@@ -21,7 +20,6 @@ __all__ = [
     "Identifier",
     "Identifiers",
     "LastError",
-    "ReadableRegister",
     "Reading",
     "Register",
     "RegoError",

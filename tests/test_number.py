@@ -183,3 +183,19 @@ async def test_offsets_are_not_converted_like_temperatures(hass) -> None:
     assert setpoint.attributes["unit_of_measurement"] == UnitOfTemperature.FAHRENHEIT
 
     assert await hass.config_entries.async_unload(entry.entry_id)
+
+
+async def test_write_success_sets_the_value() -> None:
+    """A successful write shows the new value right away."""
+    from unittest.mock import AsyncMock
+
+    entities = await _number_entities(RegoType.REGO637)
+    entity = entities[f"test-entry-{Identifiers.SETTINGS_HOTWATER_TARGET}"]
+    entity._heat_pump = Mock(write=AsyncMock())
+    entity.async_write_ha_state = Mock()
+
+    await entity.async_set_native_value(48.5)
+
+    entity._heat_pump.write.assert_awaited_once_with(entity._register, 48.5)
+    assert entity.native_value == 48.5
+    entity.async_write_ha_state.assert_called_once()

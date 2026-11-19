@@ -44,7 +44,7 @@ async def async_setup_entry(
     )
 
 
-class RegoBinarySensorEntity(BinarySensorEntity, RegoEntity[Value]):
+class RegoBinarySensorEntity(BinarySensorEntity, RegoEntity):
     """Binary sensor for an on/off heat pump register."""
 
     def __init__(self, entry: RegoConfigEntry, register: Register) -> None:

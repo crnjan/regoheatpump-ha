@@ -296,7 +296,7 @@ async def test_unexpected_response_is_logged(caplog):
     assert len(warnings) == 1
     message = warnings[0].getMessage()
     assert "Unexpected response from heat pump to request" in message
-    assert _REGISTER.read().payload.hex() in message
+    assert _REGISTER.read_commands()[0].payload.hex() in message
     assert "crc" in message
 
 
@@ -334,7 +334,7 @@ async def test_read_composite_register_reads_its_parts_and_combines_them():
     connection.clear_reader_buffer.return_value = None
     connection.read.side_effect = [_frame(value) for value in _CLOCK.values()]
     hp = HeatPump(connection, RegoType.REGO637)
-    register = RegisterFactory.controller_clock(Identifiers.CONTROLLER_CLOCK)
+    register = RegisterFactory.real_time_clock(Identifiers.REAL_TIME_CLOCK)
 
     assert await hp.read(register) == datetime(2026, 11, 17, 13, 31, 2)
     # Seconds first, weekday (register 6) not read
@@ -363,7 +363,7 @@ async def test_composite_read_is_not_interleaved_with_other_requests():
     connection.write.side_effect = write
     connection.read.side_effect = read
     hp = HeatPump(connection, RegoType.REGO637)
-    clock = RegisterFactory.controller_clock(Identifiers.CONTROLLER_CLOCK)
+    clock = RegisterFactory.real_time_clock(Identifiers.REAL_TIME_CLOCK)
 
     await asyncio.gather(hp.read(clock), hp.read(_REGISTER), hp.read(_REGISTER))
 
@@ -380,7 +380,7 @@ async def test_invalid_part_value_fails_the_whole_read():
     # Minutes 0x5A is not BCD
     connection.read.side_effect = [_frame(0x02), _frame(0x5A)] * 10
     hp = HeatPump(connection, RegoType.REGO637)
-    register = RegisterFactory.controller_clock(Identifiers.CONTROLLER_CLOCK)
+    register = RegisterFactory.real_time_clock(Identifiers.REAL_TIME_CLOCK)
 
     with pytest.raises(RegoProtocolError):
         await hp.read(register, retry=0)
@@ -406,7 +406,7 @@ async def test_read_timed_starts_the_clock_once_the_lock_is_held():
     connection.write.side_effect = write
     connection.read.side_effect = read
     hp = HeatPump(connection, RegoType.REGO637)
-    clock = RegisterFactory.controller_clock(Identifiers.CONTROLLER_CLOCK)
+    clock = RegisterFactory.real_time_clock(Identifiers.REAL_TIME_CLOCK)
 
     before = datetime.now(UTC)
     slow = asyncio.ensure_future(hp.read(_REGISTER))

@@ -21,7 +21,7 @@ def verify_read(
     register = next(
         r for r in RegisterRepository.registers(rego_type) if r.identifier == identifier
     )
-    command = register.read()
+    [command] = register.read_commands()
     assert command.payload == expectedPayload
     assert command.decoder.decode(responseBytes) == expectedDecodedValue
     assert command.transformation.to_value(expectedDecodedValue) == expectedValue
@@ -167,5 +167,6 @@ def test_plain_register_reads_with_one_command():
     register = RegisterFactory.system_temperature(
         Identifiers.SENSOR_VALUES_OUTDOOR, 0x020A
     )
-    assert register.read_commands() == [register.read()]
+    [command] = register.read_commands()
+    assert command.payload == b"\x81\x02\x00\x04\x0a\x00\x00\x00\x0e"
     assert register.combine([1.5]) == 1.5
