@@ -119,7 +119,7 @@ class RegisterFactory:
         identifier: Identifier, address: int, is_writable: bool = False
     ) -> Register:
         """Create a unitless system register holding a whole number."""
-        return Register(
+        return SingleRegister(
             identifier=identifier,
             source=Sources.SYSTEM,
             address=address,
