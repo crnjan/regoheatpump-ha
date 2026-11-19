@@ -1,4 +1,5 @@
 import asyncio
+from datetime import UTC, datetime, timedelta
 from unittest import mock
 from unittest.mock import PropertyMock, call
 
@@ -310,3 +311,121 @@ def test_registers_match_controller_type(rego_type, only_on_637):
         Identifiers.SENSOR_VALUES_EXTERNAL_HOTWATER
         in {register.identifier for register in hp.registers}
     ) is only_on_637
+
+
+def _frame(value: int) -> bytes:
+    """A 5 byte answer carrying a 16-bit value."""
+    body = bytes([(value >> 14) & 0x7F, (value >> 7) & 0x7F, value & 0x7F])
+    return b"\x01" + body + bytes([body[0] ^ body[1] ^ body[2]])
+
+
+def _front_panel_read(address: int) -> bytes:
+    return bytes([0x81, 0x00, 0x00, 0x00, address, 0x00, 0x00, 0x00, address])
+
+
+# second, minute, hour, date, month, year of "261117 13:31:02", as BCD
+_CLOCK = {0x01: 0x02, 0x02: 0x31, 0x03: 0x13, 0x04: 0x17, 0x05: 0x11, 0x07: 0x26}
+
+
+@pytest.mark.asyncio
+async def test_read_composite_register_reads_its_parts_and_combines_them():
+    connection = mock.create_autospec(Connection)
+    type(connection).is_connected = PropertyMock(return_value=True)
+    connection.clear_reader_buffer.return_value = None
+    connection.read.side_effect = [_frame(value) for value in _CLOCK.values()]
+    hp = HeatPump(connection, RegoType.REGO637)
+    register = RegisterFactory.controller_clock(Identifiers.CONTROLLER_CLOCK)
+
+    assert await hp.read(register) == datetime(2026, 11, 17, 13, 31, 2)
+    # Seconds first, weekday (register 6) not read
+    assert connection.write.call_args_list == [
+        call(_front_panel_read(address)) for address in (1, 2, 3, 4, 5, 7)
+    ]
+
+
+@pytest.mark.asyncio
+async def test_composite_read_is_not_interleaved_with_other_requests():
+    connection = mock.create_autospec(Connection)
+    type(connection).is_connected = PropertyMock(return_value=True)
+    connection.clear_reader_buffer.return_value = None
+    written: list[bytes] = []
+
+    async def write(payload: bytes) -> None:
+        written.append(payload)
+
+    async def read(length: int) -> bytes:
+        await asyncio.sleep(0)  # let other tasks run between requests
+        payload = written[-1]
+        if payload[1] == 0x00:
+            return _frame(_CLOCK[payload[4]])
+        return b"\x01\x00\x00\x08\x08"
+
+    connection.write.side_effect = write
+    connection.read.side_effect = read
+    hp = HeatPump(connection, RegoType.REGO637)
+    clock = RegisterFactory.controller_clock(Identifiers.CONTROLLER_CLOCK)
+
+    await asyncio.gather(hp.read(clock), hp.read(_REGISTER), hp.read(_REGISTER))
+
+    clock_reads = [i for i, payload in enumerate(written) if payload[1] == 0x00]
+    assert len(clock_reads) == 6
+    assert clock_reads == list(range(clock_reads[0], clock_reads[0] + 6))
+
+
+@pytest.mark.asyncio
+async def test_invalid_part_value_fails_the_whole_read():
+    connection = mock.create_autospec(Connection)
+    type(connection).is_connected = PropertyMock(return_value=True)
+    connection.clear_reader_buffer.return_value = None
+    # Minutes 0x5A is not BCD
+    connection.read.side_effect = [_frame(0x02), _frame(0x5A)] * 10
+    hp = HeatPump(connection, RegoType.REGO637)
+    register = RegisterFactory.controller_clock(Identifiers.CONTROLLER_CLOCK)
+
+    with pytest.raises(RegoProtocolError):
+        await hp.read(register, retry=0)
+
+
+@pytest.mark.asyncio
+async def test_read_timed_starts_the_clock_once_the_lock_is_held():
+    connection = mock.create_autospec(Connection)
+    type(connection).is_connected = PropertyMock(return_value=True)
+    connection.clear_reader_buffer.return_value = None
+    written: list[bytes] = []
+
+    async def write(payload: bytes) -> None:
+        written.append(payload)
+
+    async def read(length: int) -> bytes:
+        payload = written[-1]
+        if payload[1] == 0x00:
+            return _frame(_CLOCK[payload[4]])
+        await asyncio.sleep(0.3)  # a slow request holding the lock
+        return b"\x01\x00\x00\x08\x08"
+
+    connection.write.side_effect = write
+    connection.read.side_effect = read
+    hp = HeatPump(connection, RegoType.REGO637)
+    clock = RegisterFactory.controller_clock(Identifiers.CONTROLLER_CLOCK)
+
+    before = datetime.now(UTC)
+    slow = asyncio.ensure_future(hp.read(_REGISTER))
+    await asyncio.sleep(0)  # the slow request takes the lock first
+    reading = await hp.read_timed(clock)
+    await slow
+
+    assert reading.value == datetime(2026, 11, 17, 13, 31, 2)
+    assert reading.started_at.tzinfo is UTC
+    # Waiting for the slow request is not part of the reading
+    assert reading.started_at - before >= timedelta(seconds=0.25)
+
+
+@pytest.mark.asyncio
+async def test_read_returns_the_value_of_read_timed():
+    connection = mock.create_autospec(Connection)
+    type(connection).is_connected = PropertyMock(return_value=True)
+    connection.clear_reader_buffer.return_value = None
+    connection.read.return_value = b"\x01\x00\x00\x08\x08"
+    hp = HeatPump(connection, RegoType.REGO637)
+
+    assert await hp.read(_REGISTER) == 0.8

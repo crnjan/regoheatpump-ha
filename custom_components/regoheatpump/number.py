@@ -15,7 +15,14 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from . import RegoConfigEntry
 from .entity import POLL_INTERVAL, RegoEntity
-from .rego600 import Identifier, Identifiers, LastError, Register, RegoError
+from .rego600 import (
+    Identifier,
+    Identifiers,
+    Register,
+    RegoError,
+    RegoProtocolError,
+    Value,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -116,8 +123,11 @@ async def async_setup_entry(
     )
 
 
-class RegoNumberEntity(NumberEntity, RegoEntity):
+class RegoNumberEntity(NumberEntity, RegoEntity[Value]):
     """Entity representing a writable heat pump register."""
+
+    # Writable, so always a plain register
+    _register: Register
 
     def __init__(self, entry: RegoConfigEntry, register: Register) -> None:
         """Initialize writable register entity."""
@@ -139,5 +149,7 @@ class RegoNumberEntity(NumberEntity, RegoEntity):
         self._attr_native_value = value
         self.async_write_ha_state()
 
-    def _process_value(self, value: float | LastError | None) -> None:
-        self._attr_native_value = value if not isinstance(value, LastError) else None
+    def _process_value(self, value: Value) -> None:
+        if value is not None and not isinstance(value, int | float):
+            raise RegoProtocolError(f"Expected a number, got {value!r}")
+        self._attr_native_value = value

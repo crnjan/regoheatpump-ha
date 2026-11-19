@@ -11,8 +11,7 @@ from .rego600 import (
     HeatPump,
     Identifier,
     Identifiers,
-    LastError,
-    Register,
+    ReadableRegister,
     RegoError,
 )
 
@@ -42,6 +41,8 @@ _ENTITY_CATEGORIES: dict[Identifier, EntityCategory] = {
     Identifiers.SETTINGS_CURVE_INFL_BY_IN_TEMP: EntityCategory.CONFIG,
     Identifiers.SETTINGS_SUMMER_DISCONNECTION: EntityCategory.CONFIG,
     Identifiers.SETTINGS_HOTWATER_TARGET_HYSTERESIS: EntityCategory.CONFIG,
+    # Controller clock
+    Identifiers.CONTROLLER_CLOCK: EntityCategory.DIAGNOSTIC,
     # Front panel lamps (mirror the device states)
     Identifiers.FRONT_PANEL_POWER_LAMP: EntityCategory.DIAGNOSTIC,
     Identifiers.FRONT_PANEL_PUMP_LAMP: EntityCategory.DIAGNOSTIC,
@@ -99,15 +100,15 @@ _ENABLED_ENTITIES = [
 ]
 
 
-class RegoEntity(Entity):
-    """Base entity representing a single heat pump register."""
+class RegoEntity[T](Entity):
+    """Base entity for a heat pump register whose value is of type T."""
 
     _heat_pump: HeatPump
-    _register: Register
+    _register: ReadableRegister[T]
 
     _attr_has_entity_name = True
 
-    def __init__(self, entry: RegoConfigEntry, register: Register) -> None:
+    def __init__(self, entry: RegoConfigEntry, register: ReadableRegister[T]) -> None:
         """Initialize entity metadata and register binding."""
         super().__init__()
 
@@ -134,5 +135,5 @@ class RegoEntity(Entity):
         except (OSError, RegoError):
             self._attr_available = False
 
-    def _process_value(self, value: float | LastError | None) -> None:
+    def _process_value(self, value: T) -> None:
         raise NotImplementedError

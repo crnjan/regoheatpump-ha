@@ -1,5 +1,9 @@
 """Helpers for creating common register definitions."""
 
+from datetime import datetime
+
+from ..composite_register import CompositeRegister
+from ..compositions import Compositions
 from ..decoders import Decoders
 from ..identifier import Identifier
 from ..register import Register
@@ -33,6 +37,40 @@ class RegisterFactory:
             decoder=Decoders.ERROR,
             transformation=Transformations.IDENTITY,
             type=Type.ERROR,
+        )
+
+    @staticmethod
+    def controller_clock(identifier: Identifier) -> CompositeRegister[datetime]:
+        """Create the controller clock from its BCD front panel registers.
+
+        The seconds come first: the time of reading is taken just before.
+        Register 6 (weekday) is not needed.
+        """
+        fields = (
+            ("second", 0x0001),
+            ("minute", 0x0002),
+            ("hour", 0x0003),
+            ("date", 0x0004),
+            ("month", 0x0005),
+            ("year", 0x0007),
+        )
+        return CompositeRegister(
+            identifier=identifier,
+            type=Type.CLOCK,
+            parts=tuple(
+                Register(
+                    identifier=Identifier(
+                        id=f"{identifier.id}_{name}", group=identifier.group
+                    ),
+                    source=Sources.FRONT_PANEL,
+                    address=address,
+                    decoder=Decoders.UINT_16,
+                    transformation=Transformations.BCD,
+                    type=Type.UNITLESS,
+                )
+                for name, address in fields
+            ),
+            composition=Compositions.DATE_TIME,
         )
 
     @staticmethod

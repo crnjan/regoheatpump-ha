@@ -24,3 +24,11 @@ def string_from_bytes(buffer: bytes, offset: int, charCount: int) -> str:
             for i in range(offset, offset + charCount * 2, 2)
         ]
     )
+
+
+def bcd_to_int(value: int) -> int:
+    """Decode a two-digit BCD byte: 0x26 -> 26."""
+    high, low = value >> 4, value & 0x0F
+    if high > 9 or low > 9:
+        raise ValueError(f"Invalid BCD value 0x{value:04X}")
+    return high * 10 + low
