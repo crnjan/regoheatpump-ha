@@ -83,8 +83,6 @@ async def test_number_entity_value_ranges(rego_type) -> None:
 
 async def test_write_failure_raises_home_assistant_error() -> None:
     """A failed register write surfaces as a HomeAssistantError."""
-    from unittest.mock import AsyncMock
-
     from homeassistant.exceptions import HomeAssistantError
 
     from custom_components.regoheatpump.rego600 import RegoError
@@ -193,8 +191,6 @@ async def test_offsets_are_not_converted_like_temperatures(hass) -> None:
 
 async def test_write_success_sets_the_value() -> None:
     """A successful write shows the new value right away."""
-    from unittest.mock import AsyncMock
-
     entities = await _number_entities(RegoType.REGO637)
     entity = entities[f"test-entry-{Identifiers.SETTINGS_HOTWATER_TARGET}"]
     entity._heat_pump = Mock(write=AsyncMock())
@@ -205,3 +201,25 @@ async def test_write_success_sets_the_value() -> None:
     entity._heat_pump.write.assert_awaited_once_with(entity._register, 48.5)
     assert entity.native_value == 48.5
     entity.async_write_ha_state.assert_called_once()
+
+
+@pytest.mark.parametrize(
+    ("identifier", "requested", "written"),
+    [
+        # Step 1
+        (Identifiers.SETTINGS_CURVE_INFL_BY_IN_TEMP, 4.6, 5),
+        # Step 0.1
+        (Identifiers.SETTINGS_HOTWATER_TARGET, 48.54, 48.5),
+    ],
+)
+async def test_write_rounds_to_the_step(identifier, requested, written) -> None:
+    """The value written and shown is on the entity's step."""
+    entities = await _number_entities(RegoType.REGO637)
+    entity = entities[f"test-entry-{identifier}"]
+    entity._heat_pump = Mock(write=AsyncMock())
+    entity.async_write_ha_state = Mock()
+
+    await entity.async_set_native_value(requested)
+
+    entity._heat_pump.write.assert_awaited_once_with(entity._register, written)
+    assert entity.native_value == written

@@ -139,6 +139,11 @@ class RegoNumberEntity(NumberEntity, RegoEntity):
 
     async def async_set_native_value(self, value: float) -> None:
         """Write new value to heat pump register."""
+        # Home Assistant does not hold values to the step; write and show the
+        # value the controller gets. Dividing by the inverse keeps tenths
+        # exact, as in NumericTransformation.
+        step = self._attr_native_step
+        value = round(value / step) / (1 / step)
         try:
             await self._heat_pump.write(self._register, value)
         except (OSError, RegoError) as err:
