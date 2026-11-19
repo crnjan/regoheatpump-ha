@@ -117,6 +117,22 @@ def test_settings_heat_curve():
     assert register.is_writable
 
 
+@pytest.mark.parametrize("rego_type", [RegoType.REGO636, RegoType.REGO637])
+def test_settings_curve_infl_by_in_temp_is_a_whole_number(rego_type):
+    # Factory setting 5 reads as 5 (as on the display), not 0.5
+    register = verify_read(
+        identifier=Identifiers.SETTINGS_CURVE_INFL_BY_IN_TEMP,
+        expectedPayload=b"\x81\x02\x00\x00\x22\x00\x00\x00\x22",
+        responseBytes=b"\x01\x00\x00\x05\x05",
+        expectedDecodedValue=5,
+        expectedValue=5,
+        rego_type=rego_type,
+    )
+    command = register.write(5)
+    assert command.payload == b"\x81\x03\x00\x00\x22\x00\x00\x05\x27"
+    assert register.is_writable
+
+
 def test_front_panel_power_lamp():
     register = verify_read(
         identifier=Identifiers.FRONT_PANEL_POWER_LAMP,
