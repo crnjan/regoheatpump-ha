@@ -9,6 +9,7 @@ from typing import Self
 from .connection import Connection
 from .decoders import Decoder
 from .last_error import LastError
+from .readable_register import ReadableRegister, Value
 from .register import Register
 from .rego_type import RegoType
 from .regoerror import RegoError, RegoProtocolError
@@ -52,7 +53,7 @@ class HeatPump:
         return self.__offline_until is not None
 
     @property
-    def registers(self) -> list[Register]:
+    def registers(self) -> list[ReadableRegister[Value]]:
         """Return the register database."""
         return RegisterRepository.registers(self.__rego_type)
 
@@ -64,23 +65,28 @@ class HeatPump:
         """Verify the controller version."""
         _LOGGER.debug("Reading Rego device version")
         register = RegisterRepository.version()
-        version = await self.__send(*register.read(), retry)
+        async with self.__lock:
+            version = await self.__send(*register.read(), retry)
         if version != 600:
             await self.__connection.close()
             raise RegoError(f"Invalid rego version received {version}")
         _LOGGER.debug("Connected to Rego version %s", version)
 
-    async def read(
-        self, register: Register, retry: int = _RETRIES
-    ) -> float | LastError | None:
-        """Read a register value."""
-        return await self.__send(*register.read(), retry)
+    async def read[T](self, register: ReadableRegister[T], retry: int = _RETRIES) -> T:
+        """Read a value: all its commands under one lock, then combine them."""
+        async with self.__lock:
+            values = [
+                await self.__send(*command, retry)
+                for command in register.read_commands()
+            ]
+        return register.combine(values)
 
     async def write(
         self, register: Register, value: float, retry: int = _RETRIES
     ) -> None:
         """Write a register value."""
-        await self.__send(*register.write(value), retry)
+        async with self.__lock:
+            await self.__send(*register.write(value), retry)
 
     async def __send(
         self,
@@ -89,39 +95,36 @@ class HeatPump:
         transformation: Transformation,
         retry: int,
     ) -> float | LastError | None:
-        async with self.__lock:
-            if (
-                self.__offline_until is not None
-                and self.__clock() < self.__offline_until
-            ):
-                raise RegoError("Heat pump is offline")
+        # Callers hold the lock
+        if self.__offline_until is not None and self.__clock() < self.__offline_until:
+            raise RegoError("Heat pump is offline")
 
-            try:
-                value = await self.__synchronised_send(
-                    payload, decoder, transformation, retry
-                )
-            except RegoProtocolError as err:
-                # The controller answered, just not as expected: it is reachable,
-                # so only this request fails.
-                self.__mark_online()
+        try:
+            value = await self.__synchronised_send(
+                payload, decoder, transformation, retry
+            )
+        except RegoProtocolError as err:
+            # The controller answered, just not as expected: it is reachable,
+            # so only this request fails.
+            self.__mark_online()
+            _LOGGER.warning(
+                "Unexpected response from heat pump to request '%s': %s",
+                payload.hex(),
+                err,
+            )
+            raise
+        except (TimeoutError, RegoError) as err:
+            if not self.is_offline:
                 _LOGGER.warning(
-                    "Unexpected response from heat pump to request '%s': %s",
-                    payload.hex(),
+                    "Heat pump is not responding, retrying in %d seconds: %r",
+                    OFFLINE_BACKOFF,
                     err,
                 )
-                raise
-            except (TimeoutError, RegoError) as err:
-                if not self.is_offline:
-                    _LOGGER.warning(
-                        "Heat pump is not responding, retrying in %d seconds: %r",
-                        OFFLINE_BACKOFF,
-                        err,
-                    )
-                self.__offline_until = self.__clock() + OFFLINE_BACKOFF
-                raise
+            self.__offline_until = self.__clock() + OFFLINE_BACKOFF
+            raise
 
-            self.__mark_online()
-            return value
+        self.__mark_online()
+        return value
 
     def __mark_online(self) -> None:
         if self.is_offline:

@@ -2,6 +2,9 @@ import pytest
 
 from custom_components.regoheatpump.rego600 import Identifier, Register, RegoType
 from custom_components.regoheatpump.rego600.identifiers import Identifiers
+from custom_components.regoheatpump.rego600.repositories.register_factory import (
+    RegisterFactory,
+)
 from custom_components.regoheatpump.rego600.repositories.register_repository import (
     RegisterRepository,
 )
@@ -158,3 +161,11 @@ def test_rego636_device_values_compressor():
         expectedValue=1,
         rego_type=RegoType.REGO636,
     )
+
+
+def test_plain_register_reads_with_one_command():
+    register = RegisterFactory.system_temperature(
+        Identifiers.SENSOR_VALUES_OUTDOOR, 0x020A
+    )
+    assert register.read_commands() == [register.read()]
+    assert register.combine([1.5]) == 1.5

@@ -2,7 +2,7 @@
 
 [![GitHub Release](https://img.shields.io/github/v/release/crnjan/regoheatpump-ha.svg)](https://github.com/crnjan/regoheatpump-ha/releases)
 [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-Integration-41BDF5?logo=home-assistant&logoColor=white)](https://www.home-assistant.io/)
-[![HACS](https://img.shields.io/badge/HACS%20%7C%20Marketplace-Custom-orange.svg)](https://hacs.xyz/)
+[![HACS](https://img.shields.io/badge/HACS%20%7C%20Marketplace-Default-41BDF5.svg)](https://hacs.xyz/)
 [![Home Assistant Validation](https://github.com/crnjan/regoheatpump-ha/actions/workflows/hassfest.yaml/badge.svg)](https://github.com/crnjan/regoheatpump-ha/actions/workflows/hassfest.yaml)
 [![HACS Validation](https://github.com/crnjan/regoheatpump-ha/actions/workflows/hacs_validate.yml/badge.svg)](https://github.com/crnjan/regoheatpump-ha/actions/workflows/hacs_validate.yml)
 
@@ -50,22 +50,19 @@ The button opens this repository in your Home Assistant: in the Marketplace on 2
 ### Home Assistant 2026.11 and newer (Marketplace)
 
 1. Go to **Settings → Marketplace**
-2. Select **Add from link** (upper-right corner)
-3. Enter `crnjan/regoheatpump-ha` and select **Add**  
-   (custom repositories require a connected GitHub account; if asked for a type, choose **Integration**)
-4. Open **Rego Heat Pump** and select **Install**, then confirm
-5. Continue with the setup dialog, or later go to **Settings → Devices & Services → Add Integration** and search for **Rego Heat Pump**
+2. Search for **Rego Heat Pump** and open it
+3. Select **Install**, then confirm
+4. Continue with the setup dialog, or later go to **Settings → Devices & Services → Add Integration** and search for **Rego Heat Pump**
+
+If you added this repository as a custom repository before, there is nothing to do: the Marketplace treats it as a regular catalog repository.
 
 ### Home Assistant 2026.6 – 2026.10 (HACS)
 
 1. Open **HACS**
-2. Click **⋮ → Custom repositories**
-3. Add `https://github.com/crnjan/regoheatpump-ha`
-4. Select **Integration** as the category
-5. Find **Rego Heat Pump** and click **Download**
-6. Restart Home Assistant
-7. Go to **Settings → Devices & Services → Add Integration**
-8. Search for **Rego Heat Pump**
+2. Search for **Rego Heat Pump** and click **Download**
+3. Restart Home Assistant
+4. Go to **Settings → Devices & Services → Add Integration**
+5. Search for **Rego Heat Pump**
 
 ### Updating
 
@@ -250,6 +247,22 @@ To see the timestamp, open the entity and expand **Attributes**. To use it in a 
 ```
 
 The timestamp comes from the controller's own clock. When no error is recorded, the state is unknown and there is no `timestamp` attribute.
+
+---
+
+### 🕒 Real-time clock (`sensor`, Rego 637 only)
+
+Shown under **Diagnostic**.
+
+| Entity ID | Name | Enabled by default |
+|---|---|:---:|
+| `sensor.heat_pump_real_time_clock` | Real-time clock |  |
+
+The state is the date and time of the controller's own clock, the one shown on its panel and used for the last error timestamp. The `offset_minutes` attribute says how far it is from Home Assistant's clock: positive when the controller is ahead, negative when it is behind. For example, to get notified when it is more than 5 minutes off, use a numeric state trigger on that attribute.
+
+The clock can only be set on the heat pump's panel. The controller's time is read as Home Assistant's time zone; if the controller does not switch to and from summer time, expect an offset of about an hour for part of the year.
+
+When enabled, the sensor adds seven reads per minute.
 
 ---
 

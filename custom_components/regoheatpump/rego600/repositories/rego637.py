@@ -1,7 +1,7 @@
 """Register definitions for Rego 637 style mappings."""
 
 from ..identifiers import Identifiers
-from ..register import Register
+from ..readable_register import ReadableRegister, Value
 from .register_factory import RegisterFactory
 
 
@@ -9,11 +9,13 @@ class Rego637RegisterRepository:
     """Rego637 Registers."""
 
     @staticmethod
-    def registers() -> list[Register]:
+    def registers() -> list[ReadableRegister[Value]]:
         """List of registers."""
         return [
             # Last error
             RegisterFactory.last_error(identifier=Identifiers.LAST_ERROR),
+            # Controller clock (verified on Rego 637 only)
+            RegisterFactory.controller_clock(identifier=Identifiers.CONTROLLER_CLOCK),
             # Front Panel
             RegisterFactory.front_panel_switch(
                 identifier=Identifiers.FRONT_PANEL_POWER_LAMP,
