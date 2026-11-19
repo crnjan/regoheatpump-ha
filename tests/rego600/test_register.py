@@ -78,6 +78,19 @@ def test_system_reg_operating_times_hp_in_oper_rad():
     )
 
 
+def test_read_only_system_register_cannot_be_written():
+    register = verify_read(
+        identifier=Identifiers.OPERATING_TIMES_HP_IN_OPERATION_RAD,
+        expectedPayload=b"\x81\x02\x00\x00\x48\x00\x00\x00\x48",
+        responseBytes=b"\x01\x01\x67\x1b\x7d",
+        expectedDecodedValue=29595,
+        expectedValue=29595,
+    )
+    assert not register.is_writable
+    with pytest.raises(TypeError):
+        register.write(0)
+
+
 def test_system_reg_operating_times_hp_in_oper_rad_uint16():
     verify_read(
         identifier=Identifiers.OPERATING_TIMES_HP_IN_OPERATION_RAD,

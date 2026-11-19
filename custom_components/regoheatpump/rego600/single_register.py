@@ -26,7 +26,7 @@ class SingleRegister(Register):
 
     def write(self, value: float) -> Command:
         """Build a write command for this register from a native value."""
-        if self.source.write is None:
+        if not self.is_writable or self.source.write is None:
             raise TypeError(f"{self.identifier} is not writable")
         return Command(
             self.__payload(self.source.write, self.transformation.from_value(value)),

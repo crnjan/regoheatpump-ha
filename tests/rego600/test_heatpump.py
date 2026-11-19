@@ -19,6 +19,9 @@ from custom_components.regoheatpump.rego600.repositories.register_factory import
 )
 
 _REGISTER = RegisterFactory.system_temperature(Identifiers.SENSOR_VALUES_INDOOR, 0x020D)
+_WRITABLE_REGISTER = RegisterFactory.system_unitless(
+    Identifiers.SETTINGS_HEAT_CURVE, 0x0000, is_writable=True
+)
 
 
 @pytest.mark.asyncio
@@ -130,9 +133,9 @@ async def test_write():
     connection.clear_reader_buffer.return_value = None
     connection.read.return_value = b"\x01"
     hp = HeatPump(connection, RegoType.REGO637)
-    await hp.write(_REGISTER, 1.2)
+    await hp.write(_WRITABLE_REGISTER, 1.2)
     connection.connect.assert_not_called()
-    connection.write.assert_called_once_with(b"\x81\x03\x00\x04\x0d\x00\x00\x0c\x05")
+    connection.write.assert_called_once_with(b"\x81\x03\x00\x00\x00\x00\x00\x0c\x0c")
     connection.close.assert_not_called()
     await hp.dispose()
     connection.close.assert_called_once()
@@ -171,7 +174,7 @@ async def test_failure_marks_offline_and_fails_fast(caplog):
     with pytest.raises(RegoError, match="offline"):
         await hp.read(_REGISTER)
     with pytest.raises(RegoError, match="offline"):
-        await hp.write(_REGISTER, 21.0)
+        await hp.write(_WRITABLE_REGISTER, 2.1)
     connection.connect.assert_not_called()
 
 
