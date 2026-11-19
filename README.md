@@ -258,7 +258,7 @@ Shown under **Diagnostic**.
 |---|---|:---:|
 | `sensor.heat_pump_real_time_clock_offset` | Real-time clock offset |  |
 
-The state says how many minutes the controller's own clock (the one shown on its panel and used for the last error timestamp) is from Home Assistant's clock: positive when the controller is ahead, negative when it is behind. The `real_time_clock` attribute is the controller's date and time. For example, to get notified when the clock is more than 5 minutes off, use a numeric state trigger above 5 or below -5.
+The state says how many minutes the controller's own clock (the one shown on its panel and used for the last error timestamp) is from Home Assistant's clock: positive when the controller is ahead, negative when it is behind. The controller's date and time is Home Assistant's time plus this offset. For example, to get notified when the clock is more than 5 minutes off, use a numeric state trigger above 5 or below -5.
 
 The clock can only be set on the heat pump's panel. The controller's time is read as Home Assistant's time zone; if the controller does not switch to and from summer time, expect an offset of about an hour for part of the year.
 

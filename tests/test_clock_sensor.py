@@ -71,13 +71,7 @@ async def test_clock_is_a_disabled_duration_sensor_in_minutes() -> None:
     assert entity.entity_registry_enabled_default is False
 
 
-async def test_real_time_clock_attribute_is_not_recorded() -> None:
-    entity = await _clock(AsyncMock())
-
-    assert "real_time_clock" in entity._unrecorded_attributes
-
-
-async def test_state_is_the_offset_and_the_attribute_the_real_time_clock() -> None:
+async def test_state_is_the_offset_in_minutes() -> None:
     read_clock = AsyncMock(return_value=_reading(_NOW + _AHEAD, _NOW))
     entity = await _clock(read_clock)
 
@@ -85,9 +79,7 @@ async def test_state_is_the_offset_and_the_attribute_the_real_time_clock() -> No
 
     assert entity.available
     assert entity.native_value == 213
-    real_time_clock = entity.extra_state_attributes["real_time_clock"]
-    assert real_time_clock == _NOW + _AHEAD
-    assert real_time_clock.tzinfo == _ZONE
+    assert not entity.extra_state_attributes
 
 
 async def test_offset_is_negative_when_the_controller_is_behind() -> None:
@@ -116,9 +108,7 @@ async def test_a_consistent_read_is_used_without_reading_again() -> None:
     await entity.async_update()
 
     assert read_clock.await_count == 2
-    assert entity.extra_state_attributes == {
-        "real_time_clock": later + _AHEAD + timedelta(seconds=1)
-    }
+    assert entity._offset == _AHEAD + timedelta(seconds=1)
 
 
 async def test_a_torn_read_is_read_again() -> None:
@@ -138,7 +128,7 @@ async def test_a_torn_read_is_read_again() -> None:
 
     assert read_clock.await_count == 3
     assert entity.native_value == 213
-    assert entity.extra_state_attributes == {"real_time_clock": later + _AHEAD}
+    assert entity._offset == _AHEAD
 
 
 async def test_a_clock_set_on_the_panel_is_accepted() -> None:
@@ -158,7 +148,6 @@ async def test_a_clock_set_on_the_panel_is_accepted() -> None:
 
     assert read_clock.await_count == 3
     assert entity.native_value == 0
-    assert entity.extra_state_attributes == {"real_time_clock": later}
 
 
 @pytest.mark.parametrize("error", [RegoError("offline"), OSError("closed")])
@@ -191,3 +180,37 @@ async def test_offset_is_measured_from_when_the_reading_started() -> None:
     await entity.async_update()
 
     assert entity._offset == _AHEAD
+
+
+async def _states(*offsets: timedelta) -> list:
+    """The states shown after reads with these offsets, one minute apart."""
+    readings = [
+        _reading(_NOW + timedelta(minutes=i) + offset, _NOW + timedelta(minutes=i))
+        for i, offset in enumerate(offsets)
+    ]
+    entity = await _clock(AsyncMock(side_effect=readings))
+    states = []
+    for _ in offsets:
+        await entity.async_update()
+        states.append(entity.native_value)
+    return states
+
+
+async def test_an_offset_jittering_around_half_a_minute_keeps_its_state() -> None:
+    half = timedelta(minutes=212, seconds=30)
+    second = timedelta(seconds=1)
+
+    states = await _states(half - second, half + second, half - second, half)
+
+    assert states == [212, 212, 212, 212]
+
+
+async def test_an_offset_drifting_past_the_hysteresis_changes_the_state() -> None:
+    states = await _states(
+        timedelta(minutes=212, seconds=29),
+        timedelta(minutes=212, seconds=31),
+        timedelta(minutes=212, seconds=33),
+        timedelta(minutes=212, seconds=35),
+    )
+
+    assert states == [212, 212, 213, 213]

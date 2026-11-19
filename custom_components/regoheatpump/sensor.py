@@ -52,7 +52,6 @@ _DESCRIPTIONS = {
         native_unit_of_measurement=UnitOfTime.MINUTES,
         device_class=SensorDeviceClass.DURATION,
         state_class=SensorStateClass.MEASUREMENT,
-        suggested_display_precision=0,
     ),
 }
 
@@ -60,6 +59,11 @@ _DESCRIPTIONS = {
 # differ by at most this much. A read torn by a minute rolling over is off by
 # almost a minute or more.
 CLOCK_OFFSET_TOLERANCE = timedelta(seconds=2)
+
+# The shown offset changes only when the measured one is further from it than
+# this. Near half a minute the jitter of about a second would otherwise flip the
+# rounded value back and forth, and every flip is recorded.
+CLOCK_OFFSET_HYSTERESIS = timedelta(seconds=30) + CLOCK_OFFSET_TOLERANCE
 
 
 async def async_setup_entry(
@@ -116,44 +120,47 @@ class RegoLastErrorSensorEntity(RegoSensorBase):
 
 
 class RegoClockSensorEntity(RegoSensorBase):
-    """How far the controller's clock is from Home Assistant's, in minutes.
-
-    The controller's date and time is an attribute.
-    """
-
-    # Changes on every read; the offset is what is worth keeping
-    _unrecorded_attributes = frozenset({"real_time_clock"})
+    """How far the controller's clock is from Home Assistant's, in minutes."""
 
     _offset: timedelta | None = None
 
     async def async_update(self) -> None:
         """Read the clock, and read it again if it jumped against the last read."""
         try:
-            controller, offset = await self._read_clock()
+            offset = await self._read_clock()
             if (
                 self._offset is not None
                 and abs(offset - self._offset) > CLOCK_OFFSET_TOLERANCE
             ):
                 # Either a minute rolled over during the read, or the clock was
                 # set. A second read tells: it cannot be torn again so soon.
-                controller, offset = await self._read_clock()
+                offset = await self._read_clock()
         except (OSError, RegoError):
             self._attr_available = False
             return
 
         self._offset = offset
-        self._attr_native_value = round(offset.total_seconds() / 60)
-        self._attr_extra_state_attributes = {"real_time_clock": controller}
+        self._attr_native_value = self._minutes(offset)
         self._attr_available = True
 
-    async def _read_clock(self) -> tuple[datetime, timedelta]:
+    def _minutes(self, offset: timedelta) -> int:
+        """The offset in whole minutes, keeping the shown one while it is close."""
+        shown = self._attr_native_value
+        if (
+            isinstance(shown, int)
+            and abs(offset - timedelta(minutes=shown)) <= CLOCK_OFFSET_HYSTERESIS
+        ):
+            return shown
+        return round(offset.total_seconds() / 60)
+
+    async def _read_clock(self) -> timedelta:
         reading = await self._heat_pump.read_timed(self._register)
         if not isinstance(reading.value, datetime):
             raise RegoProtocolError(f"Expected a date and time, got {reading.value!r}")
         controller = reading.value.replace(tzinfo=dt_util.get_default_time_zone())
         # The seconds are read first, so the start of the reading is when the
         # clock was read
-        return controller, controller - reading.started_at
+        return controller - reading.started_at
 
 
 # Value types that need more than a plain sensor
