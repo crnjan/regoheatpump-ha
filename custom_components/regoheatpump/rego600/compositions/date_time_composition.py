@@ -2,12 +2,12 @@
 
 from datetime import datetime
 
-from ..readable_register import Value
+from ..register import Value
 from ..regoerror import RegoProtocolError
 from .composition import Composition
 
 
-class DateTimeComposition(Composition[datetime]):
+class DateTimeComposition(Composition):
     """Build a date and time (no time zone) from its fields.
 
     Expects second, minute, hour, date, month and two-digit year, in that order.

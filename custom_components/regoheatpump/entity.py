@@ -11,8 +11,9 @@ from .rego600 import (
     HeatPump,
     Identifier,
     Identifiers,
-    ReadableRegister,
+    Register,
     RegoError,
+    Value,
 )
 
 POLL_INTERVAL = timedelta(minutes=1)
@@ -41,8 +42,8 @@ _ENTITY_CATEGORIES: dict[Identifier, EntityCategory] = {
     Identifiers.SETTINGS_CURVE_INFL_BY_IN_TEMP: EntityCategory.CONFIG,
     Identifiers.SETTINGS_SUMMER_DISCONNECTION: EntityCategory.CONFIG,
     Identifiers.SETTINGS_HOTWATER_TARGET_HYSTERESIS: EntityCategory.CONFIG,
-    # Controller clock
-    Identifiers.CONTROLLER_CLOCK: EntityCategory.DIAGNOSTIC,
+    # Real-time clock
+    Identifiers.REAL_TIME_CLOCK: EntityCategory.DIAGNOSTIC,
     # Front panel lamps (mirror the device states)
     Identifiers.FRONT_PANEL_POWER_LAMP: EntityCategory.DIAGNOSTIC,
     Identifiers.FRONT_PANEL_PUMP_LAMP: EntityCategory.DIAGNOSTIC,
@@ -100,15 +101,15 @@ _ENABLED_ENTITIES = [
 ]
 
 
-class RegoEntity[T](Entity):
-    """Base entity for a heat pump register whose value is of type T."""
+class RegoEntity(Entity):
+    """Base entity for a heat pump register."""
 
     _heat_pump: HeatPump
-    _register: ReadableRegister[T]
+    _register: Register
 
     _attr_has_entity_name = True
 
-    def __init__(self, entry: RegoConfigEntry, register: ReadableRegister[T]) -> None:
+    def __init__(self, entry: RegoConfigEntry, register: Register) -> None:
         """Initialize entity metadata and register binding."""
         super().__init__()
 
@@ -135,5 +136,5 @@ class RegoEntity[T](Entity):
         except (OSError, RegoError):
             self._attr_available = False
 
-    def _process_value(self, value: T) -> None:
+    def _process_value(self, value: Value) -> None:
         raise NotImplementedError

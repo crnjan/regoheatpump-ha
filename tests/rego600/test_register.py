@@ -21,7 +21,7 @@ def verify_read(
     register = next(
         r for r in RegisterRepository.registers(rego_type) if r.identifier == identifier
     )
-    command = register.read()
+    [command] = register.read_commands()
     assert command.payload == expectedPayload
     assert command.decoder.decode(responseBytes) == expectedDecodedValue
     assert command.transformation.to_value(expectedDecodedValue) == expectedValue
@@ -76,6 +76,19 @@ def test_system_reg_operating_times_hp_in_oper_rad():
         expectedDecodedValue=29595,
         expectedValue=29595,
     )
+
+
+def test_read_only_system_register_cannot_be_written():
+    register = verify_read(
+        identifier=Identifiers.OPERATING_TIMES_HP_IN_OPERATION_RAD,
+        expectedPayload=b"\x81\x02\x00\x00\x48\x00\x00\x00\x48",
+        responseBytes=b"\x01\x01\x67\x1b\x7d",
+        expectedDecodedValue=29595,
+        expectedValue=29595,
+    )
+    assert not register.is_writable
+    with pytest.raises(TypeError):
+        register.write(0)
 
 
 def test_system_reg_operating_times_hp_in_oper_rad_uint16():
@@ -167,5 +180,6 @@ def test_plain_register_reads_with_one_command():
     register = RegisterFactory.system_temperature(
         Identifiers.SENSOR_VALUES_OUTDOOR, 0x020A
     )
-    assert register.read_commands() == [register.read()]
+    [command] = register.read_commands()
+    assert command.payload == b"\x81\x02\x00\x04\x0a\x00\x00\x00\x0e"
     assert register.combine([1.5]) == 1.5

@@ -123,11 +123,8 @@ async def async_setup_entry(
     )
 
 
-class RegoNumberEntity(NumberEntity, RegoEntity[Value]):
+class RegoNumberEntity(NumberEntity, RegoEntity):
     """Entity representing a writable heat pump register."""
-
-    # Writable, so always a plain register
-    _register: Register
 
     def __init__(self, entry: RegoConfigEntry, register: Register) -> None:
         """Initialize writable register entity."""

@@ -18,7 +18,7 @@ from . import RegoConfigEntry
 from .entity import POLL_INTERVAL, RegoEntity
 from .rego600 import (
     LastError,
-    ReadableRegister,
+    Register,
     RegoError,
     RegoProtocolError,
     Type,
@@ -74,13 +74,13 @@ async def async_setup_entry(
     )
 
 
-class RegoSensorBase[T](SensorEntity, RegoEntity[T]):
-    """Sensor for a read-only heat pump register whose value is of type T."""
+class RegoSensorBase(SensorEntity, RegoEntity):
+    """Sensor for a read-only heat pump register."""
 
     def __init__(
         self,
         entry: RegoConfigEntry,
-        register: ReadableRegister[T],
+        register: Register,
         entity_description: SensorEntityDescription,
     ) -> None:
         """Initialize sensor entity for a specific register."""
@@ -88,7 +88,7 @@ class RegoSensorBase[T](SensorEntity, RegoEntity[T]):
         self.entity_description = entity_description
 
 
-class RegoSensorEntity(RegoSensorBase[Value]):
+class RegoSensorEntity(RegoSensorBase):
     """Sensor showing a register value as it is."""
 
     def _process_value(self, value: Value) -> None:
@@ -97,7 +97,7 @@ class RegoSensorEntity(RegoSensorBase[Value]):
         self._attr_native_value = value
 
 
-class RegoLastErrorSensorEntity(RegoSensorBase[Value]):
+class RegoLastErrorSensorEntity(RegoSensorBase):
     """The last error: its code as the state, when it happened as an attribute."""
 
     def _process_value(self, value: Value) -> None:
@@ -112,7 +112,7 @@ class RegoLastErrorSensorEntity(RegoSensorBase[Value]):
             raise RegoProtocolError(f"Expected the last error, got {value!r}")
 
 
-class RegoClockSensorEntity(RegoSensorBase[Value]):
+class RegoClockSensorEntity(RegoSensorBase):
     """The controller's date and time, with its offset to Home Assistant's clock."""
 
     _offset: timedelta | None = None
@@ -150,7 +150,7 @@ class RegoClockSensorEntity(RegoSensorBase[Value]):
 
 
 # Value types that need more than a plain sensor
-_ENTITY_CLASSES: dict[Type, type[RegoSensorBase[Value]]] = {
+_ENTITY_CLASSES: dict[Type, type[RegoSensorBase]] = {
     Type.ERROR: RegoLastErrorSensorEntity,
     Type.CLOCK: RegoClockSensorEntity,
 }

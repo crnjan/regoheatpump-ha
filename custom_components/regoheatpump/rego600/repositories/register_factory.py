@@ -1,24 +1,23 @@
 """Helpers for creating common register definitions."""
 
-from datetime import datetime
-
 from ..composite_register import CompositeRegister
 from ..compositions import Compositions
 from ..decoders import Decoders
 from ..identifier import Identifier
 from ..register import Register
+from ..single_register import SingleRegister
 from ..sources import Sources
 from ..transformations import Transformations
 from ..type import Type
 
 
 class RegisterFactory:
-    """Factory for typed Register instances."""
+    """Factory for typed register instances."""
 
     @staticmethod
     def version(identifier: Identifier) -> Register:
         """Create the version register."""
-        return Register(
+        return SingleRegister(
             identifier=identifier,
             source=Sources.VERSION,
             address=0x0000,
@@ -30,7 +29,7 @@ class RegisterFactory:
     @staticmethod
     def last_error(identifier: Identifier) -> Register:
         """Create the last error register."""
-        return Register(
+        return SingleRegister(
             identifier=identifier,
             source=Sources.LAST_ERROR,
             address=0x0000,
@@ -40,8 +39,8 @@ class RegisterFactory:
         )
 
     @staticmethod
-    def controller_clock(identifier: Identifier) -> CompositeRegister[datetime]:
-        """Create the controller clock from its BCD front panel registers.
+    def real_time_clock(identifier: Identifier) -> Register:
+        """Create the real-time clock from its BCD front panel registers.
 
         The seconds come first: the time of reading is taken just before.
         Register 6 (weekday) is not needed.
@@ -58,7 +57,7 @@ class RegisterFactory:
             identifier=identifier,
             type=Type.CLOCK,
             parts=tuple(
-                Register(
+                SingleRegister(
                     identifier=Identifier(
                         id=f"{identifier.id}_{name}", group=identifier.group
                     ),
@@ -76,7 +75,7 @@ class RegisterFactory:
     @staticmethod
     def front_panel_switch(identifier: Identifier, address: int) -> Register:
         """Create a front panel switch register."""
-        return Register(
+        return SingleRegister(
             identifier=identifier,
             source=Sources.FRONT_PANEL,
             address=address,
@@ -90,7 +89,7 @@ class RegisterFactory:
         identifier: Identifier, address: int, is_writable: bool = False
     ) -> Register:
         """Create a system temperature register."""
-        return Register(
+        return SingleRegister(
             identifier=identifier,
             source=Sources.SYSTEM,
             address=address,
@@ -105,7 +104,7 @@ class RegisterFactory:
         identifier: Identifier, address: int, is_writable: bool = False
     ) -> Register:
         """Create a unitless system register."""
-        return Register(
+        return SingleRegister(
             identifier=identifier,
             source=Sources.SYSTEM,
             address=address,
@@ -118,7 +117,7 @@ class RegisterFactory:
     @staticmethod
     def system_switch(identifier: Identifier, address: int) -> Register:
         """Create a system switch register."""
-        return Register(
+        return SingleRegister(
             identifier=identifier,
             source=Sources.SYSTEM,
             address=address,
@@ -130,7 +129,7 @@ class RegisterFactory:
     @staticmethod
     def system_hours(identifier: Identifier, address: int) -> Register:
         """Create a system hours register."""
-        return Register(
+        return SingleRegister(
             identifier=identifier,
             source=Sources.SYSTEM,
             address=address,
