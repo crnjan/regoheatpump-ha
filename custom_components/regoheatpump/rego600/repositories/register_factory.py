@@ -116,6 +116,21 @@ class RegisterFactory:
         )
 
     @staticmethod
+    def system_integer(
+        identifier: Identifier, address: int, is_writable: bool = False
+    ) -> Register:
+        """Create a unitless system register holding a whole number."""
+        return Register(
+            identifier=identifier,
+            source=Sources.SYSTEM,
+            address=address,
+            decoder=Decoders.INT_16,
+            transformation=Transformations.INTEGER,
+            type=Type.UNITLESS,
+            is_writable=is_writable,
+        )
+
+    @staticmethod
     def system_switch(identifier: Identifier, address: int) -> Register:
         """Create a system switch register."""
         return Register(

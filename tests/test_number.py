@@ -56,23 +56,29 @@ _EXPECTED_RANGES = {
     "settings-adj_curve_at_minus_30": (-10, 10),
     "settings-adj_curve_at_minus_35": (-10, 10),
     "settings-indoor_temp_setting": (10, 30),
-    "settings-curve_infl_by_in_temp": (-10, 10),
+    "settings-curve_infl_by_in_temp": (0, 10),
     "settings-summer_disconnection": (10, 30),
     "settings-hot_water_target": (35, 54),
     "settings-hot_water_target_hysteresis": (2, 15),
 }
 
+# Whole numbers, everything else goes in steps of 0.1
+_EXPECTED_WHOLE_NUMBERS = {"settings-curve_infl_by_in_temp"}
+
 
 @pytest.mark.parametrize("rego_type", [RegoType.REGO636, RegoType.REGO637])
 async def test_number_entity_value_ranges(rego_type) -> None:
-    """Every writable register has its own range, in steps of 0.1."""
+    """Every writable register has its own range and step."""
     entities = (await _number_entities(rego_type)).values()
 
     assert {
         str(e._register.identifier): (e.native_min_value, e.native_max_value)
         for e in entities
     } == _EXPECTED_RANGES
-    assert {e.native_step for e in entities} == {0.1}
+    assert {str(e._register.identifier): e.native_step for e in entities} == {
+        identifier: 1 if identifier in _EXPECTED_WHOLE_NUMBERS else 0.1
+        for identifier in _EXPECTED_RANGES
+    }
 
 
 async def test_write_failure_raises_home_assistant_error() -> None:

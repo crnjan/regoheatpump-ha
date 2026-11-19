@@ -36,6 +36,7 @@ class ValueDescription:
 
     min: int
     max: int
+    step: float = 0.1
 
 
 # Every writable register needs an entry
@@ -58,7 +59,8 @@ _RANGES: dict[Identifier, ValueDescription] = {
     Identifiers.SETTINGS_ADJ_CURVE_AT_MINUS_30: ValueDescription(min=-10, max=10),
     Identifiers.SETTINGS_ADJ_CURVE_AT_MINUS_35: ValueDescription(min=-10, max=10),
     Identifiers.SETTINGS_INDOOR_TEMP_SETTING: ValueDescription(min=10, max=30),
-    Identifiers.SETTINGS_CURVE_INFL_BY_IN_TEMP: ValueDescription(min=-10, max=10),
+    # A whole number, menu 1.11 on the controller
+    Identifiers.SETTINGS_CURVE_INFL_BY_IN_TEMP: ValueDescription(min=0, max=10, step=1),
     Identifiers.SETTINGS_SUMMER_DISCONNECTION: ValueDescription(min=10, max=30),
     Identifiers.SETTINGS_HOTWATER_TARGET: ValueDescription(min=35, max=54),
     Identifiers.SETTINGS_HOTWATER_TARGET_HYSTERESIS: ValueDescription(min=2, max=15),
@@ -133,8 +135,8 @@ class RegoNumberEntity(NumberEntity, RegoEntity[Value]):
         """Initialize writable register entity."""
         super().__init__(entry, register)
         self.entity_description = _DESCRIPTIONS[register.identifier]
-        self._attr_native_step = 0.1
         description = _RANGES[register.identifier]
+        self._attr_native_step = description.step
         self._attr_native_min_value = description.min
         self._attr_native_max_value = description.max
 
