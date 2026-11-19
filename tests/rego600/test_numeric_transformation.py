@@ -4,6 +4,7 @@ import pytest
 
 from custom_components.regoheatpump.rego600.last_error import LastError
 from custom_components.regoheatpump.rego600.regoerror import RegoError
+from custom_components.regoheatpump.rego600.transformations import Transformations
 from custom_components.regoheatpump.rego600.transformations.numeric_transformation import (
     NumericTransformation,
 )
@@ -44,3 +45,15 @@ def test_to_value_tenths_are_exact(raw, expected):
 def test_to_value_missing_sensor_should_return_none():
     transformation = NumericTransformation(multiplier=0.1)
     assert transformation.to_value(-483) is None
+
+
+@pytest.mark.parametrize(("raw", "expected"), [(0, 0), (5, 5), (10, 10), (-3, -3)])
+def test_unscaled_to_value_keeps_the_raw_number(raw, expected):
+    assert Transformations.NUMERIC_UNSCALED.to_value(raw) == expected
+
+
+@pytest.mark.parametrize(("value", "expected"), [(5, 5), (5.0, 5), (4.6, 5), (0, 0)])
+def test_unscaled_from_value_rounds_to_a_whole_number(value, expected):
+    raw = Transformations.NUMERIC_UNSCALED.from_value(value)
+    assert raw == expected
+    assert isinstance(raw, int)

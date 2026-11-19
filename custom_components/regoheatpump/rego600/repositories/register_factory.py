@@ -124,7 +124,7 @@ class RegisterFactory:
             source=Sources.SYSTEM,
             address=address,
             decoder=Decoders.INT_16,
-            transformation=Transformations.INTEGER,
+            transformation=Transformations.NUMERIC_UNSCALED,
             type=Type.UNITLESS,
             is_writable=is_writable,
         )
