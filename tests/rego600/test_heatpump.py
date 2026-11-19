@@ -1,5 +1,5 @@
 import asyncio
-from datetime import datetime
+from datetime import UTC, datetime, timedelta
 from unittest import mock
 from unittest.mock import PropertyMock, call
 
@@ -384,3 +384,48 @@ async def test_invalid_part_value_fails_the_whole_read():
 
     with pytest.raises(RegoProtocolError):
         await hp.read(register, retry=0)
+
+
+@pytest.mark.asyncio
+async def test_read_timed_starts_the_clock_once_the_lock_is_held():
+    connection = mock.create_autospec(Connection)
+    type(connection).is_connected = PropertyMock(return_value=True)
+    connection.clear_reader_buffer.return_value = None
+    written: list[bytes] = []
+
+    async def write(payload: bytes) -> None:
+        written.append(payload)
+
+    async def read(length: int) -> bytes:
+        payload = written[-1]
+        if payload[1] == 0x00:
+            return _frame(_CLOCK[payload[4]])
+        await asyncio.sleep(0.3)  # a slow request holding the lock
+        return b"\x01\x00\x00\x08\x08"
+
+    connection.write.side_effect = write
+    connection.read.side_effect = read
+    hp = HeatPump(connection, RegoType.REGO637)
+    clock = RegisterFactory.controller_clock(Identifiers.CONTROLLER_CLOCK)
+
+    before = datetime.now(UTC)
+    slow = asyncio.ensure_future(hp.read(_REGISTER))
+    await asyncio.sleep(0)  # the slow request takes the lock first
+    reading = await hp.read_timed(clock)
+    await slow
+
+    assert reading.value == datetime(2026, 11, 17, 13, 31, 2)
+    assert reading.started_at.tzinfo is UTC
+    # Waiting for the slow request is not part of the reading
+    assert reading.started_at - before >= timedelta(seconds=0.25)
+
+
+@pytest.mark.asyncio
+async def test_read_returns_the_value_of_read_timed():
+    connection = mock.create_autospec(Connection)
+    type(connection).is_connected = PropertyMock(return_value=True)
+    connection.clear_reader_buffer.return_value = None
+    connection.read.return_value = b"\x01\x00\x00\x08\x08"
+    hp = HeatPump(connection, RegoType.REGO637)
+
+    assert await hp.read(_REGISTER) == 0.8

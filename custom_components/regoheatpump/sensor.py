@@ -140,13 +140,13 @@ class RegoClockSensorEntity(RegoSensorBase[Value]):
         self._attr_available = True
 
     async def _read_clock(self) -> tuple[datetime, timedelta]:
-        # The seconds are read first, so this is when the clock was read
-        read_at = dt_util.now()
-        local = await self._heat_pump.read(self._register)
-        if not isinstance(local, datetime):
-            raise RegoProtocolError(f"Expected a date and time, got {local!r}")
-        controller = local.replace(tzinfo=dt_util.get_default_time_zone())
-        return controller, controller - read_at
+        reading = await self._heat_pump.read_timed(self._register)
+        if not isinstance(reading.value, datetime):
+            raise RegoProtocolError(f"Expected a date and time, got {reading.value!r}")
+        controller = reading.value.replace(tzinfo=dt_util.get_default_time_zone())
+        # The seconds are read first, so the start of the reading is when the
+        # clock was read
+        return controller, controller - reading.started_at
 
 
 # Value types that need more than a plain sensor

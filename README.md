@@ -262,8 +262,6 @@ The state is the date and time of the controller's own clock, the one shown on i
 
 The clock can only be set on the heat pump's panel. The controller's time is read as Home Assistant's time zone; if the controller does not switch to and from summer time, expect an offset of about an hour for part of the year.
 
-When enabled, the sensor adds seven reads per minute.
-
 ---
 
 ## 🔗 Resources
