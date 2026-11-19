@@ -236,7 +236,7 @@ class Rego637RegisterRepository:
                 address=0x0021,
                 is_writable=True,
             ),
-            RegisterFactory.system_unitless(
+            RegisterFactory.system_integer(
                 identifier=Identifiers.SETTINGS_CURVE_INFL_BY_IN_TEMP,
                 address=0x0022,
                 is_writable=True,

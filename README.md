@@ -175,7 +175,7 @@ Shown under **Configuration**.
 | `number.heat_pump_adjust_heat_curve_at_minus_25_degc` | Adjust heat curve at minus 25 °C | -10&nbsp;…&nbsp;10 |  |
 | `number.heat_pump_adjust_heat_curve_at_minus_30_degc` | Adjust heat curve at minus 30 °C | -10&nbsp;…&nbsp;10 |  |
 | `number.heat_pump_adjust_heat_curve_at_minus_35_degc` | Adjust heat curve at minus 35 °C | -10&nbsp;…&nbsp;10 |  |
-| `number.heat_pump_indoor_sensor_influence` | Indoor sensor influence | -10&nbsp;…&nbsp;10 |  |
+| `number.heat_pump_indoor_sensor_influence` | Indoor sensor influence | 0&nbsp;…&nbsp;10 |  |
 | `number.heat_pump_summer_disconnection` | Summer disconnection | 10&nbsp;…&nbsp;30 | ✅ |
 | `number.heat_pump_dhw_hysteresis` | DHW hysteresis | 2&nbsp;…&nbsp;15 | ✅ |
 
