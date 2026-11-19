@@ -49,7 +49,10 @@ _DESCRIPTIONS = {
     ),
     Type.CLOCK: SensorEntityDescription(
         key=Type.CLOCK.name,
-        device_class=SensorDeviceClass.TIMESTAMP,
+        native_unit_of_measurement=UnitOfTime.MINUTES,
+        device_class=SensorDeviceClass.DURATION,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=0,
     ),
 }
 
@@ -113,7 +116,13 @@ class RegoLastErrorSensorEntity(RegoSensorBase):
 
 
 class RegoClockSensorEntity(RegoSensorBase):
-    """The controller's date and time, with its offset to Home Assistant's clock."""
+    """How far the controller's clock is from Home Assistant's, in minutes.
+
+    The controller's date and time is an attribute.
+    """
+
+    # Changes on every read; the offset is what is worth keeping
+    _unrecorded_attributes = frozenset({"real_time_clock"})
 
     _offset: timedelta | None = None
 
@@ -133,10 +142,8 @@ class RegoClockSensorEntity(RegoSensorBase):
             return
 
         self._offset = offset
-        self._attr_native_value = controller
-        self._attr_extra_state_attributes = {
-            "offset_minutes": round(offset.total_seconds() / 60)
-        }
+        self._attr_native_value = round(offset.total_seconds() / 60)
+        self._attr_extra_state_attributes = {"real_time_clock": controller}
         self._attr_available = True
 
     async def _read_clock(self) -> tuple[datetime, timedelta]:

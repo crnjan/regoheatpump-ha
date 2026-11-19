@@ -1,11 +1,12 @@
-"""Tests for the real-time clock sensor."""
+"""Tests for the real-time clock offset sensor."""
 
 from datetime import datetime, timedelta
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, Mock
 from zoneinfo import ZoneInfo
 
-from homeassistant.components.sensor import SensorDeviceClass
+from homeassistant.components.sensor import SensorDeviceClass, SensorStateClass
+from homeassistant.const import UnitOfTime
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.util import dt as dt_util
 import pytest
@@ -61,23 +62,32 @@ async def test_only_rego_637_has_a_clock() -> None:
     assert "info-clock" not in await _sensors(RegoType.REGO636)
 
 
-async def test_clock_is_a_disabled_timestamp_sensor() -> None:
+async def test_clock_is_a_disabled_duration_sensor_in_minutes() -> None:
     entity = await _clock(AsyncMock())
 
-    assert entity.device_class == SensorDeviceClass.TIMESTAMP
+    assert entity.device_class == SensorDeviceClass.DURATION
+    assert entity.native_unit_of_measurement == UnitOfTime.MINUTES
+    assert entity.state_class == SensorStateClass.MEASUREMENT
     assert entity.entity_registry_enabled_default is False
 
 
-async def test_state_is_the_controller_time_in_the_home_assistant_time_zone() -> None:
+async def test_real_time_clock_attribute_is_not_recorded() -> None:
+    entity = await _clock(AsyncMock())
+
+    assert "real_time_clock" in entity._unrecorded_attributes
+
+
+async def test_state_is_the_offset_and_the_attribute_the_real_time_clock() -> None:
     read_clock = AsyncMock(return_value=_reading(_NOW + _AHEAD, _NOW))
     entity = await _clock(read_clock)
 
     await entity.async_update()
 
     assert entity.available
-    assert entity.native_value == _NOW + _AHEAD
-    assert entity.native_value.tzinfo == _ZONE
-    assert entity.extra_state_attributes == {"offset_minutes": 213}
+    assert entity.native_value == 213
+    real_time_clock = entity.extra_state_attributes["real_time_clock"]
+    assert real_time_clock == _NOW + _AHEAD
+    assert real_time_clock.tzinfo == _ZONE
 
 
 async def test_offset_is_negative_when_the_controller_is_behind() -> None:
@@ -88,7 +98,7 @@ async def test_offset_is_negative_when_the_controller_is_behind() -> None:
 
     await entity.async_update()
 
-    assert entity.extra_state_attributes == {"offset_minutes": -8}
+    assert entity.native_value == -8
 
 
 async def test_a_consistent_read_is_used_without_reading_again() -> None:
@@ -106,7 +116,9 @@ async def test_a_consistent_read_is_used_without_reading_again() -> None:
     await entity.async_update()
 
     assert read_clock.await_count == 2
-    assert entity.native_value == later + _AHEAD + timedelta(seconds=1)
+    assert entity.extra_state_attributes == {
+        "real_time_clock": later + _AHEAD + timedelta(seconds=1)
+    }
 
 
 async def test_a_torn_read_is_read_again() -> None:
@@ -125,8 +137,8 @@ async def test_a_torn_read_is_read_again() -> None:
     await entity.async_update()
 
     assert read_clock.await_count == 3
-    assert entity.native_value == later + _AHEAD
-    assert entity.extra_state_attributes == {"offset_minutes": 213}
+    assert entity.native_value == 213
+    assert entity.extra_state_attributes == {"real_time_clock": later + _AHEAD}
 
 
 async def test_a_clock_set_on_the_panel_is_accepted() -> None:
@@ -145,8 +157,8 @@ async def test_a_clock_set_on_the_panel_is_accepted() -> None:
     await entity.async_update()
 
     assert read_clock.await_count == 3
-    assert entity.native_value == later
-    assert entity.extra_state_attributes == {"offset_minutes": 0}
+    assert entity.native_value == 0
+    assert entity.extra_state_attributes == {"real_time_clock": later}
 
 
 @pytest.mark.parametrize("error", [RegoError("offline"), OSError("closed")])
