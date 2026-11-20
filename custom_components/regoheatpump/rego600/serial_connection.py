@@ -79,7 +79,7 @@ class SerialConnection(Connection):
         except (OSError, serialx.SerialException) as err:
             raise RegoError("Write failed") from err
 
-    async def clear_reader_buffer(self, timeout: float) -> bytes | None:
+    async def clear_reader_buffer(self, timeout: float) -> bytes | None:  # noqa: ASYNC109
         """Drain any pending bytes from the reader."""
         if self.__serial is None:
             raise RegoError("Reader is not opened")

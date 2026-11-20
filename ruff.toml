@@ -1,14 +1,19 @@
 # Oldest Python among the supported Home Assistant versions (see hacs.json)
-target-version = "py313"
+target-version = "py314"
 
 [lint]
 select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
-    "I",  # import sorting
-    "UP", # modern Python syntax
-    "B",  # likely bugs
+    "E",     # pycodestyle errors
+    "W",     # pycodestyle warnings
+    "F",     # pyflakes
+    "I",     # import sorting
+    "UP",    # modern Python syntax
+    "B",     # likely bugs
+    "ASYNC", # async pitfalls
+    "RUF",   # ruff-specific
+    "PT",    # pytest style
+    "SIM",   # simplifications
+    "C4",    # comprehensions
 ]
 # Line length is handled by the formatter
 ignore = ["E501"]

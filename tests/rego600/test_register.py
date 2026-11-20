@@ -156,7 +156,7 @@ def test_sensor_values_indoor_not_available():
     )
 
 
-# Rego 636 – verify that register addresses differ from Rego 637 where expected
+# Rego 636 - verify that register addresses differ from Rego 637 where expected
 
 
 def test_rego636_sensor_values_radiator_return():

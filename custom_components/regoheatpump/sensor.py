@@ -135,7 +135,7 @@ class RegoClockSensorEntity(RegoSensorBase):
                 # Either a minute rolled over during the read, or the clock was
                 # set. A second read tells: it cannot be torn again so soon.
                 offset = await self._read_clock()
-        except (OSError, RegoError):
+        except OSError, RegoError:
             self._attr_available = False
             return
 
