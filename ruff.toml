@@ -1,5 +1,5 @@
 # Oldest Python among the supported Home Assistant versions (see hacs.json)
-target-version = "py313"
+target-version = "py314"
 
 [lint]
 select = [
