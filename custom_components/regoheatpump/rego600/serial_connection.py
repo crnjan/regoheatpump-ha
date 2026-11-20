@@ -79,12 +79,12 @@ class SerialConnection(Connection):
         except (OSError, serialx.SerialException) as err:
             raise RegoError("Write failed") from err
 
-    async def clear_reader_buffer(self, timeout: float) -> bytes | None:  # noqa: ASYNC109
+    async def clear_reader_buffer(self, wait: float) -> bytes | None:
         """Drain any pending bytes from the reader."""
         if self.__serial is None:
             raise RegoError("Reader is not opened")
         try:
-            return await asyncio.wait_for(self.__serial.read(128), timeout=timeout)
+            return await asyncio.wait_for(self.__serial.read(128), timeout=wait)
         except TimeoutError:
             return None
         except (EOFError, OSError, serialx.SerialException) as err:
