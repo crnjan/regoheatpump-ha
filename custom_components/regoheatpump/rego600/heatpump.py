@@ -156,7 +156,7 @@ class HeatPump:
             # a command to the heat pump. After reconnect give more time to read any potential
             # leftovers from previous response.
             if buffer := await self.__connection.clear_reader_buffer(
-                timeout=1 if is_reconnect else 0.08
+                wait=1 if is_reconnect else 0.08
             ):
                 _LOGGER.debug(
                     "There are %d unexpected bytes available. Skipping '%s'",

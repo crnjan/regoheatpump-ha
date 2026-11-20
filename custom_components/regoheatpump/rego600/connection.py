@@ -28,5 +28,5 @@ class Connection(ABC):
         """Write bytes to the transport."""
 
     @abstractmethod
-    async def clear_reader_buffer(self, timeout: float) -> bytes | None:  # noqa: ASYNC109
+    async def clear_reader_buffer(self, wait: float) -> bytes | None:
         """Drain any pending bytes from the reader."""
